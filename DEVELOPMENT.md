@@ -37,7 +37,7 @@ Never commit `.env`, databases, tokens or real customer data.
 client/src/
   components/   shared and domain UI
   hooks/        data access and view state
-  i18n/         language configuration and ES/EN catalogues
+  i18n/         language configuration and ES/EN/DE/DE-CH catalogues
   lib/          API, date and localization helpers
   pages/        route-level screens
 
@@ -57,7 +57,8 @@ docs/           maintained technical and release documentation
 - Keep authorization in server middleware and services; hiding a button is not a security control.
 - Validate external input before it reaches domain services.
 - Keep business rules out of React components.
-- Add visible interface text to both translation catalogues.
+- Add visible interface text to the Spanish, English and German catalogues.
+- Add a `de-CH` override only when Swiss spelling or regional wording differs from standard German.
 - Do not automatically translate names or content entered by users.
 - Add or update tests for authentication, authorization, reservation and waitlist rules.
 - Use `.js` extensions for relative server imports because the server compiles as Node ESM.
@@ -82,6 +83,6 @@ The current MVP initializes SQLite tables from `server/db/client.ts`. Before pro
 1. Identify the relevant domain and permission level.
 2. Add server validation, authorization and service logic first when data changes are involved.
 3. Add the route and typed client integration.
-4. Add Spanish and English strings.
+4. Add Spanish, English and German strings plus any necessary Swiss German override.
 5. Cover critical behavior with tests.
 6. Run the complete validation sequence.

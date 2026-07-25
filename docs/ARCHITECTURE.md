@@ -38,7 +38,9 @@ Roles describe authorization. Authentication proves the current identity; server
 
 ## Localization
 
-`i18next` manages interface text and language selection. Browser `Intl` handles locale-sensitive dates and numbers. Spanish and English catalogues live in `client/src/i18n/locales`.
+`i18next` manages interface text and language selection. Browser `Intl` handles locale-sensitive dates, time zones, numbers and currencies. Spanish, English and standard German catalogues live in `client/src/i18n/locales`; `de-CH` supplies Swiss Standard German spelling and regional overrides while inheriting the common German catalogue.
+
+The billing currency allowlist includes Swiss francs (`CHF`). Amounts are formatted by `Intl.NumberFormat` with the active interface locale, so German and Swiss German use their corresponding regional conventions without custom separators.
 
 Known demo classes are localized at display time. User-created names and descriptions remain exactly as entered.
 

@@ -1,6 +1,6 @@
 # HubFit
 
-HubFit is a modular gym-management application for classes, bookings, waitlists, users, trainers and activity analytics. The interface is responsive and available in Spanish and English.
+HubFit is a modular gym-management application for classes, bookings, waitlists, users, trainers and activity analytics. The responsive interface supports Spanish, English, German and Swiss Standard German.
 
 > Project status: active MVP development. HubFit is not yet ready for commercial production or real payments.
 
@@ -12,7 +12,7 @@ HubFit is a modular gym-management application for classes, bookings, waitlists,
 - Member, trainer and administrator dashboards.
 - User and class administration.
 - Attendance export to CSV.
-- Spanish and English interface with persisted language selection.
+- Spanish, English, German and Swiss Standard German interface with persisted language selection.
 - Public legal notice, terms and conditions, and conditions of use drafts.
 - Security headers, restricted CORS, request limits, rate limiting and input validation.
 

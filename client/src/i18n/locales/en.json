@@ -30,7 +30,13 @@
     "unauthorized": "You do not have permission to access this section",
     "backHome": "Back to home"
   },
-  "language": { "label": "Language", "es": "Español", "en": "English" },
+  "language": {
+    "label": "Language",
+    "es": "Español",
+    "en": "English",
+    "de": "Deutsch",
+    "deCH": "Deutsch (Schweiz)"
+  },
   "roles": { "member": "Member", "trainer": "Trainer", "admin": "Admin" },
   "nav": {
     "home": "Home",
@@ -542,6 +548,7 @@
     },
     "currencies": {
       "EUR": "Euro",
+      "CHF": "Swiss franc",
       "USD": "US dollar",
       "GBP": "Pound sterling",
       "CAD": "Canadian dollar",

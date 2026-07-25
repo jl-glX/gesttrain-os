@@ -1,22 +1,31 @@
 import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
+import deCh from "./locales/de-CH.json";
+import de from "./locales/de.json";
 import en from "./locales/en.json";
 import es from "./locales/es.json";
 
-const supportedLanguages = ["es", "en"] as const;
+export const supportedLanguages = ["es", "en", "de", "de-CH"] as const;
 
 void i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources: {
+      de: { translation: de },
+      "de-CH": { translation: deCh },
       en: { translation: en },
       es: { translation: es },
     },
-    fallbackLng: "es",
+    fallbackLng: {
+      "de-CH": ["de", "en"],
+      de: ["en"],
+      default: ["es"],
+    },
     supportedLngs: supportedLanguages,
-    load: "languageOnly",
+    load: "all",
+    nonExplicitSupportedLngs: false,
     detection: {
       order: ["localStorage", "navigator"],
       lookupLocalStorage: "hubfit-language",

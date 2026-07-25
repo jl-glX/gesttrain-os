@@ -1,0 +1,22 @@
+{
+  "common": {
+    "close": "Schliessen"
+  },
+  "language": {
+    "label": "Sprache",
+    "es": "Spanisch",
+    "en": "Englisch",
+    "de": "Deutsch",
+    "deCH": "Deutsch (Schweiz)"
+  },
+  "billing": {
+    "currencies": {
+      "CHF": "Schweizer Franken"
+    },
+    "pdfHint": "Die PDF-Option öffnet den Druckdialog deines Geräts. Wähle dort «Als PDF sichern».",
+    "timeZone": {
+      "label": "Zeitzone des Geräts",
+      "hint": "Datumsangaben werden automatisch auf Deutsch (Schweiz) sowie in der Zeitzone von Browser und System angezeigt."
+    }
+  }
+}

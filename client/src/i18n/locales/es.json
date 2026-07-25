@@ -33,7 +33,9 @@
   "language": {
     "label": "Idioma",
     "es": "Español",
-    "en": "English"
+    "en": "English",
+    "de": "Alemán",
+    "deCH": "Alemán (Suiza)"
   },
   "roles": {
     "member": "Socio",
@@ -550,6 +552,7 @@
     },
     "currencies": {
       "EUR": "Euro",
+      "CHF": "Franco suizo",
       "USD": "Dólar estadounidense",
       "GBP": "Libra esterlina",
       "CAD": "Dólar canadiense",

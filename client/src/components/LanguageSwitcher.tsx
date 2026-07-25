@@ -11,7 +11,10 @@ export function LanguageSwitcher({
   inverted = false,
 }: LanguageSwitcherProps) {
   const { i18n, t } = useTranslation();
-  const language = i18n.resolvedLanguage?.split("-")[0] ?? "es";
+  const resolvedLanguage = i18n.resolvedLanguage ?? "es";
+  const language = resolvedLanguage.toLowerCase().startsWith("de-ch")
+    ? "de-CH"
+    : resolvedLanguage.split("-")[0];
 
   return (
     <label
@@ -27,6 +30,8 @@ export function LanguageSwitcher({
       >
         <option value="es">{compact ? "ES" : t("language.es")}</option>
         <option value="en">{compact ? "EN" : t("language.en")}</option>
+        <option value="de">{compact ? "DE" : t("language.de")}</option>
+        <option value="de-CH">{compact ? "CH" : t("language.deCH")}</option>
       </select>
     </label>
   );

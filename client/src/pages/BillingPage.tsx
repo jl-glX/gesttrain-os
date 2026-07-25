@@ -29,6 +29,7 @@ const CURRENCY_KEY = "hubfit-billing-currency";
 type RecordFilter = "active" | "archived" | "all";
 const billingCurrencies = [
   "EUR",
+  "CHF",
   "USD",
   "GBP",
   "CAD",
