@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   ShoppingBag,
   Timer,
+  Trash2,
   UserRound,
   type LucideIcon,
 } from "lucide-react";
@@ -72,6 +73,12 @@ export function AccountControlPage() {
       icon: ShieldCheck,
       title: t("accountControl.security"),
       description: t("accountControl.securityDescription"),
+    },
+    {
+      to: "/account/lifecycle",
+      icon: Trash2,
+      title: t("accountControl.lifecycle"),
+      description: t("accountControl.lifecycleDescription"),
     },
     {
       to: "/downloads",

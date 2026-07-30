@@ -24,6 +24,24 @@ interface AccountSupportIdentifier {
   revokedAt: number | null;
 }
 
+interface AccountDeletionPreference {
+  userId: string;
+  inactivityMonths: number | null;
+  lastMeaningfulActivityAt: number;
+  updatedAt: number;
+}
+
+interface AccountDeletionRequest {
+  id: string;
+  userId: string;
+  trigger: "manual" | "inactivity";
+  status: "scheduled" | "cancelled" | "processing" | "completed";
+  requestedAt: number;
+  graceEndsAt: number;
+  cancelledAt: number | null;
+  completedAt: number | null;
+}
+
 interface GymClass {
   id: string;
   name: string;
@@ -167,6 +185,8 @@ interface DelegationGrant {
 export interface Database {
   users: User;
   accountSupportIdentifiers: AccountSupportIdentifier;
+  accountDeletionPreferences: AccountDeletionPreference;
+  accountDeletionRequests: AccountDeletionRequest;
   gymClasses: GymClass;
   bookings: Booking;
   waitlistEntries: WaitlistEntry;

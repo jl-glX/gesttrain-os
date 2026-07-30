@@ -15,7 +15,10 @@ export type SecurityEventType =
   | "recovery_codes_regenerated"
   | "session_revoked"
   | "all_other_sessions_revoked"
-  | "support_id_rotated";
+  | "support_id_rotated"
+  | "deletion_preference_updated"
+  | "account_deletion_scheduled"
+  | "account_deletion_cancelled";
 
 export async function recordSecurityEvent(
   type: SecurityEventType,

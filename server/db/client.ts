@@ -175,6 +175,42 @@ export async function initializeDatabase() {
     }
   }
 
+  if (!tableNames.includes("accountDeletionPreferences")) {
+    console.log("Creating account deletion preferences table...");
+    sqliteDb.exec(`
+      CREATE TABLE accountDeletionPreferences (
+        userId TEXT PRIMARY KEY,
+        inactivityMonths INTEGER CHECK(inactivityMonths IS NULL OR inactivityMonths IN (6, 12, 18, 24, 36)),
+        lastMeaningfulActivityAt INTEGER NOT NULL,
+        updatedAt INTEGER NOT NULL,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+      );
+    `);
+  }
+
+  if (!tableNames.includes("accountDeletionRequests")) {
+    console.log("Creating account deletion requests table...");
+    sqliteDb.exec(`
+      CREATE TABLE accountDeletionRequests (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        trigger TEXT NOT NULL CHECK(trigger IN ('manual', 'inactivity')),
+        status TEXT NOT NULL CHECK(status IN ('scheduled', 'cancelled', 'processing', 'completed')),
+        requestedAt INTEGER NOT NULL,
+        graceEndsAt INTEGER NOT NULL,
+        cancelledAt INTEGER,
+        completedAt INTEGER,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+      );
+      CREATE INDEX idx_deletionRequests_userId ON accountDeletionRequests(userId);
+      CREATE INDEX idx_deletionRequests_status_grace
+        ON accountDeletionRequests(status, graceEndsAt);
+      CREATE UNIQUE INDEX idx_deletionRequests_scheduled_user
+        ON accountDeletionRequests(userId)
+        WHERE status = 'scheduled';
+    `);
+  }
+
   if (!tableNames.includes("gymClasses")) {
     console.log("Creating gymClasses table...");
     sqliteDb.exec(`
