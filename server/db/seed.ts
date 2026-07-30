@@ -87,19 +87,41 @@ const DEMO_USERS = [
   },
 ];
 
+async function findSeedUser(id: string, email: string) {
+  const byId = await db
+    .selectFrom("users")
+    .selectAll()
+    .where("id", "=", id)
+    .executeTakeFirst();
+
+  if (byId) {
+    return byId;
+  }
+
+  return db
+    .selectFrom("users")
+    .selectAll()
+    .where("email", "=", email)
+    .executeTakeFirst();
+}
+
 export async function seedDatabase() {
   console.log("Seeding database with demo data...");
 
   try {
     // Seed admin user
     try {
-      const existingAdmin = await db
+      const existingAdmin = await findSeedUser(ADMIN_USER.id, ADMIN_USER.email);
+      const phoneOwner = await db
         .selectFrom("users")
         .selectAll()
-        .where("email", "=", ADMIN_USER.email)
+        .where("phone", "=", ADMIN_USER.phone)
         .executeTakeFirst();
-
       const hashedPassword = await hashPassword(ADMIN_USER.password);
+      const availablePhone =
+        !phoneOwner || phoneOwner.id === existingAdmin?.id
+          ? ADMIN_USER.phone
+          : (existingAdmin?.phone ?? null);
 
       if (existingAdmin) {
         console.log("Updating admin user...");
@@ -109,9 +131,10 @@ export async function seedDatabase() {
             password: hashedPassword,
             role: "admin",
             name: ADMIN_USER.name,
-            phone: ADMIN_USER.phone,
+            email: ADMIN_USER.email,
+            phone: availablePhone,
           })
-          .where("email", "=", ADMIN_USER.email)
+          .where("id", "=", existingAdmin.id)
           .execute();
       } else {
         await db
@@ -119,7 +142,7 @@ export async function seedDatabase() {
           .values({
             id: ADMIN_USER.id,
             email: ADMIN_USER.email,
-            phone: ADMIN_USER.phone,
+            phone: availablePhone,
             name: ADMIN_USER.name,
             avatarDataUrl: "",
             password: hashedPassword,
@@ -137,11 +160,7 @@ export async function seedDatabase() {
     for (const trainer of TRAINERS) {
       try {
         // Check if user exists
-        const existingUser = await db
-          .selectFrom("users")
-          .selectAll()
-          .where("email", "=", trainer.email)
-          .executeTakeFirst();
+        const existingUser = await findSeedUser(trainer.id, trainer.email);
 
         const hashedPassword = await hashPassword(trainer.password);
 
@@ -154,8 +173,9 @@ export async function seedDatabase() {
               password: hashedPassword,
               role: "trainer",
               name: trainer.name,
+              email: trainer.email,
             })
-            .where("email", "=", trainer.email)
+            .where("id", "=", existingUser.id)
             .execute();
         } else {
           // Insert new trainer
@@ -185,11 +205,7 @@ export async function seedDatabase() {
         const userId = `user-${user.email.split("@")[0]}`;
 
         // Check if user exists
-        const existingUser = await db
-          .selectFrom("users")
-          .selectAll()
-          .where("email", "=", user.email)
-          .executeTakeFirst();
+        const existingUser = await findSeedUser(userId, user.email);
 
         const hashedPassword = await hashPassword(user.password);
 
@@ -202,8 +218,9 @@ export async function seedDatabase() {
               password: hashedPassword,
               role: user.role,
               name: user.name,
+              email: user.email,
             })
-            .where("email", "=", user.email)
+            .where("id", "=", existingUser.id)
             .execute();
         } else {
           // Insert new user

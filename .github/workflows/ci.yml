@@ -20,14 +20,14 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20.19.0
+          node-version: 24.15.0
           cache: npm
+
+      - name: Use the pinned npm release
+        run: npm install --global npm@12.0.2
 
       - name: Install locked dependencies
         run: npm ci
 
-      - name: Validate code and production builds
-        run: npm run check
-
-      - name: Audit production and development dependencies
-        run: npm audit --audit-level=moderate
+      - name: Validate code, builds and dependency security
+        run: npm run ci:validate

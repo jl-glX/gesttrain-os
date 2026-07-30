@@ -2,8 +2,8 @@
 
 ## Requirements
 
-- Node.js 20.19 or newer.
-- npm with lockfile support.
+- Node.js 24.15.x.
+- npm 12.0.x.
 
 ## Installation and local execution
 
@@ -67,12 +67,14 @@ docs/           maintained technical and release documentation
 
 ```bash
 npm run format
-npm run check
-npm audit
+npm run CI
 git diff --check
 ```
 
-`npm run check` verifies formatting, lint, client/server TypeScript, tests and production builds. Do not use `npm audit fix --force` without reviewing compatibility and rerunning the complete checks.
+`npm run CI` performs a clean locked install, verifies formatting, lint,
+client/server TypeScript, tests and production builds, and audits dependencies.
+The dependency maintenance rules and intentional compatibility holds are
+documented in `docs/dependency-policy.md`.
 
 ## Database changes
 

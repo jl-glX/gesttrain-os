@@ -33,7 +33,7 @@ export default tseslint.config(
   {
     files: [
       "server/**/*.ts",
-      "scripts/**/*.ts",
+      "scripts/**/*.{ts,mjs}",
       "vite.config.js",
       "vitest.config.ts",
     ],
