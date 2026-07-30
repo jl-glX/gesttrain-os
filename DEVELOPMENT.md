@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Node.js 24.15.x.
+- Node.js 26.5.x.
 - npm 12.0.x.
 
 ## Installation and local execution
@@ -62,6 +62,9 @@ docs/           maintained technical and release documentation
 - Do not automatically translate names or content entered by users.
 - Add or update tests for authentication, authorization, reservation and waitlist rules.
 - Use `.js` extensions for relative server imports because the server compiles as Node ESM.
+- Use TypeScript 7 for compilation. TypeScript 6 remains installed only as the
+  programmatic API required by ESLint until that API is available in the native
+  compiler.
 
 ## Before review
 

@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { Trash2, Edit2, Plus } from "lucide-react";
 import { Button } from "./ui/button";
-import { useUsers, type User } from "../hooks/useUsers";
+import {
+  isUserRole,
+  useUsers,
+  type User,
+  type UserRole,
+} from "../hooks/useUsers";
 import { UserForm } from "./UserForm";
 import { formatDate } from "../lib/dateUtils";
 import { useTranslation } from "react-i18next";
@@ -20,9 +25,7 @@ export function UserManagement() {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [filterRole, setFilterRole] = useState<
-    "all" | "member" | "trainer" | "admin"
-  >("all");
+  const [filterRole, setFilterRole] = useState<"all" | UserRole>("all");
 
   const filteredUsers =
     filterRole === "all" ? users : users.filter((u) => u.role === filterRole);
@@ -67,10 +70,7 @@ export function UserManagement() {
     }
   };
 
-  const handleRoleChange = async (
-    userId: string,
-    newRole: "member" | "trainer" | "admin",
-  ) => {
+  const handleRoleChange = async (userId: string, newRole: UserRole) => {
     try {
       await updateUserRole(userId, newRole);
     } catch (err) {
@@ -113,7 +113,12 @@ export function UserManagement() {
           </label>
           <select
             value={filterRole}
-            onChange={(e) => setFilterRole(e.target.value as any)}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value === "all" || isUserRole(value)) {
+                setFilterRole(value);
+              }
+            }}
             className="px-3 py-2 border border-gray-300 rounded-md text-sm"
           >
             <option value="all">{t("admin.allRoles")}</option>
@@ -201,9 +206,11 @@ export function UserManagement() {
                   <td className="px-4 py-3">
                     <select
                       value={user.role}
-                      onChange={(e) =>
-                        handleRoleChange(user.id, e.target.value as any)
-                      }
+                      onChange={(e) => {
+                        if (isUserRole(e.target.value)) {
+                          void handleRoleChange(user.id, e.target.value);
+                        }
+                      }}
                       className="px-2 py-1 border border-gray-300 rounded text-sm"
                     >
                       <option value="member">{t("roles.member")}</option>

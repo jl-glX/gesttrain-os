@@ -5,14 +5,17 @@ committed lockfile as the reproducible source for installations.
 
 ## Supported toolchain
 
-- Node.js 24.15.x
+- Node.js 26.5.x
 - npm 12.0.x
-- TypeScript 6.0.x while `typescript-eslint` requires TypeScript `<6.1`
-- Node 24 type definitions while Node 24 is the supported runtime
+- TypeScript 7.0.x as the native project compiler
+- TypeScript 6.0.x only as the temporary programmatic API consumed by
+  `typescript-eslint`
+- Node 26 type definitions aligned with the supported runtime
 
-These compatibility holds are deliberate. They should be removed only after
-the complete lint, typecheck, test, build and audit sequence passes with the
-next toolchain generation.
+The dual TypeScript installation follows the upstream TypeScript 7 migration
+guidance. Remove the TypeScript 6 alias when the native compiler exposes the
+programmatic API required by lint tooling and the complete validation sequence
+still passes.
 
 ## Safe update workflow
 

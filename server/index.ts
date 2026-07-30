@@ -126,7 +126,7 @@ export async function startServer(port: string | number): Promise<Server> {
   }
 }
 
-function stopServer(server: Server): void {
+export function stopServer(server: Server): void {
   console.log("Shutting down gracefully...");
   stopResourceManager();
   server.close((error) => {

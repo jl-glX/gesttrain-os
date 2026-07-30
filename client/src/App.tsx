@@ -7,36 +7,97 @@ import {
 } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { useAuth } from "./hooks/useAuth";
-import { HomePage } from "./pages/HomePage";
-import { ClassesPage } from "./pages/ClassesPage";
-import { MyBookingsPage } from "./pages/MyBookingsPage";
-import { LoginPage } from "./pages/LoginPage";
-import { SignupPage } from "./pages/SignupPage";
-import { TrainerDashboardPage } from "./pages/TrainerDashboardPage";
-import { AdminDashboardPage } from "./pages/AdminDashboardPage";
-import { ActivityDashboardPage } from "./pages/ActivityDashboardPage";
-import { TrainerAnalyticsDashboardPage } from "./pages/TrainerAnalyticsDashboardPage";
-import { AdminAnalyticsDashboardPage } from "./pages/AdminAnalyticsDashboardPage";
 import { Navigation } from "./components/Navigation";
-import { UnauthorizedPage } from "./pages/UnauthorizedPage";
 import { useTranslation } from "react-i18next";
-import {
-  ConditionsOfUsePage,
-  LegalNoticePage,
-  TermsAndConditionsPage,
-} from "./pages/LegalPage";
-import { AccountSecurityPage } from "./pages/AccountSecurityPage";
-import { FeedbackPage } from "./pages/FeedbackPage";
-import { MemberPaymentsPage } from "./pages/MemberPaymentsPage";
-import { AccountControlPage } from "./pages/AccountControlPage";
-import { WorkoutTimerPage } from "./pages/WorkoutTimerPage";
-import { DownloadsPage } from "./pages/DownloadsPage";
-import { ResourceManagerPage } from "./pages/ResourceManagerPage";
 
-const BillingPage = lazy(() =>
-  import("./pages/BillingPage").then((module) => ({
-    default: module.BillingPage,
-  })),
+function lazyPage<TModule, TKey extends keyof TModule>(
+  loader: () => Promise<TModule>,
+  exportName: TKey,
+) {
+  return lazy(async () => {
+    const module = await loader();
+    return { default: module[exportName] as React.ComponentType };
+  });
+}
+
+const HomePage = lazyPage(() => import("./pages/HomePage"), "HomePage");
+const ClassesPage = lazyPage(
+  () => import("./pages/ClassesPage"),
+  "ClassesPage",
+);
+const MyBookingsPage = lazyPage(
+  () => import("./pages/MyBookingsPage"),
+  "MyBookingsPage",
+);
+const LoginPage = lazyPage(() => import("./pages/LoginPage"), "LoginPage");
+const SignupPage = lazyPage(() => import("./pages/SignupPage"), "SignupPage");
+const TrainerDashboardPage = lazyPage(
+  () => import("./pages/TrainerDashboardPage"),
+  "TrainerDashboardPage",
+);
+const AdminDashboardPage = lazyPage(
+  () => import("./pages/AdminDashboardPage"),
+  "AdminDashboardPage",
+);
+const ActivityDashboardPage = lazyPage(
+  () => import("./pages/ActivityDashboardPage"),
+  "ActivityDashboardPage",
+);
+const TrainerAnalyticsDashboardPage = lazyPage(
+  () => import("./pages/TrainerAnalyticsDashboardPage"),
+  "TrainerAnalyticsDashboardPage",
+);
+const AdminAnalyticsDashboardPage = lazyPage(
+  () => import("./pages/AdminAnalyticsDashboardPage"),
+  "AdminAnalyticsDashboardPage",
+);
+const UnauthorizedPage = lazyPage(
+  () => import("./pages/UnauthorizedPage"),
+  "UnauthorizedPage",
+);
+const LegalNoticePage = lazyPage(
+  () => import("./pages/LegalPage"),
+  "LegalNoticePage",
+);
+const TermsAndConditionsPage = lazyPage(
+  () => import("./pages/LegalPage"),
+  "TermsAndConditionsPage",
+);
+const ConditionsOfUsePage = lazyPage(
+  () => import("./pages/LegalPage"),
+  "ConditionsOfUsePage",
+);
+const AccountSecurityPage = lazyPage(
+  () => import("./pages/AccountSecurityPage"),
+  "AccountSecurityPage",
+);
+const FeedbackPage = lazyPage(
+  () => import("./pages/FeedbackPage"),
+  "FeedbackPage",
+);
+const MemberPaymentsPage = lazyPage(
+  () => import("./pages/MemberPaymentsPage"),
+  "MemberPaymentsPage",
+);
+const AccountControlPage = lazyPage(
+  () => import("./pages/AccountControlPage"),
+  "AccountControlPage",
+);
+const WorkoutTimerPage = lazyPage(
+  () => import("./pages/WorkoutTimerPage"),
+  "WorkoutTimerPage",
+);
+const DownloadsPage = lazyPage(
+  () => import("./pages/DownloadsPage"),
+  "DownloadsPage",
+);
+const ResourceManagerPage = lazyPage(
+  () => import("./pages/ResourceManagerPage"),
+  "ResourceManagerPage",
+);
+const BillingPage = lazyPage(
+  () => import("./pages/BillingPage"),
+  "BillingPage",
 );
 
 type UserRole = "member" | "trainer" | "admin";
@@ -101,146 +162,146 @@ function AppContent() {
   return (
     <>
       {user && !isLegalPage && <Navigation />}
-      <Routes>
-        <Route
-          path="/"
-          element={user ? <HomePage /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/classes"
-          element={
-            <ProtectedRoute>
-              <ClassesPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/my-bookings"
-          element={
-            <ProtectedRoute>
-              <MyBookingsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/account"
-          element={
-            <ProtectedRoute>
-              <AccountControlPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/account/security"
-          element={
-            <ProtectedRoute>
-              <AccountSecurityPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/my-payments"
-          element={
-            <ProtectedRoute requiredRole="member">
-              <MemberPaymentsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/workout-timer"
-          element={
-            <ProtectedRoute requiredRole="member">
-              <WorkoutTimerPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/downloads"
-          element={
-            <ProtectedRoute>
-              <DownloadsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/resource-manager"
-          element={
-            <ProtectedRoute requiredRole="admin">
-              <ResourceManagerPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/billing"
-          element={
-            <ProtectedRoute requiredRole="admin">
-              <Suspense
-                fallback={
-                  <div className="flex min-h-screen items-center justify-center text-slate-600">
-                    {t("common.loading")}
-                  </div>
-                }
-              >
+      <Suspense
+        fallback={
+          <div className="flex min-h-screen items-center justify-center text-slate-600">
+            {t("common.loading")}
+          </div>
+        }
+      >
+        <Routes>
+          <Route
+            path="/"
+            element={user ? <HomePage /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/classes"
+            element={
+              <ProtectedRoute>
+                <ClassesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-bookings"
+            element={
+              <ProtectedRoute>
+                <MyBookingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/account"
+            element={
+              <ProtectedRoute>
+                <AccountControlPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/account/security"
+            element={
+              <ProtectedRoute>
+                <AccountSecurityPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-payments"
+            element={
+              <ProtectedRoute requiredRole="member">
+                <MemberPaymentsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/workout-timer"
+            element={
+              <ProtectedRoute requiredRole="member">
+                <WorkoutTimerPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/downloads"
+            element={
+              <ProtectedRoute>
+                <DownloadsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/resource-manager"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <ResourceManagerPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/billing"
+            element={
+              <ProtectedRoute requiredRole="admin">
                 <BillingPage />
-              </Suspense>
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/feedback" element={<FeedbackPage />} />
-        <Route
-          path="/trainer-dashboard"
-          element={
-            <ProtectedRoute requiredRole="trainer">
-              <TrainerDashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin-dashboard"
-          element={
-            <ProtectedRoute requiredRole="admin">
-              <AdminDashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/activity-dashboard"
-          element={
-            <ProtectedRoute requiredRole="member">
-              <ActivityDashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/trainer-analytics"
-          element={
-            <ProtectedRoute requiredRole="trainer">
-              <TrainerAnalyticsDashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin-analytics"
-          element={
-            <ProtectedRoute requiredRole="admin">
-              <AdminAnalyticsDashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/unauthorized" element={<UnauthorizedPage />} />
-        <Route path="/legal-notice" element={<LegalNoticePage />} />
-        <Route
-          path="/terms-and-conditions"
-          element={<TermsAndConditionsPage />}
-        />
-        <Route path="/conditions-of-use" element={<ConditionsOfUsePage />} />
-        <Route
-          path="*"
-          element={<Navigate to={user ? "/" : "/login"} replace />}
-        />
-      </Routes>
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/feedback" element={<FeedbackPage />} />
+          <Route
+            path="/trainer-dashboard"
+            element={
+              <ProtectedRoute requiredRole="trainer">
+                <TrainerDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/activity-dashboard"
+            element={
+              <ProtectedRoute requiredRole="member">
+                <ActivityDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/trainer-analytics"
+            element={
+              <ProtectedRoute requiredRole="trainer">
+                <TrainerAnalyticsDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-analytics"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminAnalyticsDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/unauthorized" element={<UnauthorizedPage />} />
+          <Route path="/legal-notice" element={<LegalNoticePage />} />
+          <Route
+            path="/terms-and-conditions"
+            element={<TermsAndConditionsPage />}
+          />
+          <Route path="/conditions-of-use" element={<ConditionsOfUsePage />} />
+          <Route
+            path="*"
+            element={<Navigate to={user ? "/" : "/login"} replace />}
+          />
+        </Routes>
+      </Suspense>
     </>
   );
 }

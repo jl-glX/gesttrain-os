@@ -50,7 +50,16 @@ function runNpm(args) {
 
 const before = await snapshot();
 
-runNpm(["ci", "--ignore-scripts=false"]);
+// Dependency auditing runs after the complete validation suite. Disabling the
+// duplicate install-time audit keeps clean installs deterministic and avoids a
+// second registry request before tests have even started.
+runNpm([
+  "ci",
+  "--ignore-scripts=false",
+  "--audit=false",
+  "--fund=false",
+  "--prefer-offline",
+]);
 runNpm(["run", "ci:validate"]);
 
 const after = await snapshot();

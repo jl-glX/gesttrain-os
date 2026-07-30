@@ -9,8 +9,8 @@ import { FacilityProfileProvider } from "./components/FacilityProfileProvider";
 
 const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
-function updateDarkClass(e = null) {
-  const isDark = e ? e.matches : darkQuery.matches;
+function updateDarkClass(event?: MediaQueryListEvent) {
+  const isDark = event?.matches ?? darkQuery.matches;
   document.documentElement.classList.toggle("dark", isDark);
 }
 

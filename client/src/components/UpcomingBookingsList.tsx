@@ -2,24 +2,11 @@ import { Card } from "./ui/card";
 import { formatDate, formatTime } from "../lib/dateUtils";
 import { useTranslation } from "react-i18next";
 import { localizeClass } from "../lib/classLocalization";
-
-interface UpcomingBooking {
-  id: string;
-  classId: string;
-  userId: string;
-  status: string;
-  createdAt: number;
-  cancelledAt: number | null;
-  name?: string;
-  description?: string;
-  scheduledAt?: number;
-  maxCapacity?: number;
-  trainerName?: string;
-}
+import type { UpcomingScheduleItem } from "../hooks/useAnalytics";
 
 interface UpcomingBookingsListProps {
   title: string;
-  data: UpcomingBooking[];
+  data: UpcomingScheduleItem[];
   limit?: number;
 }
 

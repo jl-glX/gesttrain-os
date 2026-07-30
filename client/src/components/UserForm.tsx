@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { useUsers, type User } from "../hooks/useUsers";
+import {
+  isUserRole,
+  useUsers,
+  type User,
+  type UserUpdate,
+} from "../hooks/useUsers";
 import { useTranslation } from "react-i18next";
 import { PasswordInput } from "./PasswordInput";
 
@@ -40,7 +45,7 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
       }
 
       if (user) {
-        const updates: any = {
+        const updates: UserUpdate = {
           email: formData.email,
           name: formData.name,
           role: formData.role,
@@ -129,9 +134,11 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
             </label>
             <select
               value={formData.role}
-              onChange={(e) =>
-                setFormData({ ...formData, role: e.target.value as any })
-              }
+              onChange={(e) => {
+                if (isUserRole(e.target.value)) {
+                  setFormData({ ...formData, role: e.target.value });
+                }
+              }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
             >
               <option value="member">{t("roles.member")}</option>

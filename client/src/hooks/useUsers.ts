@@ -5,8 +5,22 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: "member" | "trainer" | "admin";
+  role: UserRole;
   createdAt: number;
+}
+
+export const USER_ROLES = ["member", "trainer", "admin"] as const;
+export type UserRole = (typeof USER_ROLES)[number];
+
+export interface UserUpdate {
+  email?: string;
+  name?: string;
+  password?: string;
+  role?: UserRole;
+}
+
+export function isUserRole(value: string): value is UserRole {
+  return USER_ROLES.some((role) => role === value);
 }
 
 export function useUsers() {
@@ -43,7 +57,7 @@ export function useUsers() {
     email: string;
     name: string;
     password: string;
-    role?: "member" | "trainer" | "admin";
+    role?: UserRole;
   }): Promise<User> => {
     try {
       const response = await authFetch("/api/users", {
@@ -66,15 +80,7 @@ export function useUsers() {
     }
   };
 
-  const updateUser = async (
-    id: string,
-    updates: {
-      email?: string;
-      name?: string;
-      password?: string;
-      role?: "member" | "trainer" | "admin";
-    },
-  ): Promise<User> => {
+  const updateUser = async (id: string, updates: UserUpdate): Promise<User> => {
     try {
       const response = await authFetch(`/api/users/${id}`, {
         method: "PUT",
@@ -96,10 +102,7 @@ export function useUsers() {
     }
   };
 
-  const updateUserRole = async (
-    id: string,
-    role: "member" | "trainer" | "admin",
-  ): Promise<User> => {
+  const updateUserRole = async (id: string, role: UserRole): Promise<User> => {
     try {
       const response = await authFetch(`/api/users/${id}/role`, {
         method: "PATCH",

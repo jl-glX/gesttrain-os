@@ -54,6 +54,21 @@ export interface MemberMetric {
   memberJoinedThisMonth: number;
 }
 
+export interface UpcomingScheduleItem {
+  id: string;
+  classId?: string;
+  userId?: string;
+  status?: string;
+  createdAt?: number;
+  cancelledAt?: number | null;
+  name?: string;
+  description?: string;
+  scheduledAt?: number;
+  maxCapacity?: number;
+  trainerId?: string;
+  trainerName?: string;
+}
+
 export function useMonthlyMetrics(year: number, month: number) {
   const [data, setData] = useState<MonthlyMetric | null>(null);
   const [loading, setLoading] = useState(false);
@@ -236,7 +251,7 @@ export function useMemberMetrics() {
 }
 
 export function useUpcomingBookings(userId: string) {
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<UpcomingScheduleItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -268,7 +283,7 @@ export function useUpcomingBookings(userId: string) {
 }
 
 export function useTrainerUpcomingClasses(trainerId: string) {
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<UpcomingScheduleItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
