@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../hooks/useAuth";
 import { ProfilePhotoSettings } from "../components/ProfilePhotoSettings";
 import { DelegationManager } from "../components/DelegationManager";
+import { AccountSupportIdentifier } from "../components/AccountSupportIdentifier";
 
 interface AccountShortcut {
   to: string;
@@ -191,6 +192,8 @@ export function AccountControlPage() {
             </div>
           </div>
         </header>
+
+        <AccountSupportIdentifier />
 
         <section className="mt-8">
           <p className="text-sm font-bold uppercase tracking-[0.18em] text-blue-700">
