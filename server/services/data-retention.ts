@@ -10,6 +10,14 @@ export interface DraftRetentionPolicyInput {
   legalBasisReference?: string;
 }
 
+const ACCOUNT_DATA_CATEGORIES = [
+  "account_profile",
+  "preferences",
+  "bookings",
+  "billing_records",
+  "security_events",
+] as const;
+
 function retentionId(prefix: "policy" | "retention"): string {
   return `${prefix}-${randomBytes(12).toString("hex")}`;
 }
@@ -40,6 +48,44 @@ export async function listRetentionOverview() {
     policies,
     records,
     executionEnabled: false,
+  };
+}
+
+export async function getAccountDispositionPreview(userId: string) {
+  const [policies, linkedRecords] = await Promise.all([
+    db
+      .selectFrom("dataRetentionPolicies")
+      .select(["dataCategory", "status"])
+      .where("status", "in", ["draft", "active"])
+      .execute(),
+    db
+      .selectFrom("dataRetentionRecords")
+      .select(["status", "sourceType"])
+      .where("userId", "=", userId)
+      .where("status", "!=", "released")
+      .execute(),
+  ]);
+
+  return {
+    executionEnabled: false,
+    categories: ACCOUNT_DATA_CATEGORIES.map((dataCategory) => {
+      const policy = policies.find(
+        (candidate) => candidate.dataCategory === dataCategory,
+      );
+      const retainedRecordCount = linkedRecords.filter(
+        (record) => record.sourceType === dataCategory,
+      ).length;
+      return {
+        dataCategory,
+        reviewState:
+          policy?.status === "active"
+            ? ("policy_review_required" as const)
+            : policy?.status === "draft"
+              ? ("draft_policy" as const)
+              : ("unclassified" as const),
+        retainedRecordCount,
+      };
+    }),
   };
 }
 

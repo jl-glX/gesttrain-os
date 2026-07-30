@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { CalendarClock, RotateCcw, Trash2 } from "lucide-react";
+import { CalendarClock, Database, RotateCcw, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { authFetch } from "../lib/api";
 import { Button } from "../components/ui/button";
@@ -16,6 +16,19 @@ interface AccountLifecycle {
     requestedAt: number;
     graceEndsAt: number;
   } | null;
+  dataDisposition: {
+    executionEnabled: false;
+    categories: Array<{
+      dataCategory:
+        | "account_profile"
+        | "preferences"
+        | "bookings"
+        | "billing_records"
+        | "security_events";
+      reviewState: "policy_review_required" | "draft_policy" | "unclassified";
+      retainedRecordCount: number;
+    }>;
+  };
 }
 
 const inactivityOptions = [6, 12, 18, 24, 36] as const;
@@ -216,6 +229,49 @@ export function AccountLifecyclePage() {
             )}
           </Card>
         </div>
+
+        {lifecycle && (
+          <Card className="mt-6 p-6">
+            <Database className="text-violet-700" />
+            <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-black text-slate-950">
+                  {t("accountLifecycle.dataReviewTitle")}
+                </h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                  {t("accountLifecycle.dataReviewDescription")}
+                </p>
+              </div>
+              <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-bold text-violet-800">
+                {t("accountLifecycle.executionDisabled")}
+              </span>
+            </div>
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
+              {lifecycle.dataDisposition.categories.map((category) => (
+                <div
+                  key={category.dataCategory}
+                  className="rounded-2xl border border-slate-200 bg-white p-4"
+                >
+                  <p className="font-bold text-slate-900">
+                    {t(
+                      `accountLifecycle.dataCategories.${category.dataCategory}`,
+                    )}
+                  </p>
+                  <p className="mt-1 text-sm text-slate-600">
+                    {t(`accountLifecycle.reviewStates.${category.reviewState}`)}
+                  </p>
+                  {category.retainedRecordCount > 0 && (
+                    <p className="mt-2 text-xs font-semibold text-violet-700">
+                      {t("accountLifecycle.linkedRecords", {
+                        count: category.retainedRecordCount,
+                      })}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
 
         <p className="mt-6 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-blue-950">
           {t("accountLifecycle.demoNotice")}
