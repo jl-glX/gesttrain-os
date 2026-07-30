@@ -288,6 +288,8 @@
     "preferences": "Präferenzen",
     "adminAnalytics": "Anlagenanalyse",
     "resourceManagerDescription": "Überwachen Sie Frontend-, Backend- und API-Prozesse und -Funktionen.",
+    "dataRetention": "Datenaufbewahrung",
+    "dataRetentionDescription": "Bereiten Sie Richtlinienentwürfe vor und prüfen Sie zukünftige Datensätze.",
     "notificationsDescription": "Benachrichtigungseinstellungen und -verlauf werden in einer zukünftigen Phase aktiviert.",
     "delegationSecurity": "Bei Delegationen kann nur jemand in Ihrem Namen buchen oder stornieren. Sie gewähren keinen Zugriff auf Ihr Profil, Ihr Passwort, Ihre Zahlungen oder Sicherheitseinstellungen.",
     "preferencesDescription": "Thema, Privatsphäre und weitere persönliche Optionen werden nach und nach hinzugefügt."
@@ -323,6 +325,31 @@
     "deletionScheduled": "Die Kontoschliessung wurde geplant.",
     "deletionCancelled": "Die geplante Schliessung wurde abgebrochen.",
     "demoNotice": "Diese Version demonstriert Planung, ausstehende Sperrung und Abbruch. Daten werden noch nicht gelöscht und Aufbewahrungsrichtlinien noch nicht ausgeführt."
+  },
+  "dataRetention": {
+    "eyebrow": "Technische Verwaltung",
+    "title": "Aufbewahrungsrichtlinien",
+    "description": "Definieren Sie technische Entwürfe, die später geprüft und aktiviert werden können.",
+    "safetyNotice": "Die Ausführung ist deaktiviert. Ein Entwurf bestätigt nicht, dass Dauer oder Grundlage rechtlich gültig sind.",
+    "createTitle": "Neuer Entwurf",
+    "name": "Name",
+    "jurisdiction": "Rechtsraum",
+    "category": "Datenkategorie",
+    "days": "Unverbindliche Dauer in Tagen (optional)",
+    "basis": "Noch zu prüfende Referenz (optional)",
+    "create": "Entwurf erstellen",
+    "created": "Der Richtlinienentwurf wurde erstellt.",
+    "policiesTitle": "Vorbereitete Richtlinien",
+    "recordCount": "{{count}} zugeordnete Aufbewahrungsdatensätze",
+    "executionDisabled": "Ausführung deaktiviert",
+    "durationValue": "{{count}} konfigurierte Tage",
+    "durationPending": "Dauer noch zu prüfen",
+    "empty": "Es gibt noch keine Richtlinienentwürfe.",
+    "status": {
+      "draft": "Entwurf",
+      "active": "Aktiv",
+      "retired": "Ausser Betrieb"
+    }
   },
   "workoutTimer": {
     "title": "Trainingstimer",

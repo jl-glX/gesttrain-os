@@ -113,6 +113,8 @@
     "adminAnalyticsDescription": "Estudia ocupación, demanda, asistencia y franjas horarias.",
     "resourceManager": "Gestor de recursos",
     "resourceManagerDescription": "Supervisa procesos y capacidades del frontend, backend y API.",
+    "dataRetention": "Retención de datos",
+    "dataRetentionDescription": "Prepara políticas en borrador y revisa sus futuros registros.",
     "notifications": "Notificaciones",
     "notificationsDescription": "El centro de preferencias y avisos se habilitará en una próxima fase.",
     "preferences": "Preferencias",
@@ -150,6 +152,31 @@
     "deletionScheduled": "El cierre se ha programado.",
     "deletionCancelled": "El cierre programado se ha cancelado.",
     "demoNotice": "Esta versión demuestra la programación, la suspensión pendiente y la cancelación. Todavía no elimina datos ni ejecuta políticas de conservación."
+  },
+  "dataRetention": {
+    "eyebrow": "Administración técnica",
+    "title": "Políticas de retención",
+    "description": "Define borradores técnicos que podrán revisarse y activarse en una fase posterior.",
+    "safetyNotice": "La ejecución está desactivada. Crear un borrador no confirma que su plazo o fundamento sean legalmente válidos.",
+    "createTitle": "Nuevo borrador",
+    "name": "Nombre",
+    "jurisdiction": "Jurisdicción",
+    "category": "Categoría de datos",
+    "days": "Duración orientativa en días (opcional)",
+    "basis": "Referencia pendiente de revisión (opcional)",
+    "create": "Crear borrador",
+    "created": "La política en borrador se ha creado.",
+    "policiesTitle": "Políticas preparadas",
+    "recordCount": "{{count}} registros de retención asociados",
+    "executionDisabled": "Ejecución desactivada",
+    "durationValue": "{{count}} días configurados",
+    "durationPending": "Duración pendiente de revisión",
+    "empty": "Todavía no hay políticas en borrador.",
+    "status": {
+      "draft": "Borrador",
+      "active": "Activa",
+      "retired": "Retirada"
+    }
   },
   "workoutTimer": {
     "eyebrow": "Entrenamiento personal",

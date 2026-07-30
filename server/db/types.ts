@@ -42,6 +42,33 @@ interface AccountDeletionRequest {
   completedAt: number | null;
 }
 
+interface DataRetentionPolicy {
+  id: string;
+  name: string;
+  jurisdiction: string;
+  dataCategory: string;
+  retentionDays: number | null;
+  legalBasisReference: string;
+  status: "draft" | "active" | "retired";
+  version: number;
+  reviewedAt: number | null;
+  createdAt: number;
+  updatedAt: number;
+}
+
+interface DataRetentionRecord {
+  id: string;
+  userId: string | null;
+  policyId: string;
+  sourceType: string;
+  sourceId: string;
+  status: "retained" | "legal_hold" | "scheduled_deletion" | "released";
+  retainUntil: number | null;
+  createdAt: number;
+  updatedAt: number;
+  releasedAt: number | null;
+}
+
 interface GymClass {
   id: string;
   name: string;
@@ -187,6 +214,8 @@ export interface Database {
   accountSupportIdentifiers: AccountSupportIdentifier;
   accountDeletionPreferences: AccountDeletionPreference;
   accountDeletionRequests: AccountDeletionRequest;
+  dataRetentionPolicies: DataRetentionPolicy;
+  dataRetentionRecords: DataRetentionRecord;
   gymClasses: GymClass;
   bookings: Booking;
   waitlistEntries: WaitlistEntry;

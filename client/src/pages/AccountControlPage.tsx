@@ -6,6 +6,7 @@ import {
   CalendarDays,
   CreditCard,
   Download,
+  Database,
   Gauge,
   KeyRound,
   LayoutDashboard,
@@ -154,6 +155,12 @@ export function AccountControlPage() {
       icon: Gauge,
       title: t("accountControl.resourceManager"),
       description: t("accountControl.resourceManagerDescription"),
+    },
+    {
+      to: "/admin/data-retention",
+      icon: Database,
+      title: t("accountControl.dataRetention"),
+      description: t("accountControl.dataRetentionDescription"),
     },
   ];
 
