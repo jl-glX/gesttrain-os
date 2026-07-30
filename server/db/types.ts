@@ -10,6 +10,20 @@ interface User {
   createdAt: number;
 }
 
+interface AccountSupportIdentifier {
+  id: string;
+  userId: string;
+  publicId: string;
+  status: "active" | "revoked";
+  rotationReason:
+    | "account_recovery"
+    | "security_incident"
+    | "administrative_correction"
+    | null;
+  createdAt: number;
+  revokedAt: number | null;
+}
+
 interface GymClass {
   id: string;
   name: string;
@@ -152,6 +166,7 @@ interface DelegationGrant {
 
 export interface Database {
   users: User;
+  accountSupportIdentifiers: AccountSupportIdentifier;
   gymClasses: GymClass;
   bookings: Booking;
   waitlistEntries: WaitlistEntry;

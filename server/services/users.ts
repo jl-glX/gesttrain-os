@@ -1,6 +1,7 @@
 import { db } from "../db/client.js";
 import { hashPassword, isStrongPassword, logoutAll } from "./auth.js";
 import { randomBytes } from "crypto";
+import { ensureSupportIdentifier } from "./support-identifiers.js";
 
 export interface UserWithoutPassword {
   id: string;
@@ -80,6 +81,7 @@ export async function createUser(
     })
     .execute();
 
+  await ensureSupportIdentifier(userId);
   return {
     id: userId,
     email,

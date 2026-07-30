@@ -1,5 +1,6 @@
 import { db } from "./client.js";
 import { hashPassword } from "../services/auth.js";
+import { ensureSupportIdentifier } from "../services/support-identifiers.js";
 
 const DEMO_PASSWORDS = {
   admin: "GestTrain/OSAdmin123",
@@ -243,6 +244,11 @@ export async function seedDatabase() {
         console.error(`Error seeding user ${user.email}:`, err);
       }
     }
+
+    const seededUsers = await db.selectFrom("users").select("id").execute();
+    await Promise.all(
+      seededUsers.map((user) => ensureSupportIdentifier(user.id)),
+    );
 
     // Check if classes already exist
     const existingClasses = await db

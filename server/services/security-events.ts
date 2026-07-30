@@ -14,7 +14,8 @@ export type SecurityEventType =
   | "passkey_login_succeeded"
   | "recovery_codes_regenerated"
   | "session_revoked"
-  | "all_other_sessions_revoked";
+  | "all_other_sessions_revoked"
+  | "support_id_rotated";
 
 export async function recordSecurityEvent(
   type: SecurityEventType,

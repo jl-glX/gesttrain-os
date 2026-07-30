@@ -1,8 +1,10 @@
 import fs from "fs";
 import path from "path";
+import { randomUUID } from "node:crypto";
 import Database from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
 import type { Database as DatabaseSchema } from "./types.js";
+import { generateSupportId } from "../lib/support-id.js";
 
 const dataDirectory =
   process.env.DATA_DIRECTORY ?? path.join(process.cwd(), "data");
@@ -109,6 +111,67 @@ export async function initializeDatabase() {
       sqliteDb.exec(
         "CREATE UNIQUE INDEX idx_users_phone ON users(phone) WHERE phone IS NOT NULL",
       );
+    }
+  }
+
+  if (!tableNames.includes("accountSupportIdentifiers")) {
+    console.log("Creating account support identifiers table...");
+    sqliteDb.exec(`
+      CREATE TABLE accountSupportIdentifiers (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        publicId TEXT NOT NULL UNIQUE,
+        status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'revoked')),
+        rotationReason TEXT CHECK(rotationReason IS NULL OR rotationReason IN ('account_recovery', 'security_incident', 'administrative_correction')),
+        createdAt INTEGER NOT NULL,
+        revokedAt INTEGER,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+      );
+      CREATE UNIQUE INDEX idx_supportIdentifiers_active_user
+        ON accountSupportIdentifiers(userId)
+        WHERE status = 'active';
+      CREATE INDEX idx_supportIdentifiers_publicId
+        ON accountSupportIdentifiers(publicId);
+      CREATE INDEX idx_supportIdentifiers_userId
+        ON accountSupportIdentifiers(userId);
+    `);
+  }
+
+  const usersWithoutSupportId = sqliteDb
+    .prepare(
+      `SELECT users.id
+       FROM users
+       LEFT JOIN accountSupportIdentifiers identifiers
+         ON identifiers.userId = users.id AND identifiers.status = 'active'
+       WHERE identifiers.id IS NULL`,
+    )
+    .all() as Array<{ id: string }>;
+  const insertSupportId = sqliteDb.prepare(
+    `INSERT INTO accountSupportIdentifiers
+     (id, userId, publicId, status, rotationReason, createdAt, revokedAt)
+     VALUES (?, ?, ?, 'active', NULL, ?, NULL)`,
+  );
+
+  for (const user of usersWithoutSupportId) {
+    let inserted = false;
+    while (!inserted) {
+      const publicId = generateSupportId();
+      try {
+        insertSupportId.run(
+          `support-${randomUUID()}`,
+          user.id,
+          publicId,
+          Date.now(),
+        );
+        inserted = true;
+      } catch (error) {
+        if (
+          !(error instanceof Error) ||
+          !error.message.includes("UNIQUE constraint failed")
+        ) {
+          throw error;
+        }
+      }
     }
   }
 
