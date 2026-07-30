@@ -109,6 +109,8 @@
     "adminAnalyticsDescription": "Study occupancy, demand, attendance and time slots.",
     "resourceManager": "Resource manager",
     "resourceManagerDescription": "Monitor frontend, backend and API processes and capabilities.",
+    "dataRetention": "Data retention",
+    "dataRetentionDescription": "Prepare draft policies and review their future records.",
     "notifications": "Notifications",
     "notificationsDescription": "Notification preferences and history will be enabled in a future phase.",
     "preferences": "Preferences",
@@ -145,7 +147,48 @@
     "preferenceSaved": "The inactivity preference has been saved.",
     "deletionScheduled": "Account closure has been scheduled.",
     "deletionCancelled": "The scheduled closure has been cancelled.",
-    "demoNotice": "This version demonstrates scheduling, pending suspension and cancellation. It does not delete data or run retention policies yet."
+    "dataReviewTitle": "Combined data review",
+    "dataReviewDescription": "Account closure consults the retention module to show which categories need classification before any future action.",
+    "executionDisabled": "Execution disabled",
+    "linkedRecords": "{{count}} linked records",
+    "dataCategories": {
+      "account_profile": "Account profile",
+      "preferences": "Preferences",
+      "bookings": "Bookings",
+      "billing_records": "Billing",
+      "security_events": "Security activity"
+    },
+    "reviewStates": {
+      "policy_review_required": "An active policy exists, but the final decision still requires review.",
+      "draft_policy": "A draft policy exists and still requires validation.",
+      "unclassified": "No applicable policy exists yet."
+    },
+    "demoNotice": "This version demonstrates scheduling, pending suspension, cancellation and coordinated data review. It does not delete data or execute retention policies yet."
+  },
+  "dataRetention": {
+    "eyebrow": "Technical administration",
+    "title": "Retention policies",
+    "description": "Define technical drafts that may be reviewed and activated at a later stage.",
+    "safetyNotice": "Execution is disabled. Creating a draft does not confirm that its duration or basis is legally valid.",
+    "createTitle": "New draft",
+    "name": "Name",
+    "jurisdiction": "Jurisdiction",
+    "category": "Data category",
+    "days": "Indicative duration in days (optional)",
+    "basis": "Reference pending review (optional)",
+    "create": "Create draft",
+    "created": "The draft policy has been created.",
+    "policiesTitle": "Prepared policies",
+    "recordCount": "{{count}} associated retention records",
+    "executionDisabled": "Execution disabled",
+    "durationValue": "{{count}} configured days",
+    "durationPending": "Duration pending review",
+    "empty": "There are no draft policies yet.",
+    "status": {
+      "draft": "Draft",
+      "active": "Active",
+      "retired": "Retired"
+    }
   },
   "workoutTimer": {
     "eyebrow": "Personal training",

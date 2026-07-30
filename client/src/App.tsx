@@ -103,6 +103,10 @@ const BillingPage = lazyPage(
   () => import("./pages/BillingPage"),
   "BillingPage",
 );
+const DataRetentionPage = lazyPage(
+  () => import("./pages/DataRetentionPage"),
+  "DataRetentionPage",
+);
 
 type UserRole = "member" | "trainer" | "admin";
 
@@ -255,6 +259,14 @@ function AppContent() {
             element={
               <ProtectedRoute requiredRole="admin">
                 <BillingPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/data-retention"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <DataRetentionPage />
               </ProtectedRoute>
             }
           />

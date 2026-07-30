@@ -18,7 +18,9 @@ export type SecurityEventType =
   | "support_id_rotated"
   | "deletion_preference_updated"
   | "account_deletion_scheduled"
-  | "account_deletion_cancelled";
+  | "account_deletion_cancelled"
+  | "retention_policy_drafted"
+  | "retention_hold_changed";
 
 export async function recordSecurityEvent(
   type: SecurityEventType,

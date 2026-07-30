@@ -20,6 +20,7 @@ import { facilityProfileRouter } from "./routes/facility-profile.js";
 import { accountProfileRouter } from "./routes/account-profile.js";
 import { accountIdentityRouter } from "./routes/account-identity.js";
 import { accountLifecycleRouter } from "./routes/account-lifecycle.js";
+import { dataRetentionRouter } from "./routes/data-retention.js";
 import { memberCommerceRouter } from "./routes/member-commerce.js";
 import { delegationsRouter } from "./routes/delegations.js";
 import { downloadsRouter } from "./routes/downloads.js";
@@ -70,6 +71,7 @@ app.use("/api/facility-profile", facilityProfileRouter);
 app.use("/api/account/profile", accountProfileRouter);
 app.use("/api/account/identity", accountIdentityRouter);
 app.use("/api/account/lifecycle", accountLifecycleRouter);
+app.use("/api/admin/data-retention", dataRetentionRouter);
 
 // Body parsing middleware
 const requestLimit = process.env.MAX_REQUEST_SIZE || "32kb";

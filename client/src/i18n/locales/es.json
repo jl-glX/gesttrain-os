@@ -113,6 +113,8 @@
     "adminAnalyticsDescription": "Estudia ocupación, demanda, asistencia y franjas horarias.",
     "resourceManager": "Gestor de recursos",
     "resourceManagerDescription": "Supervisa procesos y capacidades del frontend, backend y API.",
+    "dataRetention": "Retención de datos",
+    "dataRetentionDescription": "Prepara políticas en borrador y revisa sus futuros registros.",
     "notifications": "Notificaciones",
     "notificationsDescription": "El centro de preferencias y avisos se habilitará en una próxima fase.",
     "preferences": "Preferencias",
@@ -149,7 +151,48 @@
     "preferenceSaved": "La preferencia de inactividad se ha guardado.",
     "deletionScheduled": "El cierre se ha programado.",
     "deletionCancelled": "El cierre programado se ha cancelado.",
-    "demoNotice": "Esta versión demuestra la programación, la suspensión pendiente y la cancelación. Todavía no elimina datos ni ejecuta políticas de conservación."
+    "dataReviewTitle": "Revisión conjunta de los datos",
+    "dataReviewDescription": "El cierre consulta el módulo de retención para mostrar qué categorías necesitan clasificación antes de cualquier acción futura.",
+    "executionDisabled": "Ejecución desactivada",
+    "linkedRecords": "{{count}} registros vinculados",
+    "dataCategories": {
+      "account_profile": "Perfil de la cuenta",
+      "preferences": "Preferencias",
+      "bookings": "Reservas",
+      "billing_records": "Facturación",
+      "security_events": "Actividad de seguridad"
+    },
+    "reviewStates": {
+      "policy_review_required": "Existe una política activa, pero la decisión final requiere revisión.",
+      "draft_policy": "Existe un borrador de política pendiente de validación.",
+      "unclassified": "Todavía no existe una política aplicable."
+    },
+    "demoNotice": "Esta versión demuestra la programación, la suspensión pendiente, la cancelación y la revisión coordinada de datos. Todavía no elimina datos ni ejecuta políticas de retención."
+  },
+  "dataRetention": {
+    "eyebrow": "Administración técnica",
+    "title": "Políticas de retención",
+    "description": "Define borradores técnicos que podrán revisarse y activarse en una fase posterior.",
+    "safetyNotice": "La ejecución está desactivada. Crear un borrador no confirma que su plazo o fundamento sean legalmente válidos.",
+    "createTitle": "Nuevo borrador",
+    "name": "Nombre",
+    "jurisdiction": "Jurisdicción",
+    "category": "Categoría de datos",
+    "days": "Duración orientativa en días (opcional)",
+    "basis": "Referencia pendiente de revisión (opcional)",
+    "create": "Crear borrador",
+    "created": "La política en borrador se ha creado.",
+    "policiesTitle": "Políticas preparadas",
+    "recordCount": "{{count}} registros de retención asociados",
+    "executionDisabled": "Ejecución desactivada",
+    "durationValue": "{{count}} días configurados",
+    "durationPending": "Duración pendiente de revisión",
+    "empty": "Todavía no hay políticas en borrador.",
+    "status": {
+      "draft": "Borrador",
+      "active": "Activa",
+      "retired": "Retirada"
+    }
   },
   "workoutTimer": {
     "eyebrow": "Entrenamiento personal",

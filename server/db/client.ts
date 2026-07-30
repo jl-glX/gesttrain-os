@@ -211,6 +211,55 @@ export async function initializeDatabase() {
     `);
   }
 
+  if (!tableNames.includes("dataRetentionPolicies")) {
+    console.log("Creating data retention policies table...");
+    sqliteDb.exec(`
+      CREATE TABLE dataRetentionPolicies (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        jurisdiction TEXT NOT NULL,
+        dataCategory TEXT NOT NULL,
+        retentionDays INTEGER CHECK(retentionDays IS NULL OR retentionDays > 0),
+        legalBasisReference TEXT NOT NULL DEFAULT '',
+        status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft', 'active', 'retired')),
+        version INTEGER NOT NULL DEFAULT 1,
+        reviewedAt INTEGER,
+        createdAt INTEGER NOT NULL,
+        updatedAt INTEGER NOT NULL
+      );
+      CREATE INDEX idx_retentionPolicies_status
+        ON dataRetentionPolicies(status);
+      CREATE INDEX idx_retentionPolicies_jurisdiction
+        ON dataRetentionPolicies(jurisdiction);
+    `);
+  }
+
+  if (!tableNames.includes("dataRetentionRecords")) {
+    console.log("Creating data retention records table...");
+    sqliteDb.exec(`
+      CREATE TABLE dataRetentionRecords (
+        id TEXT PRIMARY KEY,
+        userId TEXT,
+        policyId TEXT NOT NULL,
+        sourceType TEXT NOT NULL,
+        sourceId TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'retained' CHECK(status IN ('retained', 'legal_hold', 'scheduled_deletion', 'released')),
+        retainUntil INTEGER,
+        createdAt INTEGER NOT NULL,
+        updatedAt INTEGER NOT NULL,
+        releasedAt INTEGER,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY(policyId) REFERENCES dataRetentionPolicies(id)
+      );
+      CREATE UNIQUE INDEX idx_retentionRecords_source
+        ON dataRetentionRecords(sourceType, sourceId);
+      CREATE INDEX idx_retentionRecords_status_until
+        ON dataRetentionRecords(status, retainUntil);
+      CREATE INDEX idx_retentionRecords_userId
+        ON dataRetentionRecords(userId);
+    `);
+  }
+
   if (!tableNames.includes("gymClasses")) {
     console.log("Creating gymClasses table...");
     sqliteDb.exec(`
