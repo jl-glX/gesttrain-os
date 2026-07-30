@@ -87,6 +87,10 @@ const AccountLifecyclePage = lazyPage(
   () => import("./pages/AccountLifecyclePage"),
   "AccountLifecyclePage",
 );
+const AccountDataDeletionPage = lazyPage(
+  () => import("./pages/AccountDataDeletionPage"),
+  "AccountDataDeletionPage",
+);
 const WorkoutTimerPage = lazyPage(
   () => import("./pages/WorkoutTimerPage"),
   "WorkoutTimerPage",
@@ -219,6 +223,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <AccountLifecyclePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/account/delete-data"
+            element={
+              <ProtectedRoute>
+                <AccountDataDeletionPage />
               </ProtectedRoute>
             }
           />

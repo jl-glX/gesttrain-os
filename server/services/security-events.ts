@@ -19,6 +19,7 @@ export type SecurityEventType =
   | "deletion_preference_updated"
   | "account_deletion_scheduled"
   | "account_deletion_cancelled"
+  | "account_data_deletion_draft_updated"
   | "retention_policy_drafted"
   | "retention_hold_changed";
 

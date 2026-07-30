@@ -5,12 +5,18 @@ import {
 } from "../middleware/authorization.js";
 import {
   cancelScheduledAccountDeletion,
+  getDataDeletionReview,
   getAccountLifecycle,
   INACTIVITY_DELETION_OPTIONS,
   scheduleAccountDeletion,
+  saveDataDeletionReview,
   type InactivityDeletionMonths,
   updateInactivityDeletionPreference,
 } from "../services/account-lifecycle.js";
+import {
+  ACCOUNT_DATA_CATEGORIES,
+  type AccountDataCategory,
+} from "../services/data-retention.js";
 
 export const accountLifecycleRouter = express.Router();
 accountLifecycleRouter.use(authenticate);
@@ -63,6 +69,38 @@ accountLifecycleRouter.delete("/deletion", async (_req, res, next) => {
   try {
     const { userId } = getAuthenticatedUser(res);
     res.json(await cancelScheduledAccountDeletion(userId));
+  } catch (error) {
+    next(error);
+  }
+});
+
+accountLifecycleRouter.get("/deletion-review", async (_req, res, next) => {
+  try {
+    const { userId } = getAuthenticatedUser(res);
+    res.json(await getDataDeletionReview(userId));
+  } catch (error) {
+    next(error);
+  }
+});
+
+accountLifecycleRouter.put("/deletion-review", async (req, res, next) => {
+  try {
+    const { userId } = getAuthenticatedUser(res);
+    const categories = req.body?.selectedCategories;
+    const intent = req.body?.intent;
+    if (
+      !Array.isArray(categories) ||
+      !categories.every(
+        (category): category is AccountDataCategory =>
+          typeof category === "string" &&
+          ACCOUNT_DATA_CATEGORIES.includes(category as AccountDataCategory),
+      ) ||
+      (intent !== "selected_data" && intent !== "account_closure")
+    ) {
+      res.status(400).json({ error: "Invalid deletion review" });
+      return;
+    }
+    res.json(await saveDataDeletionReview(userId, categories, intent));
   } catch (error) {
     next(error);
   }

@@ -10,13 +10,14 @@ export interface DraftRetentionPolicyInput {
   legalBasisReference?: string;
 }
 
-const ACCOUNT_DATA_CATEGORIES = [
+export const ACCOUNT_DATA_CATEGORIES = [
   "account_profile",
   "preferences",
   "bookings",
   "billing_records",
   "security_events",
 ] as const;
+export type AccountDataCategory = (typeof ACCOUNT_DATA_CATEGORIES)[number];
 
 function retentionId(prefix: "policy" | "retention"): string {
   return `${prefix}-${randomBytes(12).toString("hex")}`;

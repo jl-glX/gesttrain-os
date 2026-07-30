@@ -11,6 +11,8 @@ The current implementation can demonstrate:
 - a stable internal account identifier that is never shown as a credential;
 - a public support identifier that can be shown, copied and rotated;
 - an optional user-selected inactivity period;
+- a guided review where the user can select particular data categories without
+  closing the account;
 - a reversible account-closure request with a 30-day grace period;
 - cancellation of a scheduled closure;
 - administrator-created retention-policy drafts;
@@ -26,6 +28,27 @@ The demo deliberately does not:
 - decide which law applies to a user or a record;
 - claim that a retention duration or legal basis is valid;
 - replace professional legal review.
+
+## Data review before account closure
+
+The inactivity preference remains on the account-lifecycle screen. Manual data
+and account actions begin from a single **Delete my data and account** entry
+point so that a user can review the consequences before choosing an action.
+
+The review screen offers two distinct intentions:
+
+- select one or more data categories and save a data-deletion request draft
+  without closing the account;
+- schedule closure of the complete account using the existing 30-day grace
+  period.
+
+Saving a selective request does not delete data. It records the categories and
+the user's intention so a future verified request workflow can evaluate
+ownership, dependencies, applicable retention rules and execution results.
+
+The screen also explains that some records may need to remain restricted for a
+legal or operational reason. This is intentionally general: the demo does not
+state final legal bases, jurisdictions or retention periods.
 
 ## Separation of identifiers
 
@@ -106,7 +129,8 @@ Account closure and retention remain separate modules because they answer
 different questions, but they are not isolated:
 
 - the lifecycle service asks the retention service for a disposition preview;
-- the account screen presents closure status and data classification together;
+- the data-review screen presents closure choices and data classification
+  together;
 - active policies, draft policies and unclassified categories produce
   different review states;
 - linked retention records can be counted without exposing their contents;

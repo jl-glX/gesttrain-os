@@ -33,7 +33,9 @@ export function DelegationManager() {
   const [redeemToken, setRedeemToken] = useState("");
   const [newToken, setNewToken] = useState("");
   const [copied, setCopied] = useState(false);
+  const [showAllReceived, setShowAllReceived] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [clearingHistory, setClearingHistory] = useState(false);
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
@@ -107,6 +109,25 @@ export function DelegationManager() {
     await load();
   };
 
+  const clearHistory = async () => {
+    setClearingHistory(true);
+    setError("");
+    try {
+      const response = await authFetch(
+        `${API_BASE}/api/account/delegations/history`,
+        { method: "DELETE" },
+      );
+      if (!response.ok) {
+        setError(t("delegations.clearHistoryFailed"));
+        return;
+      }
+      const data = (await response.json()) as { delegations: Delegation[] };
+      setDelegations(data.delegations);
+    } finally {
+      setClearingHistory(false);
+    }
+  };
+
   const formatExpiry = (expiresAt: number | null) =>
     expiresAt
       ? new Intl.DateTimeFormat(i18n.language, {
@@ -114,6 +135,16 @@ export function DelegationManager() {
           timeStyle: "short",
         }).format(expiresAt)
       : t("delegations.indefinite");
+
+  const activeReceived = delegations.filter(
+    (delegation) => delegation.direction === "received" && delegation.active,
+  );
+  const visibleReceived = showAllReceived
+    ? activeReceived
+    : activeReceived.slice(0, 2);
+  const historyDelegations = delegations.filter(
+    (delegation) => delegation.direction !== "received" || !delegation.active,
+  );
 
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
@@ -210,22 +241,80 @@ export function DelegationManager() {
           >
             {t("delegations.redeem")}
           </Button>
+
+          {activeReceived.length > 0 && (
+            <div className="mt-5 border-t border-slate-200 pt-4">
+              <h4 className="text-sm font-bold text-slate-900">
+                {t("delegations.acceptedActive")}
+              </h4>
+              <div className="mt-3 space-y-2">
+                {visibleReceived.map((delegation) => (
+                  <div
+                    key={delegation.id}
+                    className="rounded-xl bg-emerald-50 px-3 py-2.5"
+                  >
+                    <p className="truncate text-sm font-semibold text-emerald-950">
+                      {delegation.otherUser?.name ??
+                        t("delegations.unknownOwner")}
+                    </p>
+                    <p className="mt-0.5 text-xs text-emerald-700">
+                      {formatExpiry(delegation.expiresAt)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              {activeReceived.length > 2 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="mt-2"
+                  onClick={() => setShowAllReceived((current) => !current)}
+                >
+                  {showAllReceived
+                    ? t("delegations.showLess")
+                    : t("delegations.showMore", {
+                        count: activeReceived.length - 2,
+                      })}
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
       <div className="mt-6">
-        <h3 className="font-bold text-slate-950">
-          {t("delegations.activeTitle")}
-        </h3>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="font-bold text-slate-950">
+              {t("delegations.activeTitle")}
+            </h3>
+            <p className="mt-1 text-xs text-slate-500">
+              {t("delegations.historyCleanupNotice")}
+            </p>
+          </div>
+          {historyDelegations.some((delegation) => !delegation.active) && (
+            <Button
+              variant="ghost"
+              className="text-slate-600"
+              disabled={clearingHistory}
+              onClick={() => void clearHistory()}
+            >
+              <Trash2 />
+              {t("delegations.clearHistory")}
+            </Button>
+          )}
+        </div>
         {loading ? (
           <p className="mt-3 text-sm text-slate-500">{t("common.loading")}</p>
-        ) : delegations.length === 0 ? (
+        ) : historyDelegations.length === 0 ? (
           <p className="mt-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
-            {t("delegations.empty")}
+            {activeReceived.length > 0
+              ? t("delegations.historyEmpty")
+              : t("delegations.empty")}
           </p>
         ) : (
           <div className="mt-3 space-y-3">
-            {delegations.map((delegation) => (
+            {historyDelegations.map((delegation) => (
               <div
                 key={delegation.id}
                 className="flex flex-col gap-3 rounded-2xl border border-slate-200 p-4 sm:flex-row sm:items-center"
