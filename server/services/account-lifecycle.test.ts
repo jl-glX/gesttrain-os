@@ -62,4 +62,25 @@ describe("account lifecycle", () => {
     const cancelled = await lifecycle.cancelScheduledAccountDeletion(userId);
     expect(cancelled.deletionRequest).toBeNull();
   });
+
+  it("stores a data-only deletion review without scheduling account closure", async () => {
+    const review = await lifecycle.saveDataDeletionReview(
+      userId,
+      ["bookings", "preferences"],
+      "selected_data",
+    );
+
+    expect(review.deletionDraft).toMatchObject({
+      selectedCategories: ["bookings", "preferences"],
+      intent: "selected_data",
+    });
+    expect(review.deletionRequest).toBeNull();
+    expect(review.dataDisposition.executionEnabled).toBe(false);
+  });
+
+  it("requires at least one category for a data-only review", async () => {
+    await expect(
+      lifecycle.saveDataDeletionReview(userId, [], "selected_data"),
+    ).rejects.toThrow("Select at least one data category");
+  });
 });

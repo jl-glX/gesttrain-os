@@ -316,6 +316,7 @@
     "disabled": "Nicht automatisch löschen",
     "months": "{{count}} Monate",
     "lastActivity": "Letzte erfasste relevante Aktivität: {{date}}.",
+    "reviewDeletion": "Meine Daten und mein Konto löschen",
     "manualTitle": "Manuelle Schliessung",
     "manualDescription": "Planen Sie die Kontoschliessung mit einer Nachfrist von 30 Tagen, in der der Vorgang abgebrochen werden kann.",
     "scheduleDeletion": "Schliessung planen",
@@ -341,6 +342,27 @@
       "unclassified": "Es gibt noch keine anwendbare Richtlinie."
     },
     "demoNotice": "Diese Version demonstriert Planung, ausstehende Sperrung, Abbruch und koordinierte Datenprüfung. Daten werden noch nicht gelöscht und Aufbewahrungsrichtlinien noch nicht ausgeführt."
+  },
+  "accountDataDeletion": {
+    "back": "Zurück zur Inaktivität",
+    "eyebrow": "Datenschutz und Schliessung",
+    "title": "Prüfen Sie Ihre Daten, bevor Sie fortfahren",
+    "description": "Entscheiden Sie, ob bestimmte Daten gelöscht werden sollen oder ob Sie mit der vollständigen Kontoschliessung fortfahren möchten.",
+    "chooseTitle": "Daten, die Sie löschen möchten",
+    "chooseDescription": "Wählen Sie die einzubeziehenden Kategorien. Die Anfrage wird geprüft, bevor eine verpflichtende Aufbewahrung angewendet wird.",
+    "demoMode": "Demo: keine echte Löschung",
+    "deleteSelected": "Löschung der ausgewählten Daten vorbereiten",
+    "selectionSaved": "Die Auswahl wurde gespeichert, um den künftigen Löschvorgang zu demonstrieren.",
+    "legalTitle": "Daten, die aufgrund einer rechtlichen Verpflichtung aufbewahrt werden könnten",
+    "legalDescription": "Wenn Sie das Konto löschen, können bestimmte Abrechnungs-, Sicherheits- oder Beschwerdedaten eingeschränkt aufbewahrt werden, sofern eine anwendbare rechtliche Verpflichtung besteht. Sie werden nicht für die normale Kontoaktivität verwendet.",
+    "legalPending": "Die endgültigen Kategorien und Fristen müssen noch rechtlich geprüft werden. Diese Demo stellt interne Entwürfe nicht als bestätigte rechtliche Verpflichtungen dar.",
+    "accountTitle": "Das vollständige Konto löschen",
+    "accountDescription": "Alle Kategorien in die Prüfung aufnehmen und die Schliessung mit einer Nachfrist von {{count}} Tagen planen.",
+    "deleteAccount": "Mit der Kontolöschung fortfahren",
+    "cancelAccount": "Kontoschliessung abbrechen",
+    "pendingUntil": "Das Konto soll am {{date}} geschlossen werden.",
+    "accountScheduled": "Die vollständige Kontoschliessung wurde geplant.",
+    "accountCancelled": "Die vollständige Kontoschliessung wurde abgebrochen."
   },
   "dataRetention": {
     "eyebrow": "Technische Verwaltung",
@@ -429,6 +451,11 @@
     "revoke": "Widerrufen",
     "indefinite": "Kein Ablaufdatum",
     "empty": "Es wurden noch keine Delegationen erstellt oder empfangen.",
+    "historyEmpty": "Es gibt keine weiteren Berechtigungen oder Delegationen im Verlauf.",
+    "acceptedActive": "Akzeptierte und aktive Delegationen",
+    "unknownOwner": "Autorisierendes Konto",
+    "showMore": "{{count}} weitere anzeigen",
+    "showLess": "Weniger anzeigen",
     "awaitingRedemption": "Warten darauf, dass jemand den Token akzeptiert",
     "activeTitle": "Berechtigungen und Delegationen",
     "durations": {
@@ -450,7 +477,10 @@
       "unknown": "Der Delegierungsvorgang konnte nicht abgeschlossen werden."
     },
     "loadFailed": "Delegationen konnten nicht geladen werden.",
-    "revokeFailed": "Die Delegation konnte nicht widerrufen werden."
+    "revokeFailed": "Die Delegation konnte nicht widerrufen werden.",
+    "historyCleanupNotice": "Der inaktive Verlauf wird nach 30 Tagen automatisch ausgeblendet.",
+    "clearHistory": "Inaktiven Verlauf leeren",
+    "clearHistoryFailed": "Der inaktive Verlauf konnte nicht geleert werden."
   },
   "adminHome": {
     "description": "Verwalten Sie Kurse, Mitglieder, Abrechnungen und die Leistung der Einrichtung von einem betriebsorientierten Arbeitsbereich aus.",

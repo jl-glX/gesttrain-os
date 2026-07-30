@@ -4,6 +4,7 @@ import {
   getAuthenticatedUser,
 } from "../middleware/authorization.js";
 import {
+  clearInactiveDelegationHistory,
   createDelegationToken,
   listDelegations,
   redeemDelegationToken,
@@ -62,6 +63,17 @@ delegationsRouter.post("/redeem", async (req, res, next) => {
       return;
     }
     res.json(await redeemDelegationToken(token, userId));
+  } catch (error) {
+    if (!sendDelegationError(res, error)) next(error);
+  }
+});
+
+delegationsRouter.delete("/history", async (_req, res, next) => {
+  try {
+    const { userId } = getAuthenticatedUser(res);
+    res.json({
+      delegations: await clearInactiveDelegationHistory(userId),
+    });
   } catch (error) {
     if (!sendDelegationError(res, error)) next(error);
   }

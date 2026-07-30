@@ -42,6 +42,13 @@ interface AccountDeletionRequest {
   completedAt: number | null;
 }
 
+interface AccountDataDeletionDraft {
+  userId: string;
+  selectedCategories: string;
+  intent: "selected_data" | "account_closure";
+  updatedAt: number;
+}
+
 interface DataRetentionPolicy {
   id: string;
   name: string;
@@ -207,6 +214,8 @@ interface DelegationGrant {
   createdAt: number;
   redeemedAt: number | null;
   revokedAt: number | null;
+  ownerHiddenAt: number | null;
+  delegateHiddenAt: number | null;
 }
 
 export interface Database {
@@ -214,6 +223,7 @@ export interface Database {
   accountSupportIdentifiers: AccountSupportIdentifier;
   accountDeletionPreferences: AccountDeletionPreference;
   accountDeletionRequests: AccountDeletionRequest;
+  accountDataDeletionDrafts: AccountDataDeletionDraft;
   dataRetentionPolicies: DataRetentionPolicy;
   dataRetentionRecords: DataRetentionRecord;
   gymClasses: GymClass;

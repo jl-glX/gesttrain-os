@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { CalendarClock, Database, RotateCcw, Trash2 } from "lucide-react";
+import { CalendarClock, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { authFetch } from "../lib/api";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
@@ -8,36 +9,12 @@ import { Card } from "../components/ui/card";
 interface AccountLifecycle {
   inactivityMonths: number | null;
   lastMeaningfulActivityAt: number;
-  gracePeriodDays: number;
-  deletionRequest: {
-    id: string;
-    trigger: "manual" | "inactivity";
-    status: "scheduled";
-    requestedAt: number;
-    graceEndsAt: number;
-  } | null;
-  dataDisposition: {
-    executionEnabled: false;
-    categories: Array<{
-      dataCategory:
-        | "account_profile"
-        | "preferences"
-        | "bookings"
-        | "billing_records"
-        | "security_events";
-      reviewState: "policy_review_required" | "draft_policy" | "unclassified";
-      retainedRecordCount: number;
-    }>;
-  };
 }
 
 const inactivityOptions = [6, 12, 18, 24, 36] as const;
 
-async function lifecycleRequest(
-  path = "",
-  init?: RequestInit,
-): Promise<AccountLifecycle> {
-  const response = await authFetch(`/api/account/lifecycle${path}`, {
+async function lifecycleRequest(init?: RequestInit): Promise<AccountLifecycle> {
+  const response = await authFetch("/api/account/lifecycle/inactivity", {
     ...init,
     headers: { "Content-Type": "application/json", ...init?.headers },
   });
@@ -58,7 +35,11 @@ export function AccountLifecyclePage() {
   const [notice, setNotice] = useState("");
 
   const load = useCallback(async () => {
-    const result = await lifecycleRequest();
+    const response = await authFetch("/api/account/lifecycle");
+    const result = (await response.json()) as AccountLifecycle & {
+      error?: string;
+    };
+    if (!response.ok) throw new Error(result.error ?? "Request failed");
     setLifecycle(result);
     setSelectedPeriod(
       result.inactivityMonths === null
@@ -73,48 +54,26 @@ export function AccountLifecyclePage() {
     );
   }, [load]);
 
-  const run = async (
-    work: () => Promise<AccountLifecycle>,
-    message: string,
-  ) => {
+  const savePreference = async () => {
     setBusy(true);
     setError("");
     setNotice("");
     try {
-      const result = await work();
+      const result = await lifecycleRequest({
+        method: "PUT",
+        body: JSON.stringify({
+          inactivityMonths:
+            selectedPeriod === "disabled" ? null : Number(selectedPeriod),
+        }),
+      });
       setLifecycle(result);
-      setNotice(message);
+      setNotice(t("accountLifecycle.preferenceSaved"));
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
       setBusy(false);
     }
   };
-
-  const savePreference = () =>
-    run(
-      () =>
-        lifecycleRequest("/inactivity", {
-          method: "PUT",
-          body: JSON.stringify({
-            inactivityMonths:
-              selectedPeriod === "disabled" ? null : Number(selectedPeriod),
-          }),
-        }),
-      t("accountLifecycle.preferenceSaved"),
-    );
-
-  const scheduleDeletion = () =>
-    run(
-      () => lifecycleRequest("/deletion", { method: "POST" }),
-      t("accountLifecycle.deletionScheduled"),
-    );
-
-  const cancelDeletion = () =>
-    run(
-      () => lifecycleRequest("/deletion", { method: "DELETE" }),
-      t("accountLifecycle.deletionCancelled"),
-    );
 
   const formatDate = (timestamp: number) =>
     new Intl.DateTimeFormat(i18n.language, {
@@ -149,133 +108,57 @@ export function AccountLifecyclePage() {
           </div>
         )}
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-2">
-          <Card className="p-6">
-            <CalendarClock className="text-blue-700" />
-            <h2 className="mt-4 text-xl font-black text-slate-950">
-              {t("accountLifecycle.inactivityTitle")}
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              {t("accountLifecycle.inactivityDescription")}
-            </p>
-            <label className="mt-5 block text-sm font-semibold text-slate-800">
-              {t("accountLifecycle.periodLabel")}
-              <select
-                value={selectedPeriod}
-                onChange={(event) => setSelectedPeriod(event.target.value)}
-                className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5"
-              >
-                <option value="disabled">
-                  {t("accountLifecycle.disabled")}
-                </option>
-                {inactivityOptions.map((months) => (
-                  <option key={months} value={months}>
-                    {t("accountLifecycle.months", { count: months })}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <Button
-              className="mt-4"
-              disabled={busy || !lifecycle}
-              onClick={() => void savePreference()}
+        <Card className="mt-8 p-6">
+          <CalendarClock className="text-blue-700" />
+          <h2 className="mt-4 text-xl font-black text-slate-950">
+            {t("accountLifecycle.inactivityTitle")}
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+            {t("accountLifecycle.inactivityDescription")}
+          </p>
+          <label className="mt-5 block max-w-xl text-sm font-semibold text-slate-800">
+            {t("accountLifecycle.periodLabel")}
+            <select
+              value={selectedPeriod}
+              onChange={(event) => setSelectedPeriod(event.target.value)}
+              className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5"
             >
-              {t("common.save")}
-            </Button>
-            {lifecycle && (
-              <p className="mt-4 text-xs leading-5 text-slate-500">
-                {t("accountLifecycle.lastActivity", {
-                  date: formatDate(lifecycle.lastMeaningfulActivityAt),
-                })}
-              </p>
-            )}
-          </Card>
-
-          <Card className="p-6">
-            <Trash2 className="text-red-700" />
-            <h2 className="mt-4 text-xl font-black text-slate-950">
-              {t("accountLifecycle.manualTitle")}
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              {t("accountLifecycle.manualDescription")}
-            </p>
-            {lifecycle?.deletionRequest ? (
-              <>
-                <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
-                  {t("accountLifecycle.pendingUntil", {
-                    date: formatDate(lifecycle.deletionRequest.graceEndsAt),
-                  })}
-                </div>
-                <Button
-                  variant="outline"
-                  className="mt-4"
-                  disabled={busy}
-                  onClick={() => void cancelDeletion()}
-                >
-                  <RotateCcw size={17} />
-                  {t("accountLifecycle.cancelDeletion")}
-                </Button>
-              </>
-            ) : (
-              <Button
-                variant="outline"
-                className="mt-5 border-red-200 text-red-700 hover:bg-red-50"
-                disabled={busy || !lifecycle}
-                onClick={() => void scheduleDeletion()}
-              >
-                <Trash2 size={17} />
-                {t("accountLifecycle.scheduleDeletion")}
-              </Button>
-            )}
-          </Card>
-        </div>
-
-        {lifecycle && (
-          <Card className="mt-6 p-6">
-            <Database className="text-violet-700" />
-            <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-black text-slate-950">
-                  {t("accountLifecycle.dataReviewTitle")}
-                </h2>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                  {t("accountLifecycle.dataReviewDescription")}
-                </p>
-              </div>
-              <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-bold text-violet-800">
-                {t("accountLifecycle.executionDisabled")}
-              </span>
-            </div>
-            <div className="mt-5 grid gap-3 md:grid-cols-2">
-              {lifecycle.dataDisposition.categories.map((category) => (
-                <div
-                  key={category.dataCategory}
-                  className="rounded-2xl border border-slate-200 bg-white p-4"
-                >
-                  <p className="font-bold text-slate-900">
-                    {t(
-                      `accountLifecycle.dataCategories.${category.dataCategory}`,
-                    )}
-                  </p>
-                  <p className="mt-1 text-sm text-slate-600">
-                    {t(`accountLifecycle.reviewStates.${category.reviewState}`)}
-                  </p>
-                  {category.retainedRecordCount > 0 && (
-                    <p className="mt-2 text-xs font-semibold text-violet-700">
-                      {t("accountLifecycle.linkedRecords", {
-                        count: category.retainedRecordCount,
-                      })}
-                    </p>
-                  )}
-                </div>
+              <option value="disabled">{t("accountLifecycle.disabled")}</option>
+              {inactivityOptions.map((months) => (
+                <option key={months} value={months}>
+                  {t("accountLifecycle.months", { count: months })}
+                </option>
               ))}
-            </div>
-          </Card>
-        )}
+            </select>
+          </label>
+          <Button
+            className="mt-4"
+            disabled={busy || !lifecycle}
+            onClick={() => void savePreference()}
+          >
+            {t("common.save")}
+          </Button>
+          {lifecycle && (
+            <p className="mt-4 text-xs leading-5 text-slate-500">
+              {t("accountLifecycle.lastActivity", {
+                date: formatDate(lifecycle.lastMeaningfulActivityAt),
+              })}
+            </p>
+          )}
+        </Card>
 
-        <p className="mt-6 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-blue-950">
-          {t("accountLifecycle.demoNotice")}
-        </p>
+        <div className="mt-6 flex justify-center">
+          <Button
+            asChild
+            variant="outline"
+            className="border-red-200 text-red-700 hover:bg-red-50"
+          >
+            <Link to="/account/delete-data">
+              <Trash2 size={17} />
+              {t("accountLifecycle.reviewDeletion")}
+            </Link>
+          </Button>
+        </div>
       </div>
     </main>
   );

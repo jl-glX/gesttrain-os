@@ -70,8 +70,6 @@ app.use("/api", apiLimiter);
 app.use("/api/facility-profile", facilityProfileRouter);
 app.use("/api/account/profile", accountProfileRouter);
 app.use("/api/account/identity", accountIdentityRouter);
-app.use("/api/account/lifecycle", accountLifecycleRouter);
-app.use("/api/admin/data-retention", dataRetentionRouter);
 
 // Body parsing middleware
 const requestLimit = process.env.MAX_REQUEST_SIZE || "32kb";
@@ -80,6 +78,8 @@ app.use(express.urlencoded({ extended: true, limit: requestLimit }));
 
 // API routes
 app.use("/api/auth", authRouter);
+app.use("/api/account/lifecycle", accountLifecycleRouter);
+app.use("/api/admin/data-retention", dataRetentionRouter);
 app.use("/api/classes", classesRouter);
 app.use("/api/bookings", bookingsRouter);
 app.use("/api/users", usersRouter);

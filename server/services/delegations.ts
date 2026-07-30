@@ -11,6 +11,7 @@ const durationMilliseconds: Record<
   "7d": 7 * 24 * 60 * 60 * 1000,
   "30d": 30 * 24 * 60 * 60 * 1000,
 };
+const DELEGATION_HISTORY_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 
 function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
@@ -64,6 +65,8 @@ export async function createDelegationToken(
       createdAt: now,
       redeemedAt: null,
       revokedAt: null,
+      ownerHiddenAt: null,
+      delegateHiddenAt: null,
     })
     .execute();
 
@@ -134,6 +137,7 @@ export async function hasActiveBookingDelegation(
 }
 
 export async function listDelegations(userId: string) {
+  await hideStaleDelegationHistory(userId);
   const rows = await db
     .selectFrom("delegationGrants")
     .select([
@@ -147,11 +151,19 @@ export async function listDelegations(userId: string) {
       "createdAt",
       "redeemedAt",
       "revokedAt",
+      "ownerHiddenAt",
+      "delegateHiddenAt",
     ])
     .where((eb) =>
       eb.or([
-        eb("ownerUserId", "=", userId),
-        eb("delegateUserId", "=", userId),
+        eb.and([
+          eb("ownerUserId", "=", userId),
+          eb("ownerHiddenAt", "is", null),
+        ]),
+        eb.and([
+          eb("delegateUserId", "=", userId),
+          eb("delegateHiddenAt", "is", null),
+        ]),
       ]),
     )
     .orderBy("createdAt", "desc")
@@ -176,4 +188,65 @@ export async function listDelegations(userId: string) {
       };
     }),
   );
+}
+
+async function hideStaleDelegationHistory(userId: string) {
+  const cutoff = Date.now() - DELEGATION_HISTORY_RETENTION_MS;
+  await hideInactiveDelegationsForParticipant(userId, cutoff);
+  await purgeHiddenDelegationRows();
+}
+
+async function hideInactiveDelegationsForParticipant(
+  userId: string,
+  inactiveBefore: number,
+) {
+  const now = Date.now();
+  await db
+    .updateTable("delegationGrants")
+    .set({ ownerHiddenAt: now })
+    .where("ownerUserId", "=", userId)
+    .where("ownerHiddenAt", "is", null)
+    .where((eb) =>
+      eb.or([
+        eb("revokedAt", "<=", inactiveBefore),
+        eb("expiresAt", "<=", inactiveBefore),
+      ]),
+    )
+    .execute();
+  await db
+    .updateTable("delegationGrants")
+    .set({ delegateHiddenAt: now })
+    .where("delegateUserId", "=", userId)
+    .where("delegateHiddenAt", "is", null)
+    .where((eb) =>
+      eb.or([
+        eb("revokedAt", "<=", inactiveBefore),
+        eb("expiresAt", "<=", inactiveBefore),
+      ]),
+    )
+    .execute();
+}
+
+async function purgeHiddenDelegationRows() {
+  await db
+    .deleteFrom("delegationGrants")
+    .where((eb) =>
+      eb.or([
+        eb.and([
+          eb("delegateUserId", "is", null),
+          eb("ownerHiddenAt", "is not", null),
+        ]),
+        eb.and([
+          eb("ownerHiddenAt", "is not", null),
+          eb("delegateHiddenAt", "is not", null),
+        ]),
+      ]),
+    )
+    .execute();
+}
+
+export async function clearInactiveDelegationHistory(userId: string) {
+  await hideInactiveDelegationsForParticipant(userId, Date.now());
+  await purgeHiddenDelegationRows();
+  return listDelegations(userId);
 }

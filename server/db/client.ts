@@ -211,6 +211,19 @@ export async function initializeDatabase() {
     `);
   }
 
+  if (!tableNames.includes("accountDataDeletionDrafts")) {
+    console.log("Creating account data deletion drafts table...");
+    sqliteDb.exec(`
+      CREATE TABLE accountDataDeletionDrafts (
+        userId TEXT PRIMARY KEY,
+        selectedCategories TEXT NOT NULL DEFAULT '[]',
+        intent TEXT NOT NULL CHECK(intent IN ('selected_data', 'account_closure')),
+        updatedAt INTEGER NOT NULL,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+      );
+    `);
+  }
+
   if (!tableNames.includes("dataRetentionPolicies")) {
     console.log("Creating data retention policies table...");
     sqliteDb.exec(`
@@ -541,6 +554,8 @@ export async function initializeDatabase() {
         createdAt INTEGER NOT NULL,
         redeemedAt INTEGER,
         revokedAt INTEGER,
+        ownerHiddenAt INTEGER,
+        delegateHiddenAt INTEGER,
         FOREIGN KEY(ownerUserId) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY(delegateUserId) REFERENCES users(id) ON DELETE CASCADE
       );
@@ -548,6 +563,23 @@ export async function initializeDatabase() {
       CREATE INDEX idx_delegationGrants_delegate ON delegationGrants(delegateUserId);
       CREATE INDEX idx_delegationGrants_expiry ON delegationGrants(expiresAt);
     `);
+  } else {
+    const delegationColumns = sqliteDb
+      .prepare("PRAGMA table_info(delegationGrants)")
+      .all() as Array<{ name: string }>;
+    const delegationColumnNames = delegationColumns.map(
+      (column) => column.name,
+    );
+    if (!delegationColumnNames.includes("ownerHiddenAt")) {
+      sqliteDb.exec(
+        "ALTER TABLE delegationGrants ADD COLUMN ownerHiddenAt INTEGER",
+      );
+    }
+    if (!delegationColumnNames.includes("delegateHiddenAt")) {
+      sqliteDb.exec(
+        "ALTER TABLE delegationGrants ADD COLUMN delegateHiddenAt INTEGER",
+      );
+    }
   }
 
   sqliteDb

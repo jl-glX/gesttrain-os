@@ -142,6 +142,44 @@ describe("delegations API", () => {
       .expect(403);
   });
 
+  it("clears inactive history manually without removing active permissions", async () => {
+    const activeGrant = await request(app)
+      .post("/api/account/delegations/tokens")
+      .set("Cookie", ownerCookie)
+      .send({ duration: "7d" })
+      .expect(201);
+
+    const response = await request(app)
+      .delete("/api/account/delegations/history")
+      .set("Cookie", ownerCookie)
+      .expect(200);
+
+    expect(response.body.delegations).toHaveLength(1);
+    expect(response.body.delegations[0]).toMatchObject({
+      id: activeGrant.body.id,
+      active: true,
+    });
+  });
+
+  it("automatically hides inactive history after thirty days", async () => {
+    await database.db
+      .updateTable("delegationGrants")
+      .set({ revokedAt: Date.now() - 31 * 24 * 60 * 60 * 1000 })
+      .where("id", "=", grantId)
+      .execute();
+
+    const response = await request(app)
+      .get("/api/account/delegations")
+      .set("Cookie", delegateCookie)
+      .expect(200);
+
+    expect(
+      response.body.delegations.some(
+        (delegation: { id: string }) => delegation.id === grantId,
+      ),
+    ).toBe(false);
+  });
+
   it("does not expose delegation data without authentication", async () => {
     await request(app).get("/api/account/delegations").expect(401);
   });

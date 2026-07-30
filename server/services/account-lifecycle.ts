@@ -1,6 +1,10 @@
 import { randomBytes } from "node:crypto";
 import { db } from "../db/client.js";
-import { getAccountDispositionPreview } from "./data-retention.js";
+import {
+  ACCOUNT_DATA_CATEGORIES,
+  getAccountDispositionPreview,
+  type AccountDataCategory,
+} from "./data-retention.js";
 import { recordSecurityEvent } from "./security-events.js";
 
 export const INACTIVITY_DELETION_OPTIONS = [6, 12, 18, 24, 36] as const;
@@ -130,4 +134,83 @@ export async function cancelScheduledAccountDeletion(userId: string) {
     await recordSecurityEvent("account_deletion_cancelled", userId);
   }
   return getAccountLifecycle(userId);
+}
+
+export async function getDataDeletionReview(userId: string) {
+  const [lifecycle, draft] = await Promise.all([
+    getAccountLifecycle(userId),
+    db
+      .selectFrom("accountDataDeletionDrafts")
+      .select(["selectedCategories", "intent", "updatedAt"])
+      .where("userId", "=", userId)
+      .executeTakeFirst(),
+  ]);
+
+  let selectedCategories: AccountDataCategory[] = [];
+  if (draft) {
+    try {
+      const parsed = JSON.parse(draft.selectedCategories) as unknown;
+      if (Array.isArray(parsed)) {
+        selectedCategories = parsed.filter(
+          (category): category is AccountDataCategory =>
+            typeof category === "string" &&
+            ACCOUNT_DATA_CATEGORIES.includes(category as AccountDataCategory),
+        );
+      }
+    } catch {
+      selectedCategories = [];
+    }
+  }
+
+  return {
+    ...lifecycle,
+    deletionDraft: draft
+      ? {
+          selectedCategories,
+          intent: draft.intent,
+          updatedAt: draft.updatedAt,
+        }
+      : null,
+    legalRetentionNoticeRequired: true,
+  };
+}
+
+export async function saveDataDeletionReview(
+  userId: string,
+  selectedCategories: AccountDataCategory[],
+  intent: "selected_data" | "account_closure",
+) {
+  const normalizedCategories = [
+    ...new Set(
+      selectedCategories.filter((category) =>
+        ACCOUNT_DATA_CATEGORIES.includes(category),
+      ),
+    ),
+  ];
+  if (intent === "selected_data" && normalizedCategories.length === 0) {
+    throw new Error("Select at least one data category");
+  }
+
+  const now = Date.now();
+  await db
+    .insertInto("accountDataDeletionDrafts")
+    .values({
+      userId,
+      selectedCategories: JSON.stringify(normalizedCategories),
+      intent,
+      updatedAt: now,
+    })
+    .onConflict((conflict) =>
+      conflict.column("userId").doUpdateSet({
+        selectedCategories: JSON.stringify(normalizedCategories),
+        intent,
+        updatedAt: now,
+      }),
+    )
+    .execute();
+  await recordSecurityEvent("account_data_deletion_draft_updated", userId, {
+    intent,
+    categoryCount: normalizedCategories.length,
+  });
+  return getDataDeletionReview(userId);
 }

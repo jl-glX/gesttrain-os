@@ -16,6 +16,18 @@ platform certification. GestTrain/OS does not store passwords or session tokens 
 browser storage. WebAuthn delegates biometric or PIN verification to the device;
 GestTrain/OS stores a public credential, never a fingerprint, face template or device PIN.
 
+## Delegation history
+
+Active permissions and accepted delegations remain visible while they can be
+used. Inactive delegation history is visible to each participant for up to 30
+days and can also be cleared manually from that participant's view.
+
+Clearing history is not permission revocation and never removes an active
+delegation. Each participant has independent visibility: a row is physically
+removed only after no participant still needs it. This keeps the everyday
+account view compact without using display cleanup as a substitute for a
+security audit or a future legally required record.
+
 ## Authentication portals
 
 GestTrain/OS presents members and centre staff with separate sign-in portals. The
