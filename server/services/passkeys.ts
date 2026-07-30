@@ -19,7 +19,7 @@ import {
 } from "./auth.js";
 import { recordSecurityEvent } from "./security-events.js";
 
-const RP_NAME = "HubFit";
+const RP_NAME = "GestTrain/OS";
 
 function tokenId(token: string): string {
   return createHash("sha256").update(token).digest("hex");

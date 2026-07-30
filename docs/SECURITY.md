@@ -2,7 +2,7 @@
 
 ## Account protection
 
-HubFit supports TOTP two-step verification with common authenticator apps,
+GestTrain/OS supports TOTP two-step verification with common authenticator apps,
 single-use recovery codes, revocable server-side sessions, WebAuthn passkeys and
 a recent security activity log. MFA secrets are encrypted with AES-256-GCM and
 recovery codes are stored as keyed hashes. Production deployments must provide a unique
@@ -12,13 +12,13 @@ environments.
 The implementation uses browser standards and responsive web controls, so the
 same flow is available in current browsers on Windows, macOS, Android and iOS.
 Physical-device and native-app verification is still required before claiming
-platform certification. HubFit does not store passwords or session tokens in
+platform certification. GestTrain/OS does not store passwords or session tokens in
 browser storage. WebAuthn delegates biometric or PIN verification to the device;
-HubFit stores a public credential, never a fingerprint, face template or device PIN.
+GestTrain/OS stores a public credential, never a fingerprint, face template or device PIN.
 
 ## Authentication portals
 
-HubFit presents members and centre staff with separate sign-in portals. The
+GestTrain/OS presents members and centre staff with separate sign-in portals. The
 member portal accepts only member accounts. The staff portal accepts trainer
 and administrator accounts and can identify a centre account by its corporate
 email address or registered centre phone number. This separation is enforced

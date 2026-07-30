@@ -12,7 +12,7 @@ describe("facility profile API", () => {
   let memberCookie: string;
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "hubfit-facility-profile-"));
+    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-facility-profile-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();

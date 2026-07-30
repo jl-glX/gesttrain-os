@@ -12,7 +12,7 @@ import QRCode from "qrcode";
 import { db } from "../db/client.js";
 import { recordSecurityEvent } from "./security-events.js";
 
-const ISSUER = "HubFit";
+const ISSUER = "GestTrain/OS";
 const RECOVERY_CODE_COUNT = 10;
 
 function encryptionKey(): Buffer {

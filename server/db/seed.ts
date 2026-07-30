@@ -2,15 +2,15 @@ import { db } from "./client.js";
 import { hashPassword } from "../services/auth.js";
 
 const DEMO_PASSWORDS = {
-  admin: "HubFitAdmin123",
-  trainer: "HubFitTrainer123",
-  member: "HubFitMember123",
+  admin: "GestTrain/OSAdmin123",
+  trainer: "GestTrain/OSTrainer123",
+  member: "GestTrain/OSMember123",
 } as const;
 
 const ADMIN_USER = {
   id: "admin-1",
-  name: "Admin HubFit",
-  email: "admin@hubfit.com",
+  name: "Admin GestTrain/OS",
+  email: "admin@gesttrain-os.com",
   phone: "+34953000000",
   password: DEMO_PASSWORDS.admin,
 };
@@ -19,25 +19,25 @@ const TRAINERS = [
   {
     id: "trainer-1",
     name: "Carlos Martínez",
-    email: "carlos@hubfit.com",
+    email: "carlos@gesttrain-os.com",
     password: DEMO_PASSWORDS.trainer,
   },
   {
     id: "trainer-2",
     name: "Ana García",
-    email: "ana@hubfit.com",
+    email: "ana@gesttrain-os.com",
     password: DEMO_PASSWORDS.trainer,
   },
   {
     id: "trainer-3",
     name: "Jorge López",
-    email: "jorge@hubfit.com",
+    email: "jorge@gesttrain-os.com",
     password: DEMO_PASSWORDS.trainer,
   },
   {
     id: "trainer-4",
     name: "Sofía Rodríguez",
-    email: "sofia@hubfit.com",
+    email: "sofia@gesttrain-os.com",
     password: DEMO_PASSWORDS.trainer,
   },
 ];

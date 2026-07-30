@@ -1,8 +1,8 @@
-# HubFit
+# GestTrain/OS
 
-HubFit is a modular gym-management application for classes, bookings, waitlists, users, trainers and activity analytics. The responsive interface supports Spanish, English, German and Swiss Standard German.
+GestTrain/OS is a modular gym-management application for classes, bookings, waitlists, users, trainers and activity analytics. The responsive interface supports Spanish, English, German and Swiss Standard German.
 
-> Project status: active MVP development. HubFit is not yet ready for commercial production or real payments.
+> Project status: active MVP development. GestTrain/OS is not yet ready for commercial production or real payments.
 
 ## Current capabilities
 
@@ -70,4 +70,4 @@ Development mode seeds demonstration accounts and classes. Demo credentials are 
 
 ## Ownership and licence
 
-HubFit is owned and operated by Javier López Díaz. The repository currently has no open-source licence; reuse rights are not granted by default.
+GestTrain/OS is owned and operated by Javier López Díaz. The repository currently has no open-source licence; reuse rights are not granted by default.

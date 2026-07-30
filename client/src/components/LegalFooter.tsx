@@ -19,7 +19,7 @@ export function LegalFooter({ variant = "dark" }: LegalFooterProps) {
     >
       <div className="mx-auto flex max-w-[96rem] flex-col items-center justify-between gap-4 sm:flex-row">
         <p>
-          © {new Date().getFullYear()} HubFit. {t("home.rights")}
+          © {new Date().getFullYear()} GestTrain/OS. {t("home.rights")}
         </p>
         <nav
           aria-label={t("legal.footer.navigation")}

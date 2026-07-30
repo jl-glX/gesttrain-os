@@ -51,14 +51,14 @@ export function LoginPage() {
           role: t("roles.member"),
           description: t("auth.demoMemberDescription"),
           email: "juan@example.com",
-          password: "HubFitMember123",
+          password: "GestTrain/OSMember123",
           icon: UserRound,
         }
       : {
           role: t("roles.admin"),
           description: t("auth.demoAdminDescription"),
-          email: "admin@hubfit.com",
-          password: "HubFitAdmin123",
+          email: "admin@gesttrain-os.com",
+          password: "GestTrain/OSAdmin123",
           icon: ShieldCheck,
         };
 
@@ -305,7 +305,7 @@ export function LoginPage() {
               placeholder={
                 accessPortal === "member"
                   ? "juan@example.com"
-                  : "centro@hubfit.com / +34 953 000 000"
+                  : "centro@gesttrain-os.com / +34 953 000 000"
               }
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}

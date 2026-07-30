@@ -26,15 +26,15 @@ describe("download manifest", () => {
   });
 
   it("only exposes configured HTTPS destinations", () => {
-    vi.stubEnv("DOWNLOAD_WINDOWS_URL", "https://apps.example.com/hubfit");
-    vi.stubEnv("DOWNLOAD_ANDROID_URL", "http://insecure.example.com/hubfit");
+    vi.stubEnv("DOWNLOAD_WINDOWS_URL", "https://apps.example.com/gesttrain-os");
+    vi.stubEnv("DOWNLOAD_ANDROID_URL", "http://insecure.example.com/gesttrain-os");
     vi.stubEnv("DOWNLOAD_ZIP_URL", "not-a-url");
 
     const manifest = getDownloadManifest();
 
     expect(manifest.find((option) => option.id === "windows")).toMatchObject({
       available: true,
-      url: "https://apps.example.com/hubfit",
+      url: "https://apps.example.com/gesttrain-os",
     });
     expect(manifest.find((option) => option.id === "android")).toMatchObject({
       available: false,

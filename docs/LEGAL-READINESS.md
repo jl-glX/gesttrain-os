@@ -5,7 +5,7 @@ The legal pages in the application are working drafts, not legal advice. They in
 ## Confirmed
 
 - Owner and responsible person: Javier López Díaz.
-- Product name: HubFit.
+- Product name: GestTrain/OS.
 - Current stage: private software project under development.
 - Commercial payments: not enabled.
 

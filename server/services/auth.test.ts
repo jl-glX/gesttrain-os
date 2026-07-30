@@ -9,7 +9,7 @@ describe("persistent authentication sessions", () => {
   let auth: typeof import("./auth.js");
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "hubfit-auth-"));
+    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-auth-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.resetModules();
     database = await import("../db/client.js");
@@ -61,7 +61,7 @@ describe("persistent authentication sessions", () => {
       .insertInto("users")
       .values({
         id: "secure-admin",
-        email: "secure-admin@hubfit.test",
+        email: "secure-admin@gesttrain-os.test",
         phone: "+34953000123",
         name: "Secure Admin",
         avatarDataUrl: "",
@@ -73,7 +73,7 @@ describe("persistent authentication sessions", () => {
       .execute();
 
     await expect(
-      auth.login("secure-admin@hubfit.test", password, "member"),
+      auth.login("secure-admin@gesttrain-os.test", password, "member"),
     ).rejects.toThrow("Invalid email or password");
 
     const staffLogin = await auth.login("+34 953 000 123", password, "staff");

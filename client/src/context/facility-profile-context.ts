@@ -21,7 +21,7 @@ export interface FacilityProfileContextValue {
 
 export const defaultFacilityProfile: FacilityProfile = {
   id: "primary",
-  name: "Centro HubFit",
+  name: "Centro GestTrain/OS",
   logoDataUrl: "",
   accentColor: "#2563eb",
   updatedAt: 0,

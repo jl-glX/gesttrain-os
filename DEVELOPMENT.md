@@ -1,4 +1,4 @@
-# HubFit development guide
+# GestTrain/OS development guide
 
 ## Requirements
 

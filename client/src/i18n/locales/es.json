@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "HubFit",
+    "appName": "GestTrain/OS",
     "loading": "Cargando...",
     "loadingClasses": "Cargando clases...",
     "loadingBookings": "Cargando reservas...",
@@ -68,7 +68,7 @@
     "title": "Cuentas de este dispositivo",
     "remove": "Quitar {{name}} de este dispositivo",
     "useAnother": "Añadir o usar otra cuenta",
-    "privacy": "Solo se guardan el identificador y los datos visuales. HubFit nunca guarda aquí la contraseña ni la sesión."
+    "privacy": "Solo se guardan el identificador y los datos visuales. GestTrain/OS nunca guarda aquí la contraseña ni la sesión."
   },
   "accountControl": {
     "eyebrow": "Área de control de la cuenta",
@@ -76,7 +76,7 @@
     "comingSoon": "Próximamente",
     "personalSection": "Cuenta personal",
     "personalSectionTitle": "Identidad, acceso y preferencias",
-    "personalSectionDescription": "Estas opciones pertenecen a tu cuenta de HubFit y no dependen del puesto que ocupes en un centro.",
+    "personalSectionDescription": "Estas opciones pertenecen a tu cuenta de GestTrain/OS y no dependen del puesto que ocupes en un centro.",
     "memberSection": "Espacio de socio",
     "memberSectionTitle": "Entrenamiento y actividad personal",
     "memberSectionDescription": "Gestiona únicamente las reservas, pagos y herramientas vinculadas a tu identidad de socio.",
@@ -86,7 +86,7 @@
     "adminSection": "Gestión del centro",
     "adminSectionTitle": "Operación y administración",
     "adminSectionDescription": "Accede a las funciones del centro sin mezclar datos ni acciones de una identidad de socio.",
-    "linkedMemberNotice": "Las reservas y demás funciones personales de socio solo aparecerán aquí cuando HubFit permita vincular de forma explícita una identidad de socio independiente. El rol de entrenador o administrador no concede esas funciones por sí mismo.",
+    "linkedMemberNotice": "Las reservas y demás funciones personales de socio solo aparecerán aquí cuando GestTrain/OS permita vincular de forma explícita una identidad de socio independiente. El rol de entrenador o administrador no concede esas funciones por sí mismo.",
     "security": "Seguridad e inicio de sesión",
     "securityDescription": "Gestiona 2FA, claves de acceso y sesiones abiertas.",
     "downloads": "Descargas y aplicaciones",
@@ -212,7 +212,7 @@
       "secure": "Acceso seguro para cada rol"
     },
     "welcomeBack": "Te damos la bienvenida",
-    "signInTitle": "Inicia sesión en HubFit",
+    "signInTitle": "Inicia sesión en GestTrain/OS",
     "signInDescription": "Sigue gestionando tus clases, reservas y actividad deportiva.",
     "memberSignInTitle": "Accede como socio",
     "memberSignInDescription": "Reserva clases, consulta tu agenda y gestiona tu actividad deportiva.",
@@ -253,10 +253,10 @@
     "verificationHelp": "Introduce el código de tu aplicación autenticadora o uno de recuperación.",
     "alternativeSignIn": "Iniciar sesión de otra forma",
     "hideAlternativeSignIn": "Ocultar otras formas de acceso",
-    "alternativeCodeHelp": "Si tienes 2FA, introduce aquí el código de tu aplicación o uno de recuperación. HubFit comprobará primero tu cuenta y contraseña.",
+    "alternativeCodeHelp": "Si tienes 2FA, introduce aquí el código de tu aplicación o uno de recuperación. GestTrain/OS comprobará primero tu cuenta y contraseña.",
     "verifyIdentity": "Verificar identidad",
     "useDifferentAccount": "Usar otra cuenta",
-    "join": "Únete a HubFit",
+    "join": "Únete a GestTrain/OS",
     "createTitle": "Crea tu cuenta",
     "createDescription": "Configura tu perfil y empieza a planificar tus próximos entrenamientos.",
     "fullName": "Nombre completo",
@@ -275,7 +275,7 @@
     "description": "Reserva clases, organiza tu agenda y apúntate a listas de espera. Cuando quede una plaza libre, ascenderás automáticamente.",
     "browse": "Ver clases",
     "bookings": "Mis reservas",
-    "downloads": "Descargar HubFit",
+    "downloads": "Descargar GestTrain/OS",
     "features": {
       "calendarTitle": "Calendario de clases",
       "calendarText": "Encuentra cada sesión por fecha y hora.",
@@ -290,7 +290,7 @@
   },
   "adminHome": {
     "welcome": "Panel del centro · {{name}}",
-    "title": "Operación y gestión de HubFit",
+    "title": "Operación y gestión de GestTrain/OS",
     "description": "Administra clases, socios, facturación y rendimiento del centro desde un entorno orientado a la gestión.",
     "createClass": "Crear clase",
     "classes": "Clases y horarios",
@@ -302,19 +302,19 @@
     "analytics": "Asistencia y demanda",
     "analyticsDescription": "Detecta clases y franjas horarias con mayor o menor ocupación.",
     "downloads": "Centro de descargas",
-    "downloadsDescription": "Accede a las aplicaciones oficiales y al paquete portátil de HubFit.",
+    "downloadsDescription": "Accede a las aplicaciones oficiales y al paquete portátil de GestTrain/OS.",
     "resources": "Recursos del servidor",
-    "resourcesDescription": "Supervisa y controla las tareas internas registradas por HubFit."
+    "resourcesDescription": "Supervisa y controla las tareas internas registradas por GestTrain/OS."
   },
   "downloads": {
-    "eyebrow": "HubFit en todos tus dispositivos",
+    "eyebrow": "GestTrain/OS en todos tus dispositivos",
     "title": "Centro de descargas",
     "description": "Elige la aplicación oficial para tu dispositivo o descarga el paquete portátil. Las opciones se habilitan cuando cada distribución esté publicada.",
     "loadError": "No se han podido cargar las opciones de descarga.",
     "recommended": "Recomendado",
     "download": "Abrir descarga",
     "comingSoon": "Próximamente",
-    "securityNotice": "HubFit solo muestra destinos HTTPS configurados por la plataforma. Comprueba siempre que la tienda o descarga pertenece a HubFit antes de instalarla.",
+    "securityNotice": "GestTrain/OS solo muestra destinos HTTPS configurados por la plataforma. Comprueba siempre que la tienda o descarga pertenece a GestTrain/OS antes de instalarla.",
     "platforms": {
       "windows": {
         "name": "Windows",
@@ -346,7 +346,7 @@
   "resourceManager": {
     "eyebrow": "Operación de la API",
     "title": "Gestor de recursos",
-    "description": "Supervisa las tareas internas de HubFit y ejecuta, pausa o reanuda únicamente procesos registrados por la plataforma.",
+    "description": "Supervisa las tareas internas de GestTrain/OS y ejecuta, pausa o reanuda únicamente procesos registrados por la plataforma.",
     "loadError": "No se ha podido cargar el estado de los recursos.",
     "updateError": "No se ha podido actualizar la tarea.",
     "memory": "Memoria en uso",
@@ -433,7 +433,7 @@
     "ordersUnavailable": "La venta y los pedidos todavía no están habilitados.",
     "ordersAvailable": "Ya puedes consultar tus pedidos.",
     "loadFailed": "No se han podido cargar tus pagos y pedidos.",
-    "secureNotice": "HubFit no procesa cobros bancarios ni almacena datos completos de tarjetas en esta versión."
+    "secureNotice": "GestTrain/OS no procesa cobros bancarios ni almacena datos completos de tarjetas en esta versión."
   },
   "trainer": {
     "title": "Panel del entrenador",
@@ -483,7 +483,7 @@
   },
   "facilityBranding": {
     "title": "Personalización del panel",
-    "description": "Configura la identidad visual de tu centro dentro de HubFit. El logotipo principal de HubFit no se modifica.",
+    "description": "Configura la identidad visual de tu centro dentro de GestTrain/OS. El logotipo principal de GestTrain/OS no se modifica.",
     "preview": "Vista previa del centro",
     "previewDescription": "Esta identidad aparecerá en el panel y en las facturas del centro.",
     "currentFacility": "Centro activo",
@@ -502,7 +502,7 @@
     "saved": "La identidad del centro se ha actualizado correctamente."
   },
   "billing": {
-    "eyebrow": "HubFit · Administración financiera",
+    "eyebrow": "GestTrain/OS · Administración financiera",
     "title": "Cuotas, cobros y facturas",
     "description": "Gestiona cuotas, pagos pendientes, facturas y accesos de prueba del centro. Esta versión registra las operaciones, pero todavía no procesa cobros bancarios.",
     "requestFailed": "No se ha podido completar la operación de facturación",
@@ -548,7 +548,7 @@
     },
     "timeZone": {
       "label": "Zona horaria del dispositivo",
-      "hint": "Las fechas se muestran automáticamente según el idioma de HubFit y la zona horaria del navegador y del sistema."
+      "hint": "Las fechas se muestran automáticamente según el idioma de GestTrain/OS y la zona horaria del navegador y del sistema."
     },
     "currencies": {
       "EUR": "Euro",
@@ -671,10 +671,10 @@
   },
   "legal": {
     "eyebrow": "Información legal",
-    "back": "Volver a HubFit",
+    "back": "Volver a GestTrain/OS",
     "lastUpdated": "Última actualización: 22 de julio de 2026",
     "draftTitle": "Documento provisional.",
-    "draftDescription": "HubFit está en fase de desarrollo. Este texto debe revisarse y completarse con los datos reales del titular, el servicio y su política comercial antes de publicarse o aceptar pagos.",
+    "draftDescription": "GestTrain/OS está en fase de desarrollo. Este texto debe revisarse y completarse con los datos reales del titular, el servicio y su política comercial antes de publicarse o aceptar pagos.",
     "footer": {
       "navigation": "Enlaces legales",
       "notice": "Aviso legal",
@@ -684,27 +684,27 @@
     "pages": {
       "notice": {
         "title": "Aviso legal",
-        "introduction": "Este aviso recoge la información general del sitio y las reglas básicas aplicables al acceso a HubFit durante su fase de desarrollo.",
+        "introduction": "Este aviso recoge la información general del sitio y las reglas básicas aplicables al acceso a GestTrain/OS durante su fase de desarrollo.",
         "sections": {
           "owner": {
             "title": "1. Titular del sitio",
-            "body": "El titular y responsable de HubFit es Javier López Díaz. HubFit es actualmente un proyecto de software en desarrollo. El domicilio, la identificación fiscal, los datos registrales que correspondan y un medio de contacto legal directo deberán incorporarse aquí antes de la publicación comercial del servicio."
+            "body": "El titular y responsable de GestTrain/OS es Javier López Díaz. GestTrain/OS es actualmente un proyecto de software en desarrollo. El domicilio, la identificación fiscal, los datos registrales que correspondan y un medio de contacto legal directo deberán incorporarse aquí antes de la publicación comercial del servicio."
           },
           "purpose": {
             "title": "2. Objeto",
-            "body": "HubFit proporciona herramientas para consultar clases, gestionar reservas y listas de espera, y facilitar la administración de centros deportivos. Las funciones disponibles pueden cambiar mientras el producto permanezca en desarrollo."
+            "body": "GestTrain/OS proporciona herramientas para consultar clases, gestionar reservas y listas de espera, y facilitar la administración de centros deportivos. Las funciones disponibles pueden cambiar mientras el producto permanezca en desarrollo."
           },
           "intellectualProperty": {
             "title": "3. Propiedad intelectual e industrial",
-            "body": "El diseño, el código, la marca, los textos y los demás elementos propios de HubFit están protegidos por la normativa aplicable. Su acceso no concede derechos de reproducción, distribución, modificación o explotación salvo autorización expresa o licencia aplicable."
+            "body": "El diseño, el código, la marca, los textos y los demás elementos propios de GestTrain/OS están protegidos por la normativa aplicable. Su acceso no concede derechos de reproducción, distribución, modificación o explotación salvo autorización expresa o licencia aplicable."
           },
           "links": {
             "title": "4. Enlaces y servicios de terceros",
-            "body": "La aplicación puede incorporar enlaces o integraciones de terceros. HubFit no controla sus contenidos, disponibilidad ni políticas, por lo que cada servicio externo se rige por sus propias condiciones."
+            "body": "La aplicación puede incorporar enlaces o integraciones de terceros. GestTrain/OS no controla sus contenidos, disponibilidad ni políticas, por lo que cada servicio externo se rige por sus propias condiciones."
           },
           "liability": {
             "title": "5. Disponibilidad y responsabilidad",
-            "body": "Durante la fase de desarrollo no se garantiza la disponibilidad continua ni la ausencia de errores. HubFit aplicará medidas razonables para proteger y mantener el servicio, sin perjuicio de las responsabilidades que no puedan excluirse legalmente."
+            "body": "Durante la fase de desarrollo no se garantiza la disponibilidad continua ni la ausencia de errores. GestTrain/OS aplicará medidas razonables para proteger y mantener el servicio, sin perjuicio de las responsabilidades que no puedan excluirse legalmente."
           },
           "law": {
             "title": "6. Legislación aplicable",
@@ -714,11 +714,11 @@
       },
       "terms": {
         "title": "Términos y condiciones",
-        "introduction": "Estos términos describen las bases previstas para la relación entre HubFit, los centros deportivos y las personas usuarias. No constituyen todavía unas condiciones comerciales definitivas.",
+        "introduction": "Estos términos describen las bases previstas para la relación entre GestTrain/OS, los centros deportivos y las personas usuarias. No constituyen todavía unas condiciones comerciales definitivas.",
         "sections": {
           "scope": {
             "title": "1. Ámbito del servicio",
-            "body": "HubFit permite gestionar clases, usuarios, entrenadores, reservas, aforos y listas de espera. Cada centro podrá configurar parte del servicio y será responsable de comunicar sus horarios, precios y normas particulares."
+            "body": "GestTrain/OS permite gestionar clases, usuarios, entrenadores, reservas, aforos y listas de espera. Cada centro podrá configurar parte del servicio y será responsable de comunicar sus horarios, precios y normas particulares."
           },
           "accounts": {
             "title": "2. Registro y cuentas",
@@ -730,7 +730,7 @@
           },
           "payments": {
             "title": "4. Pagos y planes",
-            "body": "HubFit no tiene activados pagos comerciales en esta versión. Antes de incorporar Stripe u otro proveedor deberán definirse precios, impuestos, facturación, renovaciones, reembolsos y el reparto de responsabilidades con el centro y el proveedor de pago. HubFit no almacenará datos completos de tarjetas."
+            "body": "GestTrain/OS no tiene activados pagos comerciales en esta versión. Antes de incorporar Stripe u otro proveedor deberán definirse precios, impuestos, facturación, renovaciones, reembolsos y el reparto de responsabilidades con el centro y el proveedor de pago. GestTrain/OS no almacenará datos completos de tarjetas."
           },
           "cancellations": {
             "title": "5. Cancelaciones y bajas",
@@ -748,7 +748,7 @@
       },
       "use": {
         "title": "Condiciones de uso",
-        "introduction": "Estas reglas explican cómo utilizar HubFit de forma segura y responsable mientras se gestionan clases, reservas y actividades de la comunidad.",
+        "introduction": "Estas reglas explican cómo utilizar GestTrain/OS de forma segura y responsable mientras se gestionan clases, reservas y actividades de la comunidad.",
         "sections": {
           "access": {
             "title": "1. Acceso y seguridad",
@@ -756,7 +756,7 @@
           },
           "acceptableUse": {
             "title": "2. Uso permitido",
-            "body": "No se permite interferir con el servicio, automatizar peticiones abusivas, introducir código malicioso, suplantar identidades, extraer datos sin autorización ni utilizar HubFit para actividades ilícitas."
+            "body": "No se permite interferir con el servicio, automatizar peticiones abusivas, introducir código malicioso, suplantar identidades, extraer datos sin autorización ni utilizar GestTrain/OS para actividades ilícitas."
           },
           "bookings": {
             "title": "3. Uso responsable de las reservas",
@@ -768,7 +768,7 @@
           },
           "health": {
             "title": "5. Salud y actividad física",
-            "body": "HubFit organiza información y reservas, pero no presta asesoramiento médico. Cada persona debe valorar su estado de salud, seguir las indicaciones profesionales y comunicar al centro cualquier limitación relevante antes de participar en una actividad."
+            "body": "GestTrain/OS organiza información y reservas, pero no presta asesoramiento médico. Cada persona debe valorar su estado de salud, seguir las indicaciones profesionales y comunicar al centro cualquier limitación relevante antes de participar en una actividad."
           },
           "availability": {
             "title": "6. Disponibilidad del servicio",
@@ -784,7 +784,7 @@
   },
   "profilePhoto": {
     "title": "Foto de perfil",
-    "description": "Esta imagen identifica tu cuenta dentro de HubFit. Es independiente del logotipo oficial de la plataforma y del logotipo del gimnasio.",
+    "description": "Esta imagen identifica tu cuenta dentro de GestTrain/OS. Es independiente del logotipo oficial de la plataforma y del logotipo del gimnasio.",
     "choose": "Elegir foto",
     "remove": "Quitar foto",
     "save": "Guardar foto",
@@ -803,7 +803,7 @@
     "twoFactorDescription": "Añade un código temporal de una aplicación autenticadora además de tu contraseña.",
     "passkeyTitle": "Bloqueo biométrico y claves de acceso",
     "passkeyDescription": "Activa una clave de acceso para identificarte con la protección del dispositivo en vez de escribir la contraseña.",
-    "passkeyPrivacy": "Tu huella o rostro se verifican en el dispositivo y nunca se envían ni se almacenan en HubFit.",
+    "passkeyPrivacy": "Tu huella o rostro se verifican en el dispositivo y nunca se envían ni se almacenan en GestTrain/OS.",
     "passkeyUnavailable": "Este navegador o dispositivo no ofrece ahora mismo un autenticador integrado compatible.",
     "enablePasskey": "Activar en este dispositivo",
     "disablePasskey": "Desactivar claves de acceso",
@@ -828,12 +828,12 @@
     "codesRegenerated": "Se han generado códigos de recuperación nuevos.",
     "disabledSuccess": "La verificación en dos pasos se ha desactivado.",
     "saveCodes": "Guarda estos códigos de recuperación",
-    "codesShownOnce": "Cada código sirve una sola vez y no volverá a mostrarse. Guárdalos fuera de HubFit.",
+    "codesShownOnce": "Cada código sirve una sola vez y no volverá a mostrarse. Guárdalos fuera de GestTrain/OS.",
     "copyCodes": "Copiar códigos",
     "codesCopied": "Códigos copiados y ocultados.",
     "downloadCodes": "Descargar códigos",
     "codesDownloaded": "Códigos descargados y ocultados.",
-    "downloadHeading": "Códigos de recuperación de HubFit",
+    "downloadHeading": "Códigos de recuperación de GestTrain/OS",
     "downloadWarning": "Guarda este archivo en un lugar seguro. Cada código funciona una sola vez.",
     "sessions": "Sesiones activas",
     "sessionsDescription": "Revisa dónde está abierta tu cuenta y cierra accesos que no reconozcas.",
@@ -884,7 +884,7 @@
   },
   "feedback": {
     "footer": "Retroalimentación",
-    "title": "Ayúdanos a mejorar HubFit",
+    "title": "Ayúdanos a mejorar GestTrain/OS",
     "description": "Cuéntanos qué funciona, qué te cuesta usar o qué podríamos mejorar. Tu mensaje quedará vinculado a tu cuenta para poder investigarlo.",
     "category": "Tipo de comentario",
     "categories": {

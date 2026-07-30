@@ -25,7 +25,7 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
-const CURRENCY_KEY = "hubfit-billing-currency";
+const CURRENCY_KEY = "gesttrain-os-billing-currency";
 type RecordFilter = "active" | "archived" | "all";
 const billingCurrencies = [
   "EUR",

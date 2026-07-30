@@ -53,7 +53,7 @@ function LegalPage({ kind }: LegalPageProps) {
             to="/"
           >
             <BrandLogo className="h-11 w-11 rounded-xl shadow-lg shadow-blue-600/20" />
-            <span className="text-xl">HubFit</span>
+            <span className="text-xl">GestTrain/OS</span>
           </Link>
           <LanguageSwitcher compact />
         </div>

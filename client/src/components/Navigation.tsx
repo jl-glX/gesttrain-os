@@ -57,7 +57,7 @@ export function Navigation() {
             className="flex shrink-0 items-center gap-2.5 font-bold text-xl tracking-tight text-slate-950"
           >
             <BrandLogo className="h-10 w-10 rounded-xl shadow-lg shadow-blue-600/20" />
-            <span className="hidden sm:inline">HubFit</span>
+            <span className="hidden sm:inline">GestTrain/OS</span>
           </Link>
 
           <div

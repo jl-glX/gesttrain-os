@@ -19,8 +19,8 @@ void i18n
       es: { translation: es },
     },
     fallbackLng: {
-      "de-CH": ["de", "en"],
-      de: ["en"],
+      "de-CH": [],
+      de: [],
       default: ["es"],
     },
     supportedLngs: supportedLanguages,
@@ -28,7 +28,7 @@ void i18n
     nonExplicitSupportedLngs: false,
     detection: {
       order: ["localStorage", "navigator"],
-      lookupLocalStorage: "hubfit-language",
+      lookupLocalStorage: "gesttrain-os-language",
       caches: ["localStorage"],
     },
     interpolation: {

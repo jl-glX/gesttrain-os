@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "HubFit",
+    "appName": "GestTrain/OS",
     "loading": "Loading...",
     "loadingClasses": "Loading classes...",
     "loadingBookings": "Loading bookings...",
@@ -64,7 +64,7 @@
     "title": "Accounts on this device",
     "remove": "Remove {{name}} from this device",
     "useAnother": "Add or use another account",
-    "privacy": "Only the identifier and visual details are stored. HubFit never saves the password or session here."
+    "privacy": "Only the identifier and visual details are stored. GestTrain/OS never saves the password or session here."
   },
   "accountControl": {
     "eyebrow": "Account control area",
@@ -72,7 +72,7 @@
     "comingSoon": "Coming soon",
     "personalSection": "Personal account",
     "personalSectionTitle": "Identity, access and preferences",
-    "personalSectionDescription": "These options belong to your HubFit account and do not depend on your position at a facility.",
+    "personalSectionDescription": "These options belong to your GestTrain/OS account and do not depend on your position at a facility.",
     "memberSection": "Member area",
     "memberSectionTitle": "Training and personal activity",
     "memberSectionDescription": "Manage only the bookings, payments and tools linked to your member identity.",
@@ -82,7 +82,7 @@
     "adminSection": "Facility management",
     "adminSectionTitle": "Operations and administration",
     "adminSectionDescription": "Access facility functions without mixing data or actions from a member identity.",
-    "linkedMemberNotice": "Bookings and other personal member features will only appear here when HubFit supports explicitly linking a separate member identity. A trainer or administrator role does not grant those features by itself.",
+    "linkedMemberNotice": "Bookings and other personal member features will only appear here when GestTrain/OS supports explicitly linking a separate member identity. A trainer or administrator role does not grant those features by itself.",
     "security": "Security and sign-in",
     "securityDescription": "Manage 2FA, passkeys and open sessions.",
     "downloads": "Downloads and apps",
@@ -208,7 +208,7 @@
       "secure": "Secure access for every role"
     },
     "welcomeBack": "Welcome back",
-    "signInTitle": "Sign in to HubFit",
+    "signInTitle": "Sign in to GestTrain/OS",
     "signInDescription": "Continue managing your classes, bookings and training activity.",
     "memberSignInTitle": "Member sign in",
     "memberSignInDescription": "Book classes, review your schedule and manage your training activity.",
@@ -249,10 +249,10 @@
     "verificationHelp": "Enter the code from your authenticator app or a recovery code.",
     "alternativeSignIn": "Sign in another way",
     "hideAlternativeSignIn": "Hide other sign-in methods",
-    "alternativeCodeHelp": "If you use 2FA, enter an authenticator or recovery code here. HubFit will verify your account and password first.",
+    "alternativeCodeHelp": "If you use 2FA, enter an authenticator or recovery code here. GestTrain/OS will verify your account and password first.",
     "verifyIdentity": "Verify identity",
     "useDifferentAccount": "Use another account",
-    "join": "Join HubFit",
+    "join": "Join GestTrain/OS",
     "createTitle": "Create your account",
     "createDescription": "Set up your profile and start planning your next training sessions.",
     "fullName": "Full name",
@@ -271,7 +271,7 @@
     "description": "Book classes, manage your schedule, and join waitlists. Get promoted automatically when spots open up.",
     "browse": "Browse classes",
     "bookings": "My bookings",
-    "downloads": "Download HubFit",
+    "downloads": "Download GestTrain/OS",
     "rights": "All rights reserved.",
     "features": {
       "calendarTitle": "Class calendar",
@@ -286,7 +286,7 @@
   },
   "adminHome": {
     "welcome": "Facility console · {{name}}",
-    "title": "HubFit operations and management",
+    "title": "GestTrain/OS operations and management",
     "description": "Manage classes, members, billing and facility performance from an operations-focused workspace.",
     "createClass": "Create class",
     "classes": "Classes and schedules",
@@ -298,19 +298,19 @@
     "analytics": "Attendance and demand",
     "analyticsDescription": "Find classes and time slots with the highest and lowest attendance.",
     "downloads": "Download center",
-    "downloadsDescription": "Access the official apps and HubFit portable package.",
+    "downloadsDescription": "Access the official apps and GestTrain/OS portable package.",
     "resources": "Server resources",
-    "resourcesDescription": "Monitor and control internal tasks registered by HubFit."
+    "resourcesDescription": "Monitor and control internal tasks registered by GestTrain/OS."
   },
   "downloads": {
-    "eyebrow": "HubFit on all your devices",
+    "eyebrow": "GestTrain/OS on all your devices",
     "title": "Download center",
     "description": "Choose the official app for your device or download the portable package. Options become available as each distribution is published.",
     "loadError": "Download options could not be loaded.",
     "recommended": "Recommended",
     "download": "Open download",
     "comingSoon": "Coming soon",
-    "securityNotice": "HubFit only shows HTTPS destinations configured by the platform. Always confirm that the store or download belongs to HubFit before installing it.",
+    "securityNotice": "GestTrain/OS only shows HTTPS destinations configured by the platform. Always confirm that the store or download belongs to GestTrain/OS before installing it.",
     "platforms": {
       "windows": {
         "name": "Windows",
@@ -342,7 +342,7 @@
   "resourceManager": {
     "eyebrow": "API operations",
     "title": "Resource manager",
-    "description": "Monitor HubFit internal tasks and run, pause or resume only processes registered by the platform.",
+    "description": "Monitor GestTrain/OS internal tasks and run, pause or resume only processes registered by the platform.",
     "loadError": "Resource status could not be loaded.",
     "updateError": "The task could not be updated.",
     "memory": "Memory in use",
@@ -429,7 +429,7 @@
     "ordersUnavailable": "Sales and orders are not enabled yet.",
     "ordersAvailable": "You can now review your orders.",
     "loadFailed": "Your payments and orders could not be loaded.",
-    "secureNotice": "HubFit does not process bank payments or store full card details in this version."
+    "secureNotice": "GestTrain/OS does not process bank payments or store full card details in this version."
   },
   "trainer": {
     "title": "Trainer dashboard",
@@ -479,7 +479,7 @@
   },
   "facilityBranding": {
     "title": "Panel customisation",
-    "description": "Configure your facility identity inside HubFit. The main HubFit product logo is not changed.",
+    "description": "Configure your facility identity inside GestTrain/OS. The main GestTrain/OS product logo is not changed.",
     "preview": "Facility preview",
     "previewDescription": "This identity will appear in the facility panel and invoices.",
     "currentFacility": "Active facility",
@@ -498,7 +498,7 @@
     "saved": "The facility identity has been updated."
   },
   "billing": {
-    "eyebrow": "HubFit · Financial administration",
+    "eyebrow": "GestTrain/OS · Financial administration",
     "title": "Fees, payments and invoices",
     "description": "Manage facility fees, pending payments, invoices and trial access. This version records operations but does not process bank payments yet.",
     "requestFailed": "The billing operation could not be completed",
@@ -544,7 +544,7 @@
     },
     "timeZone": {
       "label": "Device time zone",
-      "hint": "Dates are shown automatically using the HubFit language and the browser and system time zone."
+      "hint": "Dates are shown automatically using the GestTrain/OS language and the browser and system time zone."
     },
     "currencies": {
       "EUR": "Euro",
@@ -661,10 +661,10 @@
   },
   "legal": {
     "eyebrow": "Legal information",
-    "back": "Back to HubFit",
+    "back": "Back to GestTrain/OS",
     "lastUpdated": "Last updated: 22 July 2026",
     "draftTitle": "Draft document.",
-    "draftDescription": "HubFit is under development. This text must be reviewed and completed with the real owner, service and commercial-policy details before publication or payment acceptance.",
+    "draftDescription": "GestTrain/OS is under development. This text must be reviewed and completed with the real owner, service and commercial-policy details before publication or payment acceptance.",
     "footer": {
       "navigation": "Legal links",
       "notice": "Legal notice",
@@ -674,27 +674,27 @@
     "pages": {
       "notice": {
         "title": "Legal notice",
-        "introduction": "This notice sets out general information about the site and the basic rules governing access to HubFit during its development phase.",
+        "introduction": "This notice sets out general information about the site and the basic rules governing access to GestTrain/OS during its development phase.",
         "sections": {
           "owner": {
             "title": "1. Site owner",
-            "body": "HubFit is owned and operated by Javier López Díaz. HubFit is currently a software project under development. The address, tax identification, any applicable registration details and a direct legal contact channel must be added here before the service is commercially released."
+            "body": "GestTrain/OS is owned and operated by Javier López Díaz. GestTrain/OS is currently a software project under development. The address, tax identification, any applicable registration details and a direct legal contact channel must be added here before the service is commercially released."
           },
           "purpose": {
             "title": "2. Purpose",
-            "body": "HubFit provides tools to browse classes, manage bookings and waitlists, and support sports-centre administration. Available features may change while the product remains under development."
+            "body": "GestTrain/OS provides tools to browse classes, manage bookings and waitlists, and support sports-centre administration. Available features may change while the product remains under development."
           },
           "intellectualProperty": {
             "title": "3. Intellectual and industrial property",
-            "body": "HubFit's design, code, brand, text and other original elements are protected by applicable law. Access does not grant rights to reproduce, distribute, modify or exploit them unless expressly authorised or covered by an applicable licence."
+            "body": "GestTrain/OS's design, code, brand, text and other original elements are protected by applicable law. Access does not grant rights to reproduce, distribute, modify or exploit them unless expressly authorised or covered by an applicable licence."
           },
           "links": {
             "title": "4. Third-party links and services",
-            "body": "The application may include third-party links or integrations. HubFit does not control their content, availability or policies, and each external service is governed by its own terms."
+            "body": "The application may include third-party links or integrations. GestTrain/OS does not control their content, availability or policies, and each external service is governed by its own terms."
           },
           "liability": {
             "title": "5. Availability and liability",
-            "body": "Continuous availability and error-free operation are not guaranteed during development. HubFit will apply reasonable measures to protect and maintain the service, without excluding liabilities that cannot legally be excluded."
+            "body": "Continuous availability and error-free operation are not guaranteed during development. GestTrain/OS will apply reasonable measures to protect and maintain the service, without excluding liabilities that cannot legally be excluded."
           },
           "law": {
             "title": "6. Applicable law",
@@ -704,11 +704,11 @@
       },
       "terms": {
         "title": "Terms and conditions",
-        "introduction": "These terms describe the intended basis of the relationship between HubFit, sports centres and users. They are not yet final commercial terms.",
+        "introduction": "These terms describe the intended basis of the relationship between GestTrain/OS, sports centres and users. They are not yet final commercial terms.",
         "sections": {
           "scope": {
             "title": "1. Scope of the service",
-            "body": "HubFit supports the management of classes, users, trainers, bookings, capacity and waitlists. Each centre may configure parts of the service and is responsible for communicating its schedules, prices and specific rules."
+            "body": "GestTrain/OS supports the management of classes, users, trainers, bookings, capacity and waitlists. Each centre may configure parts of the service and is responsible for communicating its schedules, prices and specific rules."
           },
           "accounts": {
             "title": "2. Registration and accounts",
@@ -720,7 +720,7 @@
           },
           "payments": {
             "title": "4. Payments and plans",
-            "body": "Commercial payments are not enabled in this version of HubFit. Before Stripe or another provider is added, prices, taxes, invoicing, renewals, refunds and responsibilities among HubFit, the centre and the payment provider must be defined. HubFit will not store full card details."
+            "body": "Commercial payments are not enabled in this version of GestTrain/OS. Before Stripe or another provider is added, prices, taxes, invoicing, renewals, refunds and responsibilities among GestTrain/OS, the centre and the payment provider must be defined. GestTrain/OS will not store full card details."
           },
           "cancellations": {
             "title": "5. Cancellations and termination",
@@ -738,7 +738,7 @@
       },
       "use": {
         "title": "Conditions of use",
-        "introduction": "These rules explain how to use HubFit safely and responsibly when managing classes, bookings and community activities.",
+        "introduction": "These rules explain how to use GestTrain/OS safely and responsibly when managing classes, bookings and community activities.",
         "sections": {
           "access": {
             "title": "1. Access and security",
@@ -746,7 +746,7 @@
           },
           "acceptableUse": {
             "title": "2. Acceptable use",
-            "body": "You may not interfere with the service, automate abusive requests, introduce malicious code, impersonate others, extract data without authorisation or use HubFit for unlawful activity."
+            "body": "You may not interfere with the service, automate abusive requests, introduce malicious code, impersonate others, extract data without authorisation or use GestTrain/OS for unlawful activity."
           },
           "bookings": {
             "title": "3. Responsible booking",
@@ -758,7 +758,7 @@
           },
           "health": {
             "title": "5. Health and physical activity",
-            "body": "HubFit organises information and bookings but does not provide medical advice. Each person must assess their health, follow professional guidance and inform the centre of relevant limitations before taking part in an activity."
+            "body": "GestTrain/OS organises information and bookings but does not provide medical advice. Each person must assess their health, follow professional guidance and inform the centre of relevant limitations before taking part in an activity."
           },
           "availability": {
             "title": "6. Service availability",
@@ -774,7 +774,7 @@
   },
   "profilePhoto": {
     "title": "Profile photo",
-    "description": "This image identifies your account inside HubFit. It is separate from the official platform logo and the gym logo.",
+    "description": "This image identifies your account inside GestTrain/OS. It is separate from the official platform logo and the gym logo.",
     "choose": "Choose photo",
     "remove": "Remove photo",
     "save": "Save photo",
@@ -793,7 +793,7 @@
     "twoFactorDescription": "Require a temporary authenticator-app code in addition to your password.",
     "passkeyTitle": "Biometric lock and passkeys",
     "passkeyDescription": "Enable a passkey to sign in using device protection instead of typing your password.",
-    "passkeyPrivacy": "Your fingerprint or face is verified on the device and is never sent to or stored by HubFit.",
+    "passkeyPrivacy": "Your fingerprint or face is verified on the device and is never sent to or stored by GestTrain/OS.",
     "passkeyUnavailable": "This browser or device does not currently provide a compatible built-in authenticator.",
     "enablePasskey": "Enable on this device",
     "disablePasskey": "Disable passkeys",
@@ -818,12 +818,12 @@
     "codesRegenerated": "New recovery codes have been generated.",
     "disabledSuccess": "Two-step verification has been disabled.",
     "saveCodes": "Save these recovery codes",
-    "codesShownOnce": "Each code works once and will not be shown again. Store them outside HubFit.",
+    "codesShownOnce": "Each code works once and will not be shown again. Store them outside GestTrain/OS.",
     "copyCodes": "Copy codes",
     "codesCopied": "Codes copied and hidden.",
     "downloadCodes": "Download codes",
     "codesDownloaded": "Codes downloaded and hidden.",
-    "downloadHeading": "HubFit recovery codes",
+    "downloadHeading": "GestTrain/OS recovery codes",
     "downloadWarning": "Store this file securely. Each code can only be used once.",
     "sessions": "Active sessions",
     "sessionsDescription": "Review where your account is open and close any access you do not recognise.",
@@ -874,7 +874,7 @@
   },
   "feedback": {
     "footer": "Feedback",
-    "title": "Help us improve HubFit",
+    "title": "Help us improve GestTrain/OS",
     "description": "Tell us what works, what is difficult to use or what we could improve. Your message is linked to your account so it can be investigated.",
     "category": "Feedback type",
     "categories": {

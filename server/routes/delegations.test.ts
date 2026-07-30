@@ -15,7 +15,7 @@ describe("delegations API", () => {
   let grantId = "";
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "hubfit-delegations-"));
+    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-delegations-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();

@@ -1,6 +1,6 @@
 {
-  "name": "HubFit - Gym Classes",
-  "short_name": "HubFit",
+  "name": "GestTrain/OS - Gym Classes",
+  "short_name": "GestTrain/OS",
   "description": "Manage and reserve gym classes",
   "start_url": "/",
   "scope": "/",

@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "HubFit",
+    "appName": "GestTrain/OS",
     "loading": "Wird geladen...",
     "unknownError": "Unbekannter Fehler",
     "errorPrefix": "Fehler: {{error}}",
@@ -25,7 +25,10 @@
     "noData": "Keine Daten verfügbar",
     "at": "um",
     "unauthorized": "Du hast keine Berechtigung für diesen Bereich",
-    "backHome": "Zurück zur Startseite"
+    "backHome": "Zurück zur Startseite",
+    "loadingAnalytics": "Analyse wird geladen...",
+    "loadingBookings": "Buchungen werden geladen...",
+    "loadingClasses": "Klassen werden geladen..."
   },
   "language": {
     "label": "Sprache",
@@ -66,7 +69,7 @@
     "brandTitle": "Dein Fitnessstudio an einem Ort.",
     "brandDescription": "Plane Einheiten, verwalte Buchungen und bleibe mit deiner Trainingsgemeinschaft verbunden.",
     "welcomeBack": "Willkommen zurück",
-    "signInTitle": "Bei HubFit anmelden",
+    "signInTitle": "Bei GestTrain/OS anmelden",
     "signInDescription": "Verwalte weiterhin deine Kurse, Buchungen und Trainingsaktivitäten.",
     "memberSignInTitle": "Anmeldung für Mitglieder",
     "memberSignInDescription": "Buche Kurse, prüfe deinen Zeitplan und verwalte deine Trainingsaktivitäten.",
@@ -99,7 +102,7 @@
     "hideAlternativeSignIn": "Andere Anmeldearten ausblenden",
     "verifyIdentity": "Identität bestätigen",
     "useDifferentAccount": "Anderes Konto verwenden",
-    "join": "HubFit beitreten",
+    "join": "GestTrain/OS beitreten",
     "createTitle": "Konto erstellen",
     "fullName": "Vollständiger Name",
     "confirmPassword": "Passwort bestätigen",
@@ -107,7 +110,25 @@
     "passwordMismatch": "Die Passwörter stimmen nicht überein",
     "createAccount": "Konto erstellen",
     "creatingAccount": "Konto wird erstellt...",
-    "hasAccount": "Du hast bereits ein Konto?"
+    "hasAccount": "Du hast bereits ein Konto?",
+    "highlights": {
+      "waitlists": "Intelligente Wartelisten mit Live-Verfügbarkeit",
+      "weekly": "Buchen Sie Ihre Woche in Sekundenschnelle",
+      "secure": "Sicherer Zugriff für jede Rolle"
+    },
+    "accessMenu": {
+      "staffLogin": "Melden Sie sich als Administrator an",
+      "label": "Zugang und Hilfe",
+      "memberDescription": "Buchungen, Kurse und Aktivitäten für Mitglieder und Kunden.",
+      "memberLogin": "Zurück zur Mitgliederanmeldung",
+      "staffDescription": "Zugang für Facility Manager und autorisierte Trainer."
+    },
+    "passkeyHelp": "Nutzen Sie Ihren Geräteschutz: Fingerabdruck, Gesichtserkennung, PIN oder Sicherheitsschlüssel.",
+    "passkeyVerificationFailed": "Die Überprüfung mit dem Geräteschutz konnte nicht abgeschlossen werden.",
+    "passkeyChallengeInvalid": "Die Anmeldeanforderung ist abgelaufen. Bitte versuchen Sie es erneut.",
+    "alternativeCodeHelp": "Wenn Sie 2FA verwenden, geben Sie hier einen Authentifizierungs- oder Wiederherstellungscode ein. GestTrain/OS überprüft zunächst Ihr Konto und Ihr Passwort.",
+    "passwordPolicy": "Das Passwort muss mindestens 12 Zeichen, Großbuchstaben, Kleinbuchstaben und eine Zahl enthalten",
+    "createDescription": "Richten Sie Ihr Profil ein und beginnen Sie mit der Planung Ihrer nächsten Trainingseinheiten."
   },
   "home": {
     "welcome": "Willkommen zurück, {{name}}",
@@ -116,7 +137,7 @@
     "description": "Buche Kurse, verwalte deinen Zeitplan und nutze Wartelisten. Sobald ein Platz frei wird, rückst du automatisch nach.",
     "browse": "Kurse ansehen",
     "bookings": "Meine Buchungen",
-    "downloads": "HubFit herunterladen",
+    "downloads": "GestTrain/OS herunterladen",
     "rights": "Alle Rechte vorbehalten.",
     "features": {
       "calendarTitle": "Kurskalender",
@@ -130,7 +151,7 @@
     }
   },
   "billing": {
-    "eyebrow": "HubFit · Finanzverwaltung",
+    "eyebrow": "GestTrain/OS · Finanzverwaltung",
     "title": "Beiträge, Zahlungen und Rechnungen",
     "description": "Verwalte Studiobeiträge, offene Zahlungen, Rechnungen und Probetrainings.",
     "requestFailed": "Der Abrechnungsvorgang konnte nicht abgeschlossen werden",
@@ -167,7 +188,7 @@
     },
     "timeZone": {
       "label": "Zeitzone des Geräts",
-      "hint": "Datumsangaben werden automatisch in der HubFit-Sprache sowie der Zeitzone von Browser und System angezeigt."
+      "hint": "Datumsangaben werden automatisch in der GestTrain/OS-Sprache sowie der Zeitzone von Browser und System angezeigt."
     },
     "currencies": {
       "EUR": "Euro",
@@ -205,6 +226,692 @@
       "annual": "Jährlich",
       "trial_day": "Probetag",
       "custom": "Individuell"
+    },
+    "notesPlaceholder": "Fügen Sie Vereinbarungen, Bedingungen, Auflistungen oder Informationen hinzu, die im Detail erscheinen müssen ...",
+    "customCyclePlaceholder": "Zum Beispiel: alle 5 Wochen oder 10 Sitzungen",
+    "customCycleLabel": "Benutzerdefinierte Zyklusbeschreibung",
+    "gymLogoAlt": "{{gym}}-Logo",
+    "deleteConfirm": "Diesen Datensatz dauerhaft löschen? Archivieren Sie es, wenn Sie es zur Überprüfung oder Korrektur aufbewahren müssen.",
+    "recordsDescription": "Erweitern Sie eine Rechnung, um ihre Notizen zu überprüfen, sie auszudrucken oder als PDF zu speichern.",
+    "noNotes": "Diese Rechnung enthält keine Notizen oder benutzerdefinierten Bedingungen.",
+    "logoConfigurationHint": "Diese Einrichtung hat noch kein Logo konfiguriert. Fügen Sie eine unter Verwaltung → Einrichtungsidentität hinzu.",
+    "noInvoiceNumber": "Keine Nummer vergeben"
+  },
+  "savedAccounts": {
+    "title": "Konten auf diesem Gerät",
+    "remove": "Entfernen Sie {{name}} von diesem Gerät",
+    "useAnother": "Fügen Sie ein anderes Konto hinzu oder verwenden Sie es",
+    "privacy": "Lediglich die Kennung und visuelle Details werden gespeichert. GestTrain/OS speichert hier niemals das Passwort oder die Sitzung."
+  },
+  "accountControl": {
+    "comingSoon": "Kommt bald",
+    "open": "Offen",
+    "personalSection": "Persönliches Konto",
+    "personalSectionDescription": "Diese Optionen gehören zu Ihrem GestTrain/OS-Konto und sind nicht von Ihrer Position in einer Einrichtung abhängig.",
+    "personalSectionTitle": "Identität, Zugriff und Präferenzen",
+    "eyebrow": "Kontokontrollbereich",
+    "memberSectionDescription": "Verwalten Sie nur die Buchungen, Zahlungen und Tools, die mit Ihrer Mitgliedsidentität verknüpft sind.",
+    "trainerSectionTitle": "Unterricht und berufliche Tätigkeit",
+    "memberSectionTitle": "Training und persönliche Aktivität",
+    "adminSection": "Facility Management",
+    "memberSection": "Mitgliederbereich",
+    "trainerSection": "Trainerbereich",
+    "adminSectionDescription": "Greifen Sie auf Funktionsfunktionen zu, ohne Daten oder Aktionen einer Mitgliedsidentität zu vermischen.",
+    "trainerSectionDescription": "Greifen Sie auf die Ihrem Trainerkonto zugewiesenen Betriebstools zu.",
+    "adminSectionTitle": "Betrieb und Verwaltung",
+    "security": "Sicherheit und Anmeldung",
+    "linkedMemberNotice": "Buchungen und andere persönliche Mitgliederfunktionen werden hier nur angezeigt, wenn GestTrain/OS die explizite Verknüpfung einer separaten Mitgliedsidentität unterstützt. Eine Trainer- oder Administratorrolle allein gewährt diese Funktionen nicht.",
+    "securityDescription": "Verwalten Sie 2FA, Passkeys und offene Sitzungen.",
+    "downloadsDescription": "Überprüfen Sie die vorbereiteten Ziele für Apps und das tragbare Paket.",
+    "bookings": "Buchungen und Kalender",
+    "downloads": "Downloads und Apps",
+    "bookingsDescription": "Überprüfen und verwalten Sie Ihre bevorstehenden Buchungen.",
+    "paymentsDescription": "Überprüfen Sie Gebühren, Aktivitäten und zukünftige Bestellungen.",
+    "memberAnalyticsDescription": "Überprüfen Sie Ihren Verlauf, Ihre Anwesenheit und Ihren Trainingsfortschritt.",
+    "timerDescription": "Konfigurieren Sie AMRAP, For Time, EMOM und Tabata für Ihre Sitzungen.",
+    "payments": "Zahlungen und Bestellungen",
+    "timer": "Trainingstimer",
+    "memberAnalytics": "Fortschritt und Aktivität",
+    "trainerDashboard": "Trainer-Dashboard",
+    "trainerAnalyticsDescription": "Überprüfen Sie Auslastung, Anwesenheit und Sitzungsleistung.",
+    "trainerDashboardDescription": "Verwalten Sie zugewiesene Kurse, Teilnehmer und Wartelisten.",
+    "trainerAnalytics": "Klassenanalyse",
+    "adminDashboard": "Verwaltung der Einrichtung",
+    "billing": "Gebühren, Zahlungen und Rechnungen",
+    "resourceManager": "Ressourcenmanager",
+    "adminDashboardDescription": "Verwalten Sie Benutzer, Klassen, Trainer und den täglichen Betrieb.",
+    "notifications": "Benachrichtigungen",
+    "billingDescription": "Verwalten Sie Zahlungen, Rechnungen, Fälligkeitstermine und Testzugriff.",
+    "adminAnalyticsDescription": "Studienauslastung, Nachfrage, Anwesenheit und Zeitfenster.",
+    "preferences": "Präferenzen",
+    "adminAnalytics": "Anlagenanalyse",
+    "resourceManagerDescription": "Überwachen Sie Frontend-, Backend- und API-Prozesse und -Funktionen.",
+    "notificationsDescription": "Benachrichtigungseinstellungen und -verlauf werden in einer zukünftigen Phase aktiviert.",
+    "delegationSecurity": "Bei Delegationen kann nur jemand in Ihrem Namen buchen oder stornieren. Sie gewähren keinen Zugriff auf Ihr Profil, Ihr Passwort, Ihre Zahlungen oder Sicherheitseinstellungen.",
+    "preferencesDescription": "Thema, Privatsphäre und weitere persönliche Optionen werden nach und nach hinzugefügt."
+  },
+  "workoutTimer": {
+    "title": "Trainingstimer",
+    "fullscreen": "Vollbild",
+    "minutes": "Dauer in Minuten",
+    "exitFullscreen": "Verlassen Sie den Vollbildmodus",
+    "eyebrow": "Persönliches Training",
+    "rounds": "Runden",
+    "timeCap": "Zeitlimit in Minuten",
+    "chooseMode": "Wählen Sie einen Modus",
+    "intervalMinutes": "Minuten pro Intervall",
+    "description": "Planen und steuern Sie Ihre Sitzungen mit konfigurierbaren Modi. Ihre Präferenzen werden nur auf diesem Gerät gespeichert.",
+    "sound": "Akustische Warnungen",
+    "pause": "Pause",
+    "resume": "Wieder aufnehmen",
+    "finish": "Beenden",
+    "start": "Beginnen Sie mit dem Training",
+    "restSeconds": "Ruhesekunden",
+    "workSeconds": "Arbeitssekunden",
+    "soundHelp": "Spielt eine Warnung ab, wenn sich ein Intervall ändert und wenn der Timer endet.",
+    "work": "Arbeiten",
+    "rest": "Ausruhen",
+    "reset": "Noch einmal konfigurieren",
+    "roundsCompleted": "Runden abgeschlossen",
+    "complete": "Training abgeschlossen",
+    "modes": {
+      "amrap": {
+        "name": "AMRAP",
+        "description": "Schließe so viele Runden wie möglich ab, bevor die Zeit abläuft."
+      },
+      "emom": {
+        "name": "EMOM",
+        "description": "Starten Sie in jedem konfigurierten Intervall einen neuen Arbeitsblock."
+      },
+      "forTime": {
+        "name": "Für die Zeit",
+        "description": "Verfolgen Sie Ihre Fertigstellungszeit mit einer Sicherheitszeitbegrenzung."
+      },
+      "tabata": {
+        "name": "Tabata",
+        "description": "Abwechselnde konfigurierbare Arbeits- und Ruhezeiten."
+      }
+    },
+    "roundProgress": "Runde {{current}} von {{total}}"
+  },
+  "delegations": {
+    "createTitle": "Berechtigung erstellen",
+    "title": "Buchungsdelegation",
+    "duration": "Berechtigungsdauer",
+    "create": "Delegationstoken erstellen",
+    "copy": "Token kopieren",
+    "createHelp": "Der Token wird einmal angezeigt. Geben Sie es nur an die autorisierte Person weiter.",
+    "description": "Beauftragen Sie eine Person Ihres Vertrauens, in Ihrem Namen Kurse zu buchen oder abzusagen. Begrenzen Sie die Dauer oder widerrufen Sie den Zugriff jederzeit.",
+    "tokenShownOnce": "Kopieren Sie dieses Token jetzt: Es wird nicht mehr vollständig angezeigt.",
+    "redeemTitle": "Akzeptieren Sie eine Delegation",
+    "copied": "Token kopiert",
+    "redeem": "Akzeptieren Sie die Delegation",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "redeemHelp": "Geben Sie den Token ein, den Ihnen ein anderes Mitglied gegeben hat, um seine Buchungen zu verwalten.",
+    "revoke": "Widerrufen",
+    "indefinite": "Kein Ablaufdatum",
+    "empty": "Es wurden noch keine Delegationen erstellt oder empfangen.",
+    "awaitingRedemption": "Warten darauf, dass jemand den Token akzeptiert",
+    "activeTitle": "Berechtigungen und Delegationen",
+    "durations": {
+      "24h": "24 Stunden",
+      "7d": "7 Tage",
+      "30d": "30 Tage",
+      "indefinite": "Unbefristet bis auf Widerruf"
+    },
+    "directions": {
+      "granted": "Kann in Ihrem Namen handeln",
+      "received": "Sie können in ihrem Namen handeln"
+    },
+    "errors": {
+      "DELEGATION_DURATION_INVALID": "Wählen Sie eine gültige Dauer.",
+      "DELEGATION_LIMIT_REACHED": "Sie haben das Maximum von fünf aktiven Berechtigungen erreicht.",
+      "DELEGATION_TOKEN_INVALID": "Der Token existiert nicht, ist abgelaufen oder nicht mehr gültig.",
+      "DELEGATION_TOKEN_ALREADY_USED": "Dieses Token wurde bereits von jemand anderem akzeptiert.",
+      "DELEGATION_SELF_NOT_ALLOWED": "Sie können keine Aktionen an Ihr eigenes Konto delegieren.",
+      "unknown": "Der Delegierungsvorgang konnte nicht abgeschlossen werden."
+    },
+    "loadFailed": "Delegationen konnten nicht geladen werden.",
+    "revokeFailed": "Die Delegation konnte nicht widerrufen werden."
+  },
+  "adminHome": {
+    "description": "Verwalten Sie Kurse, Mitglieder, Abrechnungen und die Leistung der Einrichtung von einem betriebsorientierten Arbeitsbereich aus.",
+    "title": "GestTrain/OS-Betrieb und -Management",
+    "welcome": "Anlagenkonsole · {{name}}",
+    "management": "Verwaltung",
+    "billing": "Abrechnung",
+    "createClass": "Klasse erstellen",
+    "classes": "Kurse und Stundenpläne",
+    "managementDescription": "Verwalten Sie Konten, Rollen und Betriebsdaten der Einrichtung.",
+    "classesDescription": "Erstellen Sie Sitzungen, weisen Sie Trainer zu und kontrollieren Sie die Kapazität.",
+    "billingDescription": "Verfolgen Sie Gebühren, ausstehende Zahlungen und Testzugang.",
+    "analytics": "Anwesenheit und Nachfrage",
+    "downloads": "Download-Center",
+    "downloadsDescription": "Greifen Sie auf die offiziellen Apps und das tragbare GestTrain/OS-Paket zu.",
+    "analyticsDescription": "Finden Sie Kurse und Zeitfenster mit der höchsten und niedrigsten Besucherzahl.",
+    "resources": "Serverressourcen",
+    "resourcesDescription": "Überwachen und steuern Sie interne Aufgaben, die von GestTrain/OS registriert werden."
+  },
+  "downloads": {
+    "title": "Download-Center",
+    "recommended": "Empfohlen",
+    "description": "Wählen Sie die offizielle App für Ihr Gerät oder laden Sie das tragbare Paket herunter. Mit der Veröffentlichung jeder Distribution werden Optionen verfügbar.",
+    "comingSoon": "Kommt bald",
+    "platforms": {
+      "windows": {
+        "name": "Windows",
+        "destination": "Microsoft Store",
+        "format": "Store-App"
+      },
+      "android": {
+        "destination": "Google Play",
+        "name": "Android",
+        "format": "Store-App"
+      },
+      "macos": {
+        "format": "Store-App",
+        "name": "macOS",
+        "destination": "Mac App Store"
+      },
+      "ios": {
+        "format": "Store-App",
+        "name": "iPhone und iPad",
+        "destination": "App Store"
+      },
+      "zip": {
+        "name": "Tragbares Paket",
+        "format": ".Reißverschluss",
+        "destination": "Browser-Download"
+      }
+    },
+    "eyebrow": "GestTrain/OS auf allen Ihren Geräten",
+    "loadError": "Download-Optionen konnten nicht geladen werden.",
+    "download": "Download öffnen",
+    "securityNotice": "GestTrain/OS zeigt nur von der Plattform konfigurierte HTTPS-Ziele an. Bestätigen Sie immer, dass der Store oder Download zu GestTrain/OS gehört, bevor Sie ihn installieren."
+  },
+  "resourceManager": {
+    "title": "Ressourcenmanager",
+    "eyebrow": "API-Operationen",
+    "loadError": "Der Ressourcenstatus konnte nicht geladen werden.",
+    "heapCapacity": "Reservierte Kapazität",
+    "memory": "Speicher im Einsatz",
+    "uptime": "Betriebszeit",
+    "activeTasks": "Aktive Aufgaben",
+    "description": "Überwachen Sie interne Aufgaben von GestTrain/OS und führen Sie nur von der Plattform registrierte Prozesse aus, pausieren oder setzen Sie sie fort.",
+    "updateError": "Die Aufgabe konnte nicht aktualisiert werden.",
+    "pause": "Pause",
+    "resume": "Wieder aufnehmen",
+    "states": {
+      "idle": "Bereit",
+      "running": "Läuft",
+      "paused": "Angehalten",
+      "error": "Fehler"
+    },
+    "taskStats": "{{runs}}-Ausführungen · {{duration}} ms beim letzten Durchlauf · {{result}}-Elemente verarbeitet",
+    "scopeNotice": "Dieses Panel steuert niemals Betriebssystemprozesse oder andere Anwendungen.",
+    "tasks": {
+      "expired-auth-cleanup": {
+        "description": "Entfernt abgelaufene oder widerrufene Sitzungen und abgelaufene Authentifizierungsherausforderungen.",
+        "name": "Bereinigung der Authentifizierung abgelaufen"
+      },
+      "sqlite-query-planner": {
+        "name": "Optimierung des SQLite-Abfrageplaners",
+        "description": "Ermöglicht SQLite, kompakte Statistiken zu aktualisieren, wenn die Datenbank sie benötigt."
+      }
+    },
+    "managedTasks": "Gemanagte Prozesse",
+    "runNow": "Lauf jetzt"
+  },
+  "classes": {
+    "scheduled": "Geplant",
+    "available": "Verfügbar",
+    "description": "Wählen Sie eine Sitzung, überprüfen Sie die Live-Verfügbarkeit und sichern Sie sich Ihren Platz in wenigen Sekunden.",
+    "agenda": "Ihr wöchentlicher Trainingsplan",
+    "openSpots": "Offene Plätze",
+    "schedule": "Stundenplan",
+    "title": "Finden Sie Ihren nächsten Kurs",
+    "refresh": "Zeitplan aktualisieren",
+    "upcoming": "Kommende Sitzungen",
+    "count_other": "{{count}}-Klassen",
+    "none": "Keine Kurse verfügbar",
+    "count_one": "{{count}}-Klasse",
+    "onWaitlist_other": "{{count}} Personen auf der Warteliste",
+    "bookedCount": "{{booked}}/{{capacity}} gebucht",
+    "onWaitlist_one": "{{count}} Person auf der Warteliste",
+    "open_other": "{{count}} geöffnet",
+    "open_one": "{{count}} geöffnet",
+    "booked": "Gebucht",
+    "booking": "Buchung...",
+    "attendees": "{{booked}}/{{capacity}} Teilnehmer",
+    "viewDetails": "Details anzeigen",
+    "joinWaitlist": "Treten Sie der Warteliste bei",
+    "joiningWaitlist": "Zur Warteliste hinzufügen...",
+    "book": "Buchklasse",
+    "finished": "Der Unterricht ist beendet",
+    "exportCsv": "CSV exportieren",
+    "spotsAvailable_one": "{{count}}-Platz verfügbar",
+    "exportFailed": "CSV-Export fehlgeschlagen",
+    "confirmedAttendees": "Bestätigte Teilnehmer ({{count}})",
+    "noConfirmed": "Noch keine bestätigten Teilnehmer",
+    "spotsAvailable_other": "{{count}} Plätze verfügbar",
+    "loadingAttendees": "Teilnehmer werden geladen..."
+  },
+  "bookings": {
+    "title": "Meine Buchungen",
+    "cancelLabel": "Buchung stornieren",
+    "none": "Keine aktiven Buchungen",
+    "onWaitlist": "Auf der Warteliste",
+    "confirmed": "Bestätigt",
+    "fetchFailed": "Buchungen konnten nicht abgerufen werden",
+    "cancelFailed": "Buchung konnte nicht storniert werden",
+    "description": "Verwalten Sie Ihre Kursreservierungen",
+    "upcomingNone": "Keine bevorstehenden Buchungen"
+  },
+  "memberCommerce": {
+    "title": "Meine Zahlungen und Bestellungen",
+    "eyebrow": "MITGLIEDERKONTO",
+    "paymentsTitle": "Zahlungen und Gebühren",
+    "description": "Überprüfen Sie die Einrichtungsgebühren und, sofern verfügbar, Käufe und kommerzielle Anreize an einem Ort.",
+    "ordersDescription": "In diesem Bereich finden Sie zukünftige Bestellungen, Rabatte und finanzielle Anreize, die Ihre Einrichtung anbietet.",
+    "paymentsDescription": "Ihre Gebühren, Fälligkeitstermine, Quittungen und Ihr Zahlungsstatus werden hier angezeigt, wenn die Einrichtung diese Funktion aktiviert.",
+    "ordersTitle": "Bestellungen und Vorteile",
+    "ordersUnavailable": "Verkäufe und Bestellungen sind noch nicht aktiviert.",
+    "ordersAvailable": "Sie können jetzt Ihre Bestellungen überprüfen.",
+    "notAvailable": "Es ist noch keine Aktivität verfügbar.",
+    "loadFailed": "Ihre Zahlungen und Bestellungen konnten nicht geladen werden.",
+    "secureNotice": "GestTrain/OS verarbeitet in dieser Version keine Bankzahlungen und speichert keine vollständigen Kartendaten."
+  },
+  "trainer": {
+    "title": "Trainer-Dashboard",
+    "only": "Diese Seite ist nur für Trainer zugänglich",
+    "description": "Verwalten Sie Ihre Kurse und Teilnehmer",
+    "futureOnly": "Nur Zukunft",
+    "search": "Klassen suchen...",
+    "showingPast": "Vergangenheit zeigen",
+    "loading": "Deine Kurse werden geladen...",
+    "noResults": "Keine Kurse entsprechen Ihrer Suche",
+    "noneAssigned": "Ihnen sind noch keine Kurse zugewiesen"
+  },
+  "admin": {
+    "classManagementTitle": "Kurse und Stundenpläne",
+    "title": "Admin-Dashboard",
+    "description": "Verwalten Sie Benutzer und Fitnesskurse",
+    "usersTab": "Benutzerverwaltung",
+    "classManagementDescription": "Erstellen und organisieren Sie die Kurse, die Mitglieder sehen können, ohne sich als Administrator anmelden zu müssen.",
+    "operations": "Anlagenbetrieb",
+    "classesTab": "Klassenleitung",
+    "filterTrainer": "Nach Trainer filtern:",
+    "allTrainers": "Alle Trainer",
+    "brandingTab": "Identität der Einrichtung",
+    "createClass": "Klasse erstellen",
+    "noClasses": "Keine Klassen gefunden",
+    "deleteClassConfirm": "Sind Sie sicher, dass Sie diesen Kurs löschen möchten?",
+    "newClass": "Neue Klasse",
+    "selectTrainer": "Wählen Sie einen Trainer aus",
+    "editClass": "Klasse bearbeiten",
+    "className": "Klassenname *",
+    "members": "Mitglieder",
+    "allRoles": "Alle Rollen",
+    "trainers": "Trainer",
+    "newUser": "Neuer Benutzer",
+    "admins": "Administratoren",
+    "noUsers": "Keine Benutzer gefunden",
+    "deleteUserConfirm": "Sind Sie sicher, dass Sie diesen Benutzer löschen möchten?",
+    "deleteSelected": "Löschen Sie {{count}}",
+    "filterRole": "Nach Rolle filtern:",
+    "maxCapacity": "Maximale Kapazität *",
+    "dateRequired": "Datum und Uhrzeit sind erforderlich",
+    "passwordOptional": "Passwort (leer lassen, um es aktuell zu halten)",
+    "passwordRequired": "Für neue Benutzer ist ein Passwort erforderlich",
+    "editUser": "Benutzer bearbeiten",
+    "createUser": "Benutzer erstellen",
+    "deleteUsersConfirm": "{{count}}-Benutzer löschen?"
+  },
+  "facilityBranding": {
+    "title": "Panel-Anpassung",
+    "preview": "Vorschau der Einrichtung",
+    "currentFacility": "Aktive Einrichtung",
+    "previewDescription": "Diese Identität wird im Einrichtungsbereich und in den Rechnungen angezeigt.",
+    "accent": "Akzentfarbe",
+    "logo": "Fitnessstudio-Logo",
+    "name": "Handelsname der Einrichtung",
+    "description": "Konfigurieren Sie Ihre Einrichtungsidentität in GestTrain/OS. Das Hauptlogo des GestTrain/OS-Produkts wird nicht geändert.",
+    "removeLogo": "Logo entfernen",
+    "logoAlt": "{{gym}}-Logo",
+    "tooLarge": "Das Logo darf 512 KB nicht überschreiten.",
+    "invalidType": "Wählen Sie ein PNG-, JPEG- oder WebP-Bild.",
+    "saving": "Sparen...",
+    "unnamed": "Unbenannte Einrichtung",
+    "logoHelp": "PNG, JPEG oder WebP. Maximale Größe: 512 KB. SVG-Dateien werden aus Sicherheitsgründen nicht akzeptiert.",
+    "chooseLogo": "Logo auswählen",
+    "save": "Anpassung speichern",
+    "saved": "Die Facility-Identität wurde aktualisiert."
+  },
+  "analytics": {
+    "activityTitle": "Aktivitäts-Dashboard",
+    "trainerDescription": "Ihre Kurse, Anwesenheit und Einblicke in das Fitnessstudio",
+    "activityDescription": "Ihre Buchungen, Kennzahlen und Aktivitäten im Fitnessstudio",
+    "trainerTitle": "Traineranalyse",
+    "daily": "Täglich",
+    "weekly": "Wöchentlich",
+    "adminTitle": "Admin-Analyse-Dashboard",
+    "trainerOnly": "Nur Trainer können auf dieses Dashboard zugreifen",
+    "confirmed": "Bestätigt",
+    "adminOnly": "Nur Administratoren können auf dieses Dashboard zugreifen",
+    "monthly": "Monatlich",
+    "upcoming": "Demnächst",
+    "cancelled": "Abgesagt",
+    "allTime": "Alle Zeiten",
+    "adminDescription": "Systemweite Metriken, Nutzungs- und Leistungseinblicke",
+    "cancelledBookings": "Stornierte Buchungen",
+    "activeReservations": "Aktive Reservierungen",
+    "nextClasses": "Nächste Kurse",
+    "totalBookings": "Gesamtbuchungen",
+    "peakHours": "Spitzenzeiten",
+    "nextReservations": "Nächste Reservierungen",
+    "leastPopularClasses": "Klassen mit der geringsten Anwesenheit",
+    "noBookingData": "Noch keine Buchungsdaten",
+    "totalClasses": "Gesamtklassen",
+    "popularClasses": "Die beliebtesten Kurse",
+    "startBooking": "Beginnen Sie mit der Buchung von Kursen, um Ihre Aktivitätskennzahlen anzuzeigen",
+    "avgOccupancy": "Durchschn. Belegung",
+    "classCapacity": "Klassenkapazität",
+    "acrossClasses": "Über alle Klassen hinweg",
+    "allClasses": "Alle Klassen erstellt",
+    "yourNextClasses": "Deine nächsten Kurse",
+    "gymPeakHours": "Spitzenzeiten im Fitnessstudio",
+    "registeredParticipants": "Angemeldete Teilnehmer",
+    "uniqueMembers": "Einzigartige Mitglieder",
+    "registeredUsers": "Registrierte Benutzer",
+    "createClasses": "Erstellen Sie Kurse, um Analysen und Anwesenheitsmetriken anzuzeigen",
+    "yourPopularClasses": "Ihre beliebtesten Kurse",
+    "last30Days": "Letzte 30 Tage",
+    "newMembers": "Neue Mitglieder",
+    "totalMembers": "Gesamtzahl der Mitglieder",
+    "noClasses": "Es wurden noch keine Kurse erstellt",
+    "activeMembers": "Aktive Mitglieder",
+    "cancellations": "Stornierungen",
+    "systemStatus": "Systemstatus",
+    "joinedWeek": "Diese Woche beigetreten",
+    "joinedMonth": "Bin diesen Monat beigetreten",
+    "thisMonth": "Diesen Monat",
+    "thisMonthNumber": "Diesen Monat ({{month}})",
+    "database": "Datenbank",
+    "apiHealth": "API-Gesundheit",
+    "operational": "Betriebsbereit",
+    "connected": "Verbunden",
+    "systemDataHint": "Analytics wird angezeigt, wenn sich Benutzer registrieren und Kurse buchen",
+    "bookingsAt": "{{count}} Buchungen bei {{hour}}",
+    "noSystemData": "Noch keine Systemdaten",
+    "occupancy": "{{value}}% voll"
+  },
+  "demoClasses": {
+    "hiitBootcamp": {
+      "name": "HIIT-Bootcamp",
+      "description": "Hochintensives Intervalltraining"
+    },
+    "yogaFlow": {
+      "name": "Yoga-Flow",
+      "description": "Entspannende Yoga-Sitzung für alle Niveaus"
+    },
+    "spinning": {
+      "name": "Spinnen",
+      "description": "Indoor-Cycling-Kurs"
+    },
+    "pilatesCore": {
+      "description": "Stärken Sie Ihren Rumpf mit Pilates",
+      "name": "Pilates-Kern"
+    },
+    "zumba": {
+      "name": "Zumba",
+      "description": "Tanzfitnesskurs"
+    },
+    "boxFit": {
+      "name": "Box-Fit",
+      "description": "Box-Fitnesstraining"
     }
+  },
+  "legal": {
+    "eyebrow": "Rechtliche Informationen",
+    "lastUpdated": "Letzte Aktualisierung: 22. Juli 2026",
+    "back": "Zurück zu GestTrain/OS",
+    "footer": {
+      "notice": "Rechtlicher Hinweis",
+      "navigation": "Rechtliche Links",
+      "terms": "Geschäftsbedingungen",
+      "use": "Nutzungsbedingungen"
+    },
+    "pages": {
+      "notice": {
+        "title": "Rechtlicher Hinweis",
+        "sections": {
+          "owner": {
+            "title": "1. Websitebesitzer",
+            "body": "GestTrain/OS gehört und wird von Javier López Díaz betrieben. GestTrain/OS ist derzeit ein Softwareprojekt in der Entwicklung. Vor der kommerziellen Freigabe des Dienstes müssen hier die Adresse, die Steueridentifikationsnummer, alle anwendbaren Registrierungsdaten und ein direkter rechtlicher Kontaktkanal hinzugefügt werden."
+          },
+          "purpose": {
+            "title": "2. Zweck",
+            "body": "GestTrain/OS bietet Tools zum Durchsuchen von Kursen, zum Verwalten von Buchungen und Wartelisten sowie zur Unterstützung der Verwaltung von Sportzentren. Die verfügbaren Funktionen können sich während der Entwicklung des Produkts ändern."
+          },
+          "intellectualProperty": {
+            "title": "3. Geistiges und gewerbliches Eigentum",
+            "body": "Design, Code, Marke, Text und andere Originalelemente von GestTrain/OS sind durch geltendes Recht geschützt. Der Zugriff gewährt keine Rechte zur Vervielfältigung, Verbreitung, Änderung oder Verwertung, es sei denn, dies ist ausdrücklich genehmigt oder durch eine geltende Lizenz abgedeckt."
+          },
+          "links": {
+            "title": "4. Links und Dienste Dritter",
+            "body": "Die Anwendung kann Links oder Integrationen von Drittanbietern enthalten. GestTrain/OS hat keine Kontrolle über deren Inhalte, Verfügbarkeit oder Richtlinien und jeder externe Dienst unterliegt seinen eigenen Bedingungen."
+          },
+          "liability": {
+            "title": "5. Verfügbarkeit und Haftung",
+            "body": "Eine ständige Verfügbarkeit und ein fehlerfreier Betrieb sind während der Entwicklung nicht gewährleistet. GestTrain/OS wird angemessene Maßnahmen zum Schutz und zur Aufrechterhaltung des Dienstes ergreifen, ohne Haftungen auszuschließen, die gesetzlich nicht ausgeschlossen werden können."
+          },
+          "law": {
+            "title": "6. Anwendbares Recht",
+            "body": "Die endgültige Fassung muss an die tatsächliche Tätigkeit, den Standort und die Rechtsstellung des Inhabers sowie an die geltenden E-Commerce-, Verbraucher- und Datenschutzbestimmungen angepasst werden."
+          }
+        },
+        "introduction": "Diese Mitteilung enthält allgemeine Informationen über die Website und die Grundregeln für den Zugriff auf GestTrain/OS während der Entwicklungsphase."
+      },
+      "terms": {
+        "title": "Geschäftsbedingungen",
+        "sections": {
+          "scope": {
+            "title": "1. Umfang der Leistung",
+            "body": "GestTrain/OS unterstützt die Verwaltung von Kursen, Benutzern, Trainern, Buchungen, Kapazitäten und Wartelisten. Jedes Zentrum kann Teile des Dienstes konfigurieren und ist für die Kommunikation seiner Zeitpläne, Preise und spezifischen Regeln verantwortlich."
+          },
+          "payments": {
+            "title": "4. Zahlungen und Pläne",
+            "body": "Kommerzielle Zahlungen sind in dieser Version von GestTrain/OS nicht aktiviert. Bevor Stripe oder ein anderer Anbieter hinzugefügt wird, müssen Preise, Steuern, Rechnungsstellung, Verlängerungen, Rückerstattungen und Verantwortlichkeiten zwischen GestTrain/OS, dem Zentrum und dem Zahlungsanbieter definiert werden. GestTrain/OS speichert nicht die vollständigen Kartendaten."
+          },
+          "accounts": {
+            "body": "Benutzer müssen genaue Angaben machen und ihre Zugangsdaten sicher aufbewahren. Konten sind persönlich. Mitglieder-, Trainer- und Administratorberechtigungen schränken die auf der Plattform verfügbaren Aktionen ein.",
+            "title": "2. Registrierung und Konten"
+          },
+          "bookings": {
+            "body": "Eine Buchung unterliegt der Kapazität und den vom Zentrum festgelegten Regeln. Wenn ein Platz frei wird, befördert das System möglicherweise automatisch die erste Person auf der Warteliste. Das Zentrum muss etwaige zusätzliche Anwesenheits- oder Vorrangregeln offenlegen.",
+            "title": "3. Buchungen und Wartelisten"
+          },
+          "cancellations": {
+            "body": "Stornierungsbedingungen für Kurse, Gebühren oder Abonnements müssen vor einem Kauf oder einer Buchung angezeigt werden. In der endgültigen Fassung werden Fristen, Konsequenzen, Rückerstattungen und Möglichkeiten zur Kündigung des Dienstes erläutert.",
+            "title": "5. Stornierungen und Kündigung"
+          },
+          "changes": {
+            "title": "6. Änderungen dieser Bedingungen",
+            "body": "Die Bedingungen können aktualisiert werden, wenn sich Funktionen oder Gesetze ändern. Wesentliche Änderungen müssen klar kommuniziert werden und bedürfen ggf. einer erneuten Akzeptanz."
+          },
+          "law": {
+            "title": "7. Recht und Streitbeilegung",
+            "body": "Anwendbares Recht, zuständige Gerichte und Beschwerdemechanismen werden entsprechend dem tatsächlichen Standort und der Tätigkeit des Eigentümers festgelegt, wobei stets die zwingenden Verbraucherrechte respektiert werden."
+          }
+        },
+        "introduction": "Diese Begriffe beschreiben die beabsichtigte Grundlage der Beziehung zwischen GestTrain/OS, Sportzentren und Nutzern. Es handelt sich noch nicht um endgültige Geschäftsbedingungen."
+      },
+      "use": {
+        "title": "Nutzungsbedingungen",
+        "introduction": "Diese Regeln erklären, wie Sie GestTrain/OS bei der Verwaltung von Kursen, Buchungen und Community-Aktivitäten sicher und verantwortungsbewusst nutzen.",
+        "sections": {
+          "access": {
+            "body": "Geben Sie keine Zugangsdaten weiter und versuchen Sie nicht, ohne Genehmigung auf Konten, Funktionen oder Daten zuzugreifen. Melden Sie verdächtige Aktivitäten und halten Sie Ihre Kontoinformationen auf dem neuesten Stand.",
+            "title": "1. Zugang und Sicherheit"
+          },
+          "acceptableUse": {
+            "body": "Sie dürfen den Dienst nicht stören, missbräuchliche Anfragen automatisieren, bösartigen Code einschleusen, sich als andere ausgeben, Daten ohne Genehmigung extrahieren oder GestTrain/OS für rechtswidrige Aktivitäten nutzen.",
+            "title": "2. Akzeptable Verwendung"
+          },
+          "bookings": {
+            "title": "3. Verantwortungsvolle Buchung",
+            "body": "Buchen Sie nur Kurse, von denen Sie vernünftigerweise erwarten können, dass Sie sie besuchen, und stornieren Sie sie innerhalb der vom Zentrum festgelegten Kündigungsfrist. Bei wiederholtem Missbrauch von Buchungen oder Wartelisten kann es zu vorab mitgeteilten verhältnismäßigen Einschränkungen kommen."
+          },
+          "health": {
+            "title": "5. Gesundheit und körperliche Aktivität",
+            "body": "GestTrain/OS organisiert Informationen und Buchungen, bietet jedoch keine medizinische Beratung an. Jede Person muss ihren Gesundheitszustand beurteilen, professionelle Anleitung befolgen und das Zentrum über relevante Einschränkungen informieren, bevor sie an einer Aktivität teilnimmt."
+          },
+          "community": {
+            "body": "Wenn Kommentare aktiviert sind, müssen diese respektvoll verwendet werden. Belästigungen, Diskriminierungen, Drohungen, rechtswidrige Inhalte sowie die unerlaubte Veröffentlichung personenbezogener Daten Dritter sind nicht gestattet.",
+            "title": "4. Inhalt und Community"
+          },
+          "suspension": {
+            "title": "7. Zugangssperre",
+            "body": "Der Zugriff kann aufgrund von Sicherheitsrisiken, Betrug, schwerwiegenden Verstößen oder rechtlichen Anforderungen eingeschränkt sein. Maßnahmen müssen verhältnismäßig sein und gegebenenfalls Informations- und Überprüfungsmöglichkeiten bieten."
+          },
+          "availability": {
+            "title": "6. Serviceverfügbarkeit",
+            "body": "Es kann zu Wartungsarbeiten und Unterbrechungen kommen. Wichtige Buchungen und Änderungen müssen vor dem produktiven Einsatz über geeignete Bestätigungs- und Wiederherstellungsmechanismen verfügen."
+          }
+        }
+      }
+    },
+    "draftTitle": "Entwurf eines Dokuments.",
+    "draftDescription": "GestTrain/OS befindet sich in der Entwicklung. Dieser Text muss vor der Veröffentlichung oder Zahlungsannahme überprüft und mit Angaben zum tatsächlichen Eigentümer, zum Service und zur Geschäftspolitik vervollständigt werden."
+  },
+  "profilePhoto": {
+    "title": "Profilfoto",
+    "choose": "Foto auswählen",
+    "remove": "Foto entfernen",
+    "description": "Dieses Bild identifiziert Ihr Konto bei GestTrain/OS. Es unterscheidet sich vom offiziellen Plattformlogo und dem Fitnessstudio-Logo.",
+    "invalidType": "Wählen Sie ein PNG-, JPEG- oder WebP-Bild.",
+    "saved": "Ihr Profilfoto wurde aktualisiert.",
+    "saving": "Sparen…",
+    "save": "Foto speichern",
+    "tooLarge": "Das Bild darf 512 KB nicht überschreiten.",
+    "avatarAlt": "Profilfoto von {{name}}",
+    "saveError": "Das Profilfoto konnte nicht gespeichert werden."
+  },
+  "security": {
+    "eyebrow": "Kontoschutz",
+    "title": "Sicherheit und Anmeldung",
+    "twoFactor": "Zweistufige Verifizierung",
+    "description": "Kontrollieren Sie die zweistufige Verifizierung, angemeldete Geräte und aktuelle Kontoaktivitäten.",
+    "passkeyDescription": "Aktivieren Sie einen Passkey, um sich mithilfe des Geräteschutzes anzumelden, anstatt Ihr Passwort einzugeben.",
+    "twoFactorDescription": "Zusätzlich zu Ihrem Passwort ist ein temporärer Authentifizierungs-App-Code erforderlich.",
+    "passkeyTitle": "Biometrisches Schloss und Passschlüssel",
+    "passkeyUnavailable": "Dieser Browser oder dieses Gerät bietet derzeit keinen kompatiblen integrierten Authentifikator.",
+    "passkeyPrivacy": "Ihr Fingerabdruck oder Ihr Gesicht werden auf dem Gerät überprüft und niemals an GestTrain/OS gesendet oder von GestTrain/OS gespeichert.",
+    "enablePasskey": "Auf diesem Gerät aktivieren",
+    "disablePasskey": "Passschlüssel deaktivieren",
+    "enabled": "Ermöglicht",
+    "disabled": "Deaktiviert",
+    "passkeyEnabledSuccess": "Der Gerätepassschlüssel wurde aktiviert.",
+    "setupReady": "Scannen Sie den Code und bestätigen Sie die Einrichtung.",
+    "qrAlt": "QR-Code für die Einrichtung der Authentifizierungs-App",
+    "passkeyDisabledSuccess": "Passkeys wurden deaktiviert.",
+    "activate": "Schutz aktivieren",
+    "configure": "Richten Sie 2FA ein",
+    "authenticatorCode": "Authentifikator oder Wiederherstellungscode",
+    "confirmPassword": "Bestätigen Sie Ihr Passwort",
+    "scanHelp": "Scannen Sie den QR mit einer TOTP-kompatiblen App. Wenn das Scannen nicht möglich ist, geben Sie den angezeigten Schlüssel manuell ein.",
+    "enabledSuccess": "Die zweistufige Verifizierung ist jetzt aktiviert.",
+    "regenerate": "Generieren Sie neue Codes",
+    "disable": "Deaktivieren Sie 2FA",
+    "disableHelp": "Um neue Codes zu generieren oder 2FA zu deaktivieren, bestätigen Sie Ihr Passwort und geben Sie einen aktuellen Authentifizierungscode oder einen Wiederherstellungscode ein.",
+    "lostAccessHelp": "Wenn Sie die Authentifizierungs-App und alle Wiederherstellungscodes verlieren, kann 2FA nicht allein mit dem Passwort deaktiviert werden. Behalten Sie einen registrierten Passschlüssel als alternative Anmeldemethode bei.",
+    "codesRemaining": "Sie haben noch {{count}}-Wiederherstellungscodes übrig.",
+    "protected": "Ihr Konto ist mit 2FA geschützt",
+    "codesRegenerated": "Neue Wiederherstellungscodes wurden generiert.",
+    "copyCodes": "Codes kopieren",
+    "disabledSuccess": "Die zweistufige Verifizierung wurde deaktiviert.",
+    "codesCopied": "Codes kopiert und ausgeblendet.",
+    "downloadCodes": "Codes herunterladen",
+    "codesShownOnce": "Jeder Code funktioniert einmal und wird nicht erneut angezeigt. Bewahren Sie sie außerhalb von GestTrain/OS auf.",
+    "saveCodes": "Speichern Sie diese Wiederherstellungscodes",
+    "sessions": "Aktive Sitzungen",
+    "sessionsDescription": "Überprüfen Sie, wo Ihr Konto geöffnet ist, und schließen Sie alle Zugriffe, die Sie nicht kennen.",
+    "downloadHeading": "GestTrain/OS-Wiederherstellungscodes",
+    "inactivityTitle": "Automatische Schließung nach Inaktivität",
+    "codesDownloaded": "Codes heruntergeladen und ausgeblendet.",
+    "downloadWarning": "Bewahren Sie diese Datei sicher auf. Jeder Code kann nur einmal verwendet werden.",
+    "inactivitySave": "Ablaufdatum speichern",
+    "inactivityDescription": "Wählen Sie aus, wie lange eine Sitzung inaktiv bleiben darf, bevor die API sie auf einem Gerät schließt. Dieser Schutz gilt auch für Administratorkonten.",
+    "remainingMinutes_one": "{{count}} Minute",
+    "remainingMinutes_other": "{{count}} Minuten",
+    "sessionTimeoutSaved": "Der Ablauf der Inaktivität wurde aktualisiert.",
+    "expiresIn": "Läuft in {{count}} ohne Aktivität ab",
+    "remainingHours_other": "{{count}} Stunden",
+    "timeouts": {
+      "15": "15 Minuten",
+      "60": "1 Stunde",
+      "480": "8 Stunden",
+      "1440": "1 Tag",
+      "10080": "7 Tage",
+      "43200": "30 Tage"
+    },
+    "remainingDays_one": "{{count}} Tag",
+    "remainingDays_other": "{{count}} Tage",
+    "remainingHours_one": "{{date}} Stunde",
+    "revoke": "Schließen",
+    "lastActivity": "Letzte Aktivität: {{date}}",
+    "closeOthers": "Schließen Sie die anderen",
+    "current": "Dieses Gerät",
+    "remembered": "30 Tage lang in Erinnerung",
+    "sessionRevoked": "Die Sitzung wurde geschlossen.",
+    "otherSessionsRevoked": "Die anderen Sitzungen wurden geschlossen.",
+    "noActivity": "Es gibt noch keine Sicherheitsaktivitäten.",
+    "activityDescription": "Letzte Änderungen und Versuche im Zusammenhang mit dem Zugriff auf Ihr Konto.",
+    "activity": "Sicherheitsaktivität",
+    "events": {
+      "login_succeeded": "Erfolgreiche Anmeldung",
+      "login_failed": "Fehlgeschlagener Anmeldeversuch",
+      "mfa_challenge_created": "Bestätigung in zwei Schritten angefordert",
+      "mfa_challenge_failed": "Falscher Bestätigungscode",
+      "mfa_enabled": "Zweistufige Verifizierung aktiviert",
+      "mfa_succeeded": "Erfolgreiche zweistufige Verifizierung",
+      "passkey_registered": "Passkey registriert",
+      "mfa_disabled": "Zweistufige Verifizierung deaktiviert",
+      "passkey_removed": "Passkeys entfernt",
+      "recovery_codes_regenerated": "Wiederherstellungscodes erneuert",
+      "passkey_login_succeeded": "Passkey-Anmeldung",
+      "all_other_sessions_revoked": "Andere Sitzungen geschlossen",
+      "session_revoked": "Sitzung geschlossen"
+    }
+  },
+  "feedback": {
+    "footer": "Rückmeldung",
+    "categories": {
+      "suggestion": "Anregung",
+      "problem": "Problem",
+      "accessibility": "Zugänglichkeit",
+      "other": "Andere"
+    },
+    "message": "Nachricht",
+    "category": "Feedback-Typ",
+    "title": "Helfen Sie uns, GestTrain/OS zu verbessern",
+    "sending": "Senden...",
+    "submit": "Feedback senden",
+    "sent": "Danke schön. Wir haben Ihr Feedback erhalten.",
+    "description": "Sagen Sie uns, was funktioniert, was schwierig zu verwenden ist oder was wir verbessern könnten. Ihre Nachricht ist mit Ihrem Konto verknüpft, sodass sie untersucht werden kann.",
+    "placeholder": "Beschreiben Sie Ihre Erfahrung so detailliert wie möglich ...",
+    "error": "Wir konnten es nicht versenden. Bitte versuchen Sie es erneut."
+  },
+  "errors": {
+    "fetchAttendees": "Teilnehmer konnten nicht abgerufen werden",
+    "fetchClasses": "Klassen konnten nicht abgerufen werden",
+    "fetchUsers": "Benutzer konnten nicht abgerufen werden",
+    "fetchTrainerClasses": "Trainerklassen konnten nicht abgerufen werden",
+    "bookClass": "Kursbuchung fehlgeschlagen"
+  },
+  "unauthorized": {
+    "title": "Zugriff verweigert",
+    "description": "Sie haben keine Berechtigung, auf diese Seite zuzugreifen. Ihre aktuelle Rolle erlaubt Ihnen nicht, diesen Inhalt anzuzeigen."
   }
 }

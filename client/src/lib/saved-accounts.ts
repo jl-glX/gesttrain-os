@@ -10,7 +10,7 @@ export interface SavedAccount {
   lastUsedAt: number;
 }
 
-const STORAGE_KEY = "hubfit.saved-accounts.v1";
+const STORAGE_KEY = "gesttrain-os.saved-accounts.v1";
 const MAX_SAVED_ACCOUNTS = 8;
 
 export function getSavedAccounts(): SavedAccount[] {

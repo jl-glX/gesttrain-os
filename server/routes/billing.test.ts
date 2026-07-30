@@ -11,7 +11,7 @@ describe("billing API", () => {
   let adminCookie: string;
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "hubfit-billing-"));
+    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-billing-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();

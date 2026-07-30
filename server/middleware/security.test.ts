@@ -89,14 +89,14 @@ describe("API security baseline", () => {
 
   it("enables transport and content protections in production", async () => {
     vi.stubEnv("NODE_ENV", "production");
-    vi.stubEnv("CLIENT_ORIGIN", "https://hubfit.example");
+    vi.stubEnv("CLIENT_ORIGIN", "https://gesttrain-os.example");
     vi.resetModules();
 
     try {
       const { app: productionApp } = await import("../index.js");
       const allowed = await request(productionApp)
         .get("/api/health")
-        .set("Origin", "https://hubfit.example")
+        .set("Origin", "https://gesttrain-os.example")
         .expect(200);
       const denied = await request(productionApp)
         .get("/api/health")
@@ -104,7 +104,7 @@ describe("API security baseline", () => {
         .expect(200);
 
       expect(allowed.headers["access-control-allow-origin"]).toBe(
-        "https://hubfit.example",
+        "https://gesttrain-os.example",
       );
       expect(allowed.headers["strict-transport-security"]).toBeDefined();
       expect(allowed.headers["content-security-policy"]).toBeDefined();

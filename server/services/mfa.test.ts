@@ -15,7 +15,7 @@ describe("two-step verification", () => {
 
   const currentCode = () =>
     new OTPAuth.TOTP({
-      issuer: "HubFit",
+      issuer: "GestTrain/OS",
       label: "mfa-member@example.com",
       algorithm: "SHA1",
       digits: 6,
@@ -24,7 +24,7 @@ describe("two-step verification", () => {
     }).generate();
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "hubfit-mfa-"));
+    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-mfa-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();

@@ -12,7 +12,7 @@ describe("resource manager API", () => {
   let memberCookie: string;
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "hubfit-resources-"));
+    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-resources-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();

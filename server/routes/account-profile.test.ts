@@ -11,7 +11,7 @@ describe("account profile API", () => {
   let memberCookie: string;
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "hubfit-account-profile-"));
+    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-account-profile-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();

@@ -11,7 +11,7 @@ describe("member commerce API", () => {
   let memberCookie: string;
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "hubfit-member-commerce-"));
+    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-member-commerce-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();

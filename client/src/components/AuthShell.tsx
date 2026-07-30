@@ -34,7 +34,7 @@ export function AuthShell({
 
         <div className="relative flex items-center gap-3 text-xl font-bold tracking-tight">
           <BrandLogo className="h-11 w-11 rounded-xl shadow-lg shadow-blue-500/20" />
-          HubFit
+          GestTrain/OS
         </div>
 
         <div className="relative max-w-xl">
@@ -63,7 +63,7 @@ export function AuthShell({
         </div>
 
         <p className="relative text-xs text-slate-500">
-          © {new Date().getFullYear()} HubFit
+          © {new Date().getFullYear()} GestTrain/OS
         </p>
       </section>
 
@@ -77,7 +77,7 @@ export function AuthShell({
             <div className="mb-8 flex items-center gap-3 lg:hidden">
               <BrandLogo className="h-11 w-11 rounded-xl shadow-lg shadow-blue-600/20" />
               <span className="text-xl font-bold tracking-tight text-slate-950">
-                HubFit
+                GestTrain/OS
               </span>
             </div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-600">
@@ -95,7 +95,7 @@ export function AuthShell({
           </div>
         </div>
         <p className="px-4 pb-6 text-center text-xs text-slate-400 lg:hidden">
-          © {new Date().getFullYear()} HubFit
+          © {new Date().getFullYear()} GestTrain/OS
         </p>
       </section>
     </main>
