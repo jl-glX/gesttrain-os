@@ -324,7 +324,23 @@
     "preferenceSaved": "Die Inaktivitätseinstellung wurde gespeichert.",
     "deletionScheduled": "Die Kontoschliessung wurde geplant.",
     "deletionCancelled": "Die geplante Schliessung wurde abgebrochen.",
-    "demoNotice": "Diese Version demonstriert Planung, ausstehende Sperrung und Abbruch. Daten werden noch nicht gelöscht und Aufbewahrungsrichtlinien noch nicht ausgeführt."
+    "dataReviewTitle": "Gemeinsame Datenprüfung",
+    "dataReviewDescription": "Die Kontoschliessung fragt das Aufbewahrungsmodul ab und zeigt, welche Kategorien vor einer künftigen Aktion klassifiziert werden müssen.",
+    "executionDisabled": "Ausführung deaktiviert",
+    "linkedRecords": "{{count}} verknüpfte Datensätze",
+    "dataCategories": {
+      "account_profile": "Kontoprofil",
+      "preferences": "Präferenzen",
+      "bookings": "Buchungen",
+      "billing_records": "Abrechnung",
+      "security_events": "Sicherheitsaktivität"
+    },
+    "reviewStates": {
+      "policy_review_required": "Es gibt eine aktive Richtlinie, aber die endgültige Entscheidung muss noch geprüft werden.",
+      "draft_policy": "Es gibt einen Richtlinienentwurf, der noch validiert werden muss.",
+      "unclassified": "Es gibt noch keine anwendbare Richtlinie."
+    },
+    "demoNotice": "Diese Version demonstriert Planung, ausstehende Sperrung, Abbruch und koordinierte Datenprüfung. Daten werden noch nicht gelöscht und Aufbewahrungsrichtlinien noch nicht ausgeführt."
   },
   "dataRetention": {
     "eyebrow": "Technische Verwaltung",

@@ -147,7 +147,23 @@
     "preferenceSaved": "The inactivity preference has been saved.",
     "deletionScheduled": "Account closure has been scheduled.",
     "deletionCancelled": "The scheduled closure has been cancelled.",
-    "demoNotice": "This version demonstrates scheduling, pending suspension and cancellation. It does not delete data or run retention policies yet."
+    "dataReviewTitle": "Combined data review",
+    "dataReviewDescription": "Account closure consults the retention module to show which categories need classification before any future action.",
+    "executionDisabled": "Execution disabled",
+    "linkedRecords": "{{count}} linked records",
+    "dataCategories": {
+      "account_profile": "Account profile",
+      "preferences": "Preferences",
+      "bookings": "Bookings",
+      "billing_records": "Billing",
+      "security_events": "Security activity"
+    },
+    "reviewStates": {
+      "policy_review_required": "An active policy exists, but the final decision still requires review.",
+      "draft_policy": "A draft policy exists and still requires validation.",
+      "unclassified": "No applicable policy exists yet."
+    },
+    "demoNotice": "This version demonstrates scheduling, pending suspension, cancellation and coordinated data review. It does not delete data or execute retention policies yet."
   },
   "dataRetention": {
     "eyebrow": "Technical administration",

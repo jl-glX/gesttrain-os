@@ -38,6 +38,8 @@ describe("account lifecycle", () => {
       12,
     );
     expect(configured.inactivityMonths).toBe(12);
+    expect(configured.dataDisposition.executionEnabled).toBe(false);
+    expect(configured.dataDisposition.categories).toHaveLength(5);
 
     const disabled = await lifecycle.updateInactivityDeletionPreference(
       userId,

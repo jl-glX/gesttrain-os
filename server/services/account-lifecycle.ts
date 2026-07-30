@@ -1,5 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { db } from "../db/client.js";
+import { getAccountDispositionPreview } from "./data-retention.js";
 import { recordSecurityEvent } from "./security-events.js";
 
 export const INACTIVITY_DELETION_OPTIONS = [6, 12, 18, 24, 36] as const;
@@ -13,7 +14,7 @@ function requestId(): string {
 }
 
 export async function getAccountLifecycle(userId: string) {
-  const [preference, request] = await Promise.all([
+  const [preference, request, dataDisposition] = await Promise.all([
     db
       .selectFrom("accountDeletionPreferences")
       .selectAll()
@@ -25,6 +26,7 @@ export async function getAccountLifecycle(userId: string) {
       .where("userId", "=", userId)
       .where("status", "=", "scheduled")
       .executeTakeFirst(),
+    getAccountDispositionPreview(userId),
   ]);
 
   return {
@@ -33,6 +35,7 @@ export async function getAccountLifecycle(userId: string) {
       preference?.lastMeaningfulActivityAt ?? Date.now(),
     deletionRequest: request ?? null,
     gracePeriodDays: 30,
+    dataDisposition,
   };
 }
 
