@@ -2,6 +2,10 @@
 
 The legal pages in the application are working drafts, not legal advice. They intentionally avoid inventing business or personal information.
 
+The account-lifecycle demo also avoids defining binding retention periods. Its
+technical boundaries and future review points are documented in
+[Account lifecycle foundation](./ACCOUNT-LIFECYCLE.md).
+
 ## Confirmed
 
 - Owner and responsible person: Javier López Díaz.
@@ -23,6 +27,8 @@ The legal pages in the application are working drafts, not legal advice. They in
 - Stripe-specific responsibilities and customer-facing payment disclosures.
 - Consumer complaint and dispute-resolution information.
 - Professional legal review for the actual launch model and jurisdiction.
+- Align the final privacy policy, terms of use and legal notice with the
+  implemented account closure, recovery and retention behaviour.
 
 ## Maintenance
 

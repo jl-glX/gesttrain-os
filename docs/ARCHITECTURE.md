@@ -27,6 +27,8 @@ Development uses a single launcher for Vite and Express. Production builds the c
 - GestTrain/OS financial records adapted internally from App-ProTrack's budget and transaction domain.
 - Internationalized user interface.
 - Public legal information.
+- Account identity, reversible closure scheduling and draft-only data-retention
+  policies.
 
 ## Roles
 
@@ -55,3 +57,7 @@ Known demo classes are localized at display time. User-created names and descrip
 - The interface keeps three visual identities separate: the fixed GestTrain/OS product logo, the active facility logo and the signed-in user's profile photo. Profile photos can only be updated by their account owner and use the same safe image restrictions as facility logos.
 - Continue adapting suitable App-ProTrack concepts instead of duplicating a second finance domain.
 - Keep GestTrain/OS functional when optional integrations are unavailable.
+- Keep account closure decisions separate from physical deletion, while
+  allowing the lifecycle module to request a disposition preview from the
+  retention module. Both are demonstrators with execution disabled; see
+  [Account lifecycle foundation](./ACCOUNT-LIFECYCLE.md).
