@@ -846,7 +846,7 @@
     "remainingMinutes_one": "{{count}} Minute",
     "remainingMinutes_other": "{{count}} Minuten",
     "sessionTimeoutSaved": "Der Ablauf der Inaktivität wurde aktualisiert.",
-    "expiresIn": "Läuft in {{count}} ohne Aktivität ab",
+    "expiresIn": "Läuft in {{time}} ohne Aktivität ab",
     "remainingHours_other": "{{count}} Stunden",
     "timeouts": {
       "15": "15 Minuten",
@@ -858,7 +858,7 @@
     },
     "remainingDays_one": "{{count}} Tag",
     "remainingDays_other": "{{count}} Tage",
-    "remainingHours_one": "{{date}} Stunde",
+    "remainingHours_one": "{{count}} Stunde",
     "revoke": "Schließen",
     "lastActivity": "Letzte Aktivität: {{date}}",
     "closeOthers": "Schließen Sie die anderen",
