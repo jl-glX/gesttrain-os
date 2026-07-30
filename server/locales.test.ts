@@ -2,7 +2,9 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-type LocaleTree = Record<string, string | LocaleTree>;
+interface LocaleTree {
+  [key: string]: string | LocaleTree;
+}
 
 function readLocale(name: string): LocaleTree {
   return JSON.parse(

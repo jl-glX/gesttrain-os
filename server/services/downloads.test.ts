@@ -27,7 +27,10 @@ describe("download manifest", () => {
 
   it("only exposes configured HTTPS destinations", () => {
     vi.stubEnv("DOWNLOAD_WINDOWS_URL", "https://apps.example.com/gesttrain-os");
-    vi.stubEnv("DOWNLOAD_ANDROID_URL", "http://insecure.example.com/gesttrain-os");
+    vi.stubEnv(
+      "DOWNLOAD_ANDROID_URL",
+      "http://insecure.example.com/gesttrain-os",
+    );
     vi.stubEnv("DOWNLOAD_ZIP_URL", "not-a-url");
 
     const manifest = getDownloadManifest();
