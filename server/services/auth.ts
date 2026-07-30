@@ -3,6 +3,7 @@ import bcryptjs from "bcryptjs";
 import { db } from "../db/client.js";
 import { mfaStatus, verifyMfaCode } from "./mfa.js";
 import { recordSecurityEvent } from "./security-events.js";
+import { ensureSupportIdentifier } from "./support-identifiers.js";
 
 export const SESSION_DURATION = 24 * 60 * 60 * 1000;
 export const REMEMBERED_SESSION_DURATION = 30 * 24 * 60 * 60 * 1000;
@@ -139,6 +140,7 @@ export async function signup(
     })
     .execute();
 
+  await ensureSupportIdentifier(user.id);
   return createSession(user, metadata);
 }
 

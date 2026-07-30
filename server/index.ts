@@ -18,6 +18,7 @@ import { feedbackRouter } from "./routes/feedback.js";
 import { billingRouter } from "./routes/billing.js";
 import { facilityProfileRouter } from "./routes/facility-profile.js";
 import { accountProfileRouter } from "./routes/account-profile.js";
+import { accountIdentityRouter } from "./routes/account-identity.js";
 import { memberCommerceRouter } from "./routes/member-commerce.js";
 import { delegationsRouter } from "./routes/delegations.js";
 import { downloadsRouter } from "./routes/downloads.js";
@@ -66,6 +67,7 @@ app.use("/api", apiLimiter);
 // The general API keeps its deliberately small request limit below.
 app.use("/api/facility-profile", facilityProfileRouter);
 app.use("/api/account/profile", accountProfileRouter);
+app.use("/api/account/identity", accountIdentityRouter);
 
 // Body parsing middleware
 const requestLimit = process.env.MAX_REQUEST_SIZE || "32kb";
