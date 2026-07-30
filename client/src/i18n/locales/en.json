@@ -113,6 +113,18 @@
     "preferencesDescription": "Theme, privacy and more personal options will be added progressively.",
     "delegationSecurity": "Delegations only allow someone to book or cancel on your behalf. They do not provide access to your profile, password, payments or security settings."
   },
+  "accountIdentity": {
+    "eyebrow": "Account identity",
+    "title": "Public support ID",
+    "description": "Use this identifier when the facility or GestTrain/OS support needs to locate your account without asking for more personal information than necessary.",
+    "label": "Your identifier",
+    "show": "Show",
+    "hide": "Hide",
+    "copy": "Copy",
+    "copied": "Copied",
+    "loadError": "The identifier could not be loaded.",
+    "securityNotice": "This ID helps locate your account, but it is not a password and does not prove account ownership by itself."
+  },
   "workoutTimer": {
     "eyebrow": "Personal training",
     "title": "Workout timers",

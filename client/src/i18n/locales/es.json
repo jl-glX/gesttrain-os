@@ -117,6 +117,18 @@
     "preferencesDescription": "Tema, privacidad y más opciones personales se incorporarán de forma progresiva.",
     "delegationSecurity": "Las delegaciones solo permiten reservar o cancelar en tu nombre. No dan acceso a tu perfil, contraseña, pagos ni configuración de seguridad."
   },
+  "accountIdentity": {
+    "eyebrow": "Identidad de la cuenta",
+    "title": "ID público de soporte",
+    "description": "Utiliza este identificador cuando necesites localizar tu cuenta ante el centro o el soporte de GestTrain/OS sin comunicar más datos personales de los necesarios.",
+    "label": "Tu identificador",
+    "show": "Mostrar",
+    "hide": "Ocultar",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "loadError": "No se ha podido cargar el identificador.",
+    "securityNotice": "Este ID sirve para localizar tu cuenta, pero no es una contraseña ni demuestra por sí solo que seas su titular."
+  },
   "workoutTimer": {
     "eyebrow": "Entrenamiento personal",
     "title": "Temporizadores de entrenamiento",

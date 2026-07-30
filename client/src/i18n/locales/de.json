@@ -290,6 +290,18 @@
     "delegationSecurity": "Bei Delegationen kann nur jemand in Ihrem Namen buchen oder stornieren. Sie gewähren keinen Zugriff auf Ihr Profil, Ihr Passwort, Ihre Zahlungen oder Sicherheitseinstellungen.",
     "preferencesDescription": "Thema, Privatsphäre und weitere persönliche Optionen werden nach und nach hinzugefügt."
   },
+  "accountIdentity": {
+    "eyebrow": "Kontoidentität",
+    "title": "Öffentliche Support-ID",
+    "description": "Verwenden Sie diese Kennung, wenn das Studio oder der GestTrain/OS-Support Ihr Konto finden muss, ohne mehr persönliche Daten als nötig abzufragen.",
+    "label": "Ihre Kennung",
+    "show": "Anzeigen",
+    "hide": "Ausblenden",
+    "copy": "Kopieren",
+    "copied": "Kopiert",
+    "loadError": "Die Kennung konnte nicht geladen werden.",
+    "securityNotice": "Diese ID hilft beim Auffinden Ihres Kontos. Sie ist kein Passwort und weist allein nicht den Kontobesitz nach."
+  },
   "workoutTimer": {
     "title": "Trainingstimer",
     "fullscreen": "Vollbild",
