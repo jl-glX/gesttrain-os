@@ -2,7 +2,7 @@
 
 GestTrain/OS is a modular gym-management application for classes, bookings, waitlists, users, trainers and activity analytics. The responsive interface supports Spanish, English, German and Swiss Standard German.
 
-> Project status: active MVP development. GestTrain/OS is not yet ready for commercial production or real payments.
+> Project status: active development. GestTrain/OS is not yet ready for commercial production or real payments.
 
 ## Current capabilities
 
@@ -15,6 +15,8 @@ GestTrain/OS is a modular gym-management application for classes, bookings, wait
 - Spanish, English, German and Swiss Standard German interface with persisted language selection.
 - Public legal notice, terms and conditions, and conditions of use drafts.
 - Security headers, restricted CORS, request limits, rate limiting and input validation.
+- Public support IDs, reversible account-closure scheduling and draft-only
+  retention policies for demonstration.
 
 ## Technology
 
@@ -54,6 +56,7 @@ npm run check        # run the complete validation sequence
 - [Development guide](./DEVELOPMENT.md)
 - [Architecture](./docs/ARCHITECTURE.md)
 - [Security](./docs/SECURITY.md)
+- [Account lifecycle foundation](./docs/ACCOUNT-LIFECYCLE.md)
 - [Legal readiness checklist](./docs/LEGAL-READINESS.md)
 
 ## Demo data
