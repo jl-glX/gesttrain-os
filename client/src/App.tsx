@@ -83,6 +83,10 @@ const AccountControlPage = lazyPage(
   () => import("./pages/AccountControlPage"),
   "AccountControlPage",
 );
+const AccountLifecyclePage = lazyPage(
+  () => import("./pages/AccountLifecyclePage"),
+  "AccountLifecyclePage",
+);
 const WorkoutTimerPage = lazyPage(
   () => import("./pages/WorkoutTimerPage"),
   "WorkoutTimerPage",
@@ -203,6 +207,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <AccountSecurityPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/account/lifecycle"
+            element={
+              <ProtectedRoute>
+                <AccountLifecyclePage />
               </ProtectedRoute>
             }
           />

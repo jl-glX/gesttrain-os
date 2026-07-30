@@ -4,6 +4,7 @@ import { db } from "../db/client.js";
 import { mfaStatus, verifyMfaCode } from "./mfa.js";
 import { recordSecurityEvent } from "./security-events.js";
 import { ensureSupportIdentifier } from "./support-identifiers.js";
+import { markMeaningfulAccountActivity } from "./account-lifecycle.js";
 
 export const SESSION_DURATION = 24 * 60 * 60 * 1000;
 export const REMEMBERED_SESSION_DURATION = 30 * 24 * 60 * 60 * 1000;
@@ -98,6 +99,7 @@ export async function createSession(
     })
     .execute();
 
+  await markMeaningfulAccountActivity(user.id, now);
   return { sessionToken: token, user, rememberDevice };
 }
 
