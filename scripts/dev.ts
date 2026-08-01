@@ -2,6 +2,10 @@ import type { Server } from "node:http";
 import { createServer, type ViteDevServer } from "vite";
 import { closeDatabase } from "../server/db/client.js";
 import { startServer } from "../server/index.js";
+import {
+  acquireDevelopmentLease,
+  releaseDevelopmentLease,
+} from "../server/lib/runtime-registry.js";
 
 let apiServer: Server | undefined;
 let viteServer: ViteDevServer | undefined;
@@ -34,10 +38,12 @@ async function shutdown(exitCode: number): Promise<void> {
   }
 
   closeDatabase();
+  await releaseDevelopmentLease();
   process.exit(exitCode);
 }
 
 async function startDevelopmentServers(): Promise<void> {
+  await acquireDevelopmentLease();
   const apiPort = Number.parseInt(process.env.PORT ?? "3001", 10);
   apiServer = await startServer(apiPort);
 

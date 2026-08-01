@@ -26,6 +26,8 @@ interface ManagedTask {
   nextRunAt: number | null;
   lastDurationMs: number | null;
   lastResultCount: number | null;
+  lastSummary: string | null;
+  lastFindings: string[];
   runCount: number;
   errorCount: number;
   lastError: string | null;
@@ -232,6 +234,25 @@ export function ResourceManagerPage() {
                             result: task.lastResultCount ?? 0,
                           })}
                         </p>
+                        {task.lastSummary && (
+                          <p className="mt-2 text-sm text-slate-600">
+                            {task.lastSummary}
+                          </p>
+                        )}
+                        {task.lastFindings.length > 0 && (
+                          <details className="mt-3 text-sm text-amber-800">
+                            <summary className="cursor-pointer font-semibold">
+                              {t("resourceManager.reviewFindings", {
+                                count: task.lastFindings.length,
+                              })}
+                            </summary>
+                            <ul className="mt-2 list-disc space-y-1 pl-5">
+                              {task.lastFindings.map((finding) => (
+                                <li key={finding}>{finding}</li>
+                              ))}
+                            </ul>
+                          </details>
+                        )}
                         {task.lastError && (
                           <p className="mt-2 text-sm text-red-600">
                             {task.lastError}

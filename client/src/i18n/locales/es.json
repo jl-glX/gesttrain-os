@@ -463,6 +463,7 @@
     "managedTasks": "Procesos administrados",
     "scopeNotice": "Este panel nunca controla procesos del sistema operativo ni de otras aplicaciones.",
     "taskStats": "{{runs}} ejecuciones · {{duration}} ms en la última · {{result}} elementos procesados",
+    "reviewFindings": "Revisar {{count}} hallazgos",
     "runNow": "Ejecutar ahora",
     "pause": "Pausar",
     "resume": "Reanudar",
@@ -480,6 +481,18 @@
       "sqlite-query-planner": {
         "name": "Optimización del planificador SQLite",
         "description": "Permite que SQLite actualice sus estadísticas ligeras cuando la base de datos lo necesita."
+      },
+      "booking-integrity-cleanup": {
+        "name": "Integridad de reservas",
+        "description": "Reconcilia reservas activas duplicadas y entradas obsoletas de la lista de espera cuando la corrección es inequívoca."
+      },
+      "project-runtime-cleanup": {
+        "name": "Limpieza del entorno del proyecto",
+        "description": "Retira registros residuales de GestTrain/OS y evita instancias de desarrollo duplicadas sin tocar otros procesos de Windows."
+      },
+      "source-hygiene-audit": {
+        "name": "Auditoría de higiene del código",
+        "description": "Detecta archivos idénticos, vacíos o aparentemente obsoletos y los presenta para revisión sin borrar código automáticamente."
       }
     }
   },

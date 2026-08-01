@@ -459,6 +459,7 @@
     "managedTasks": "Managed processes",
     "scopeNotice": "This panel never controls operating-system processes or other applications.",
     "taskStats": "{{runs}} runs · {{duration}} ms on the last run · {{result}} items processed",
+    "reviewFindings": "Review {{count}} findings",
     "runNow": "Run now",
     "pause": "Pause",
     "resume": "Resume",
@@ -476,6 +477,18 @@
       "sqlite-query-planner": {
         "name": "SQLite query planner optimization",
         "description": "Lets SQLite refresh lightweight statistics when the database needs them."
+      },
+      "booking-integrity-cleanup": {
+        "name": "Booking integrity",
+        "description": "Reconciles duplicate active bookings and stale waitlist entries when the correction is unambiguous."
+      },
+      "project-runtime-cleanup": {
+        "name": "Project runtime cleanup",
+        "description": "Removes stale GestTrain/OS records and prevents duplicate development instances without touching other operating-system processes."
+      },
+      "source-hygiene-audit": {
+        "name": "Source hygiene audit",
+        "description": "Finds identical, empty or potentially obsolete files for review without deleting source code automatically."
       }
     }
   },

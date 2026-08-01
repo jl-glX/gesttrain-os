@@ -24,6 +24,54 @@ export const db = new Kysely<DatabaseSchema>({
   log: process.env.NODE_ENV === "development" ? ["query", "error"] : ["error"],
 });
 
+function reconcileDuplicateBookings(): number {
+  return sqliteDb
+    .prepare(
+      `WITH ranked AS (
+         SELECT id,
+           ROW_NUMBER() OVER (
+             PARTITION BY classId, userId
+             ORDER BY
+               CASE status WHEN 'confirmed' THEN 0 ELSE 1 END,
+               createdAt ASC,
+               id ASC
+           ) AS activeRank
+         FROM bookings
+         WHERE status IN ('confirmed', 'waitlist')
+       )
+       UPDATE bookings
+       SET status = 'cancelled',
+           cancelledAt = COALESCE(cancelledAt, ?)
+       WHERE id IN (SELECT id FROM ranked WHERE activeRank > 1)`,
+    )
+    .run(Date.now()).changes;
+}
+
+function removeStaleWaitlistEntries(): number {
+  return sqliteDb
+    .prepare(
+      `DELETE FROM waitlistEntries
+       WHERE promotedAt IS NULL
+         AND EXISTS (
+           SELECT 1 FROM bookings
+           WHERE bookings.classId = waitlistEntries.classId
+             AND bookings.userId = waitlistEntries.userId
+             AND bookings.status = 'confirmed'
+         )`,
+    )
+    .run().changes;
+}
+
+export function reconcileBookingIntegrity(): {
+  duplicateBookings: number;
+  staleWaitlistEntries: number;
+} {
+  return {
+    duplicateBookings: reconcileDuplicateBookings(),
+    staleWaitlistEntries: removeStaleWaitlistEntries(),
+  };
+}
+
 export async function initializeDatabase() {
   console.log("Initializing database...");
 
@@ -313,35 +361,12 @@ export async function initializeDatabase() {
         WHERE status IN ('confirmed', 'waitlist');
     `);
   } else {
-    const reconciledDuplicates = sqliteDb
-      .prepare(
-        `WITH ranked AS (
-           SELECT id,
-             ROW_NUMBER() OVER (
-               PARTITION BY classId, userId
-               ORDER BY
-                 CASE status WHEN 'confirmed' THEN 0 ELSE 1 END,
-                 createdAt ASC,
-                 id ASC
-             ) AS activeRank
-           FROM bookings
-           WHERE status IN ('confirmed', 'waitlist')
-         )
-         UPDATE bookings
-         SET status = 'cancelled',
-             cancelledAt = COALESCE(cancelledAt, ?)
-         WHERE id IN (
-           SELECT id FROM ranked WHERE activeRank > 1
-         )`,
-      )
-      .run(Date.now());
-
-    if (reconciledDuplicates.changes > 0) {
+    const duplicateBookings = reconcileDuplicateBookings();
+    if (duplicateBookings > 0) {
       console.warn(
-        `Reconciled ${reconciledDuplicates.changes} duplicate active booking(s) before applying the uniqueness constraint.`,
+        `Reconciled ${duplicateBookings} duplicate active booking(s).`,
       );
     }
-
     sqliteDb.exec(`
       CREATE UNIQUE INDEX IF NOT EXISTS idx_bookings_active_user_class
         ON bookings(classId, userId)
@@ -368,23 +393,11 @@ export async function initializeDatabase() {
     `);
   }
 
-  const staleWaitlistEntries = sqliteDb
-    .prepare(
-      `DELETE FROM waitlistEntries
-       WHERE promotedAt IS NULL
-         AND EXISTS (
-           SELECT 1
-           FROM bookings
-           WHERE bookings.classId = waitlistEntries.classId
-             AND bookings.userId = waitlistEntries.userId
-             AND bookings.status = 'confirmed'
-         )`,
-    )
-    .run();
-  if (staleWaitlistEntries.changes > 0) {
+  const staleWaitlistEntries = removeStaleWaitlistEntries();
+  if (staleWaitlistEntries > 0) {
     console.warn(
-      `Removed ${staleWaitlistEntries.changes} stale waitlist entr${
-        staleWaitlistEntries.changes === 1 ? "y" : "ies"
+      `Removed ${staleWaitlistEntries} stale waitlist entr${
+        staleWaitlistEntries === 1 ? "y" : "ies"
       } after reconciling active bookings.`,
     );
   }

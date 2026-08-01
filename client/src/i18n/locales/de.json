@@ -556,6 +556,7 @@
       "error": "Fehler"
     },
     "taskStats": "{{runs}}-Ausführungen · {{duration}} ms beim letzten Durchlauf · {{result}}-Elemente verarbeitet",
+    "reviewFindings": "{{count}} Funde prüfen",
     "scopeNotice": "Dieses Panel steuert niemals Betriebssystemprozesse oder andere Anwendungen.",
     "tasks": {
       "expired-auth-cleanup": {
@@ -565,6 +566,18 @@
       "sqlite-query-planner": {
         "name": "Optimierung des SQLite-Abfrageplaners",
         "description": "Ermöglicht SQLite, kompakte Statistiken zu aktualisieren, wenn die Datenbank sie benötigt."
+      },
+      "booking-integrity-cleanup": {
+        "name": "Buchungsintegrität",
+        "description": "Bereinigt eindeutige doppelte aktive Buchungen und veraltete Wartelisteneinträge."
+      },
+      "project-runtime-cleanup": {
+        "name": "Projektlaufzeit bereinigen",
+        "description": "Entfernt veraltete GestTrain/OS-Einträge und verhindert doppelte Entwicklungsinstanzen, ohne andere Prozesse anzutasten."
+      },
+      "source-hygiene-audit": {
+        "name": "Quellcode-Hygieneprüfung",
+        "description": "Meldet identische, leere oder möglicherweise veraltete Dateien zur Prüfung, ohne Quellcode automatisch zu löschen."
       }
     },
     "managedTasks": "Gemanagte Prozesse",

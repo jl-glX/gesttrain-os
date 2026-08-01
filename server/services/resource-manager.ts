@@ -1,6 +1,8 @@
 import { performance } from "node:perf_hooks";
 import { sql } from "kysely";
-import { db } from "../db/client.js";
+import { db, reconcileBookingIntegrity } from "../db/client.js";
+import { cleanupStaleRuntimeRecords } from "../lib/runtime-registry.js";
+import { auditSourceHygiene } from "./source-hygiene.js";
 
 type TaskPriority = "critical" | "normal" | "low";
 type TaskState = "idle" | "running" | "paused" | "error";
@@ -12,7 +14,13 @@ interface ManagedTaskDefinition {
   intervalMs: number;
   priority: TaskPriority;
   enabledByDefault: boolean;
-  run: () => Promise<number | void>;
+  run: () => Promise<ManagedTaskResult | number | void>;
+}
+
+interface ManagedTaskResult {
+  count: number;
+  summary: string;
+  findings?: string[];
 }
 
 interface ManagedTaskRuntime {
@@ -24,6 +32,8 @@ interface ManagedTaskRuntime {
   nextRunAt: number | null;
   lastDurationMs: number | null;
   lastResultCount: number | null;
+  lastSummary: string | null;
+  lastFindings: string[];
   runCount: number;
   errorCount: number;
   lastError: string | null;
@@ -41,6 +51,8 @@ export interface ManagedTaskStatus {
   nextRunAt: number | null;
   lastDurationMs: number | null;
   lastResultCount: number | null;
+  lastSummary: string | null;
+  lastFindings: string[];
   runCount: number;
   errorCount: number;
   lastError: string | null;
@@ -62,6 +74,8 @@ function serializeTask(task: ManagedTaskRuntime): ManagedTaskStatus {
     nextRunAt: task.nextRunAt,
     lastDurationMs: task.lastDurationMs,
     lastResultCount: task.lastResultCount,
+    lastSummary: task.lastSummary,
+    lastFindings: task.lastFindings,
     runCount: task.runCount,
     errorCount: task.errorCount,
     lastError: task.lastError,
@@ -90,6 +104,8 @@ function registerTask(definition: ManagedTaskDefinition): void {
     nextRunAt: null,
     lastDurationMs: null,
     lastResultCount: null,
+    lastSummary: null,
+    lastFindings: [],
     runCount: 0,
     errorCount: 0,
     lastError: null,
@@ -142,6 +158,59 @@ registerTask({
 });
 
 registerTask({
+  id: "booking-integrity-cleanup",
+  name: "Booking integrity cleanup",
+  description:
+    "Reconciles unambiguous duplicate active bookings and stale waitlist entries.",
+  intervalMs: 60 * 60 * 1000,
+  priority: "critical",
+  enabledByDefault: true,
+  run: async () => {
+    const result = reconcileBookingIntegrity();
+    const count = result.duplicateBookings + result.staleWaitlistEntries;
+    return {
+      count,
+      summary: `${result.duplicateBookings} duplicate booking(s) and ${result.staleWaitlistEntries} stale waitlist entrie(s) reconciled.`,
+    };
+  },
+});
+
+registerTask({
+  id: "project-runtime-cleanup",
+  name: "Project runtime cleanup",
+  description:
+    "Removes stale GestTrain/OS runtime records without touching unrelated operating-system processes.",
+  intervalMs: 15 * 60 * 1000,
+  priority: "normal",
+  enabledByDefault: true,
+  run: async () => {
+    const count = await cleanupStaleRuntimeRecords();
+    return {
+      count,
+      summary: `${count} stale project runtime record(s) removed.`,
+    };
+  },
+});
+
+registerTask({
+  id: "source-hygiene-audit",
+  name: "Source hygiene audit",
+  description:
+    "Reports exact duplicate files, empty source files and obsolete-looking artifacts without deleting source code.",
+  intervalMs: 24 * 60 * 60 * 1000,
+  priority: "low",
+  enabledByDefault: false,
+  run: async () => {
+    const audit = await auditSourceHygiene();
+    return {
+      count: audit.findings.length,
+      summary: `${audit.inspectedFiles} source file(s) inspected; ${audit.findings.length} finding(s).`,
+      findings: audit.findings,
+    };
+  },
+});
+
+registerTask({
   id: "sqlite-query-planner",
   name: "SQLite query planner optimization",
   description:
@@ -186,7 +255,16 @@ export async function runManagedTask(
 
   try {
     const result = await task.definition.run();
-    task.lastResultCount = typeof result === "number" ? result : null;
+    task.lastResultCount =
+      typeof result === "number"
+        ? result
+        : result && typeof result === "object"
+          ? result.count
+          : null;
+    task.lastSummary =
+      result && typeof result === "object" ? result.summary : null;
+    task.lastFindings =
+      result && typeof result === "object" ? (result.findings ?? []) : [];
     task.lastError = null;
     task.state = task.enabled ? "idle" : "paused";
     task.runCount += 1;

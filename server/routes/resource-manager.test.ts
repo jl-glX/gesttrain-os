@@ -83,6 +83,12 @@ describe("resource manager API", () => {
       expect.arrayContaining([
         expect.objectContaining({ id: "expired-auth-cleanup" }),
         expect.objectContaining({ id: "sqlite-query-planner" }),
+        expect.objectContaining({ id: "booking-integrity-cleanup" }),
+        expect.objectContaining({ id: "project-runtime-cleanup" }),
+        expect.objectContaining({
+          id: "source-hygiene-audit",
+          enabled: false,
+        }),
       ]),
     );
     expect(response.body.process).toMatchObject({
@@ -91,6 +97,20 @@ describe("resource manager API", () => {
         rssBytes: expect.any(Number),
         heapUsedBytes: expect.any(Number),
       },
+    });
+  });
+
+  it("runs the source audit without deleting project files", async () => {
+    const response = await request(app)
+      .post("/api/admin/resource-manager/tasks/source-hygiene-audit/run")
+      .set("Cookie", adminCookie)
+      .expect(200);
+
+    expect(response.body).toMatchObject({
+      id: "source-hygiene-audit",
+      lastResultCount: expect.any(Number),
+      lastSummary: expect.any(String),
+      lastFindings: expect.any(Array),
     });
   });
 
