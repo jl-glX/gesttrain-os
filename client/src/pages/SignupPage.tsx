@@ -8,6 +8,7 @@ import { AuthShell } from "../components/AuthShell";
 import { PasswordInput } from "../components/PasswordInput";
 import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { isPasswordWithinHashLimit } from "../lib/passwordPolicy";
 
 export function SignupPage() {
   const navigate = useNavigate();
@@ -44,6 +45,7 @@ export function SignupPage() {
 
     if (
       formData.password.length < 12 ||
+      !isPasswordWithinHashLimit(formData.password) ||
       !/[a-z]/.test(formData.password) ||
       !/[A-Z]/.test(formData.password) ||
       !/[0-9]/.test(formData.password)
@@ -114,6 +116,7 @@ export function SignupPage() {
             name="password"
             placeholder="••••••••"
             value={formData.password}
+            maxLength={72}
             onChange={handleChange}
             disabled={isLoading}
             className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
@@ -129,6 +132,7 @@ export function SignupPage() {
             name="confirmPassword"
             placeholder="••••••••"
             value={formData.confirmPassword}
+            maxLength={72}
             onChange={handleChange}
             disabled={isLoading}
             className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"

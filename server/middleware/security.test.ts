@@ -86,10 +86,14 @@ describe("API security baseline", () => {
       })
       .expect(413);
     const missing = await request(app).get("/api/not-real").expect(404);
+    const normalizedTraversal = await request(app)
+      .get("/api/downloads/%2e%2e/%2e%2e/package.json")
+      .expect(404);
 
     expect(malformed.body.code).toBe("INVALID_JSON");
     expect(oversized.body.code).toBe("PAYLOAD_TOO_LARGE");
     expect(missing.body.code).toBe("NOT_FOUND");
+    expect(normalizedTraversal.body.code).toBe("NOT_FOUND");
   });
 
   it("rate-limits repeated authentication attempts", async () => {

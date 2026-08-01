@@ -21,7 +21,7 @@ GestTrain/OS is a modular gym-management application for classes, bookings, wait
 ## Technology
 
 - React 19, TypeScript 6, Vite 8 and Tailwind CSS 4.
-- Node.js 20+, Express 5 and Kysely.
+- Node.js 24 LTS, Express 5 and Kysely.
 - SQLite for local development.
 - Vitest, ESLint and Prettier.
 
@@ -49,6 +49,8 @@ npm run typecheck
 npm run test
 npm run build
 npm run check        # run the complete validation sequence
+npm run security:probe # local-only black-box probe; requires a running API
+npm run security:password-resilience # synthetic bcrypt laboratory check
 ```
 
 ## Documentation
@@ -56,6 +58,7 @@ npm run check        # run the complete validation sequence
 - [Development guide](./DEVELOPMENT.md)
 - [Architecture](./docs/ARCHITECTURE.md)
 - [Security](./docs/SECURITY.md)
+- [Local black/gray/white-box assessment](./docs/SECURITY-ASSESSMENT-EXTREME-2026-08-01.md)
 - [Account lifecycle foundation](./docs/ACCOUNT-LIFECYCLE.md)
 - [Legal readiness checklist](./docs/LEGAL-READINESS.md)
 

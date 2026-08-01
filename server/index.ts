@@ -108,6 +108,9 @@ if (process.env.NODE_ENV === "production") {
   setupStaticServing(app);
 }
 
+// Keep unmatched and path-normalized requests inside the controlled JSON
+// error surface instead of exposing Express' default HTML response.
+app.use(notFoundHandler);
 app.use(errorHandler);
 
 // Export a function to start the server

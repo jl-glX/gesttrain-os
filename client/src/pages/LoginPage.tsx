@@ -322,6 +322,7 @@ export function LoginPage() {
               id="password"
               placeholder="••••••••"
               value={password}
+              maxLength={72}
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
               className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"

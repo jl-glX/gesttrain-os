@@ -151,4 +151,19 @@ describe("persistent authentication sessions", () => {
       .executeTakeFirstOrThrow();
     expect(stored.revokedAt).not.toBeNull();
   });
+
+  it("rejects passwords that bcrypt would silently truncate", async () => {
+    const sharedPrefix = `Aa1${"x".repeat(69)}`;
+    const firstPassword = `${sharedPrefix}ONE`;
+    const secondPassword = `${sharedPrefix}TWO`;
+
+    expect(Buffer.byteLength(firstPassword, "utf8")).toBeGreaterThan(72);
+    expect(auth.isStrongPassword(firstPassword)).toBe(false);
+    await expect(auth.hashPassword(firstPassword)).rejects.toThrow(
+      "Password exceeds the supported byte length",
+    );
+    expect(await auth.verifyUserPassword("secure-admin", secondPassword)).toBe(
+      false,
+    );
+  });
 });
