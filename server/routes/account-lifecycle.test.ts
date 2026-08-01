@@ -18,11 +18,16 @@ describe("account lifecycle API", () => {
     database = await import("../db/client.js");
     const auth = await import("../services/auth.js");
     await database.initializeDatabase();
-    await auth.signup(
+    const account = await auth.signup(
       "lifecycle-api@example.com",
       "Lifecycle API Member",
       "StrongPassword123",
     );
+    await database.db
+      .updateTable("users")
+      .set({ accountStatus: "active", emailVerifiedAt: Date.now() })
+      .where("id", "=", account.user.id)
+      .execute();
     app = (await import("../index.js")).app;
     const login = await request(app).post("/api/auth/login").send({
       identifier: "lifecycle-api@example.com",

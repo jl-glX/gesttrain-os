@@ -6,6 +6,7 @@ import {
 import { authenticationLimiter } from "../middleware/security.js";
 import {
   accountMfaConfirmationValidation,
+  accountCompromiseValidation,
   mfaCodeValidation,
   passkeyResponseValidation,
   passwordConfirmationValidation,
@@ -24,6 +25,7 @@ import {
   revokeSession,
   SESSION_IDLE_TIMEOUT_OPTIONS,
   updateSessionIdleTimeout,
+  secureReportedCompromise,
 } from "../services/account-security.js";
 import {
   beginMfaSetup,
@@ -31,6 +33,7 @@ import {
   enableMfa,
   regenerateRecoveryCodes,
   verifyMfaCode,
+  mfaStatus,
 } from "../services/mfa.js";
 import { verifyUserPassword } from "../services/auth.js";
 import {
@@ -52,6 +55,37 @@ accountSecurityRouter.get("/", async (_req, res, next) => {
     next(error);
   }
 });
+
+accountSecurityRouter.post(
+  "/compromise",
+  authenticationLimiter,
+  accountCompromiseValidation,
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    try {
+      const auth = getAuthenticatedUser(res);
+      const passwordValid = await verifyUserPassword(
+        auth.userId,
+        req.body.password,
+      );
+      const mfa = await mfaStatus(auth.userId);
+      const mfaValid =
+        !mfa.enabled ||
+        (typeof req.body.code === "string" &&
+          (await verifyMfaCode(auth.userId, auth.email, req.body.code)).valid);
+      if (!passwordValid || !mfaValid) {
+        res.status(401).json({ error: "Invalid security confirmation" });
+        return;
+      }
+      res.json(await secureReportedCompromise(auth.userId, auth.sessionId));
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 accountSecurityRouter.post(
   "/passkeys/options",

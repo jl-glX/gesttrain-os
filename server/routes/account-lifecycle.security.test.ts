@@ -43,6 +43,11 @@ describe("account deletion security", () => {
     );
     ownerId = owner.user.id;
     otherId = other.user.id;
+    await database.db
+      .updateTable("users")
+      .set({ accountStatus: "active", emailVerifiedAt: Date.now() })
+      .where("id", "in", [ownerId, otherId])
+      .execute();
     app = (await import("../index.js")).app;
 
     const ownerLogin = await request(app).post("/api/auth/login").send({

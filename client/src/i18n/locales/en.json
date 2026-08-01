@@ -28,7 +28,9 @@
     "noData": "No data available",
     "at": "at",
     "unauthorized": "You do not have permission to access this section",
-    "backHome": "Back to home"
+    "backHome": "Back to home",
+    "continue": "Continue",
+    "back": "Back"
   },
   "language": {
     "label": "Language",
@@ -369,7 +371,27 @@
     "passwordPolicy": "Password must contain at least 12 characters, use no more than 72 bytes, and include uppercase, lowercase and a number",
     "createAccount": "Create account",
     "creatingAccount": "Creating account...",
-    "hasAccount": "Already have an account?"
+    "hasAccount": "Already have an account?",
+    "lastName": "Last name",
+    "signupStep": "Step {{step}} of {{total}}",
+    "country": "Country or main jurisdiction",
+    "preferredLanguage": "Preferred language",
+    "acceptTermsPrefix": "I accept the",
+    "acceptPrivacy": "I confirm that I have read the privacy policy",
+    "emailVerificationPending": "Real email verification is not connected yet. This demo will mark the account as pending verification.",
+    "cannotAccess": "I cannot access my account",
+    "countries": {
+      "ES": "Spain",
+      "DE": "Germany",
+      "CH": "Switzerland",
+      "AT": "Austria",
+      "NL": "Netherlands",
+      "PT": "Portugal",
+      "FR": "France",
+      "IT": "Italy",
+      "GB": "United Kingdom",
+      "US": "United States"
+    }
   },
   "home": {
     "welcome": "Welcome back, {{name}}",
@@ -909,6 +931,11 @@
     "eyebrow": "Account protection",
     "title": "Security and sign-in",
     "description": "Control two-step verification, signed-in devices and recent account activity.",
+    "compromiseTitle": "I think my account has been compromised",
+    "compromiseDescription": "Verify your identity to close other sessions, invalidate pending challenges, flag the account for review and rotate its public support ID.",
+    "compromiseCodeOptional": "2FA code (required when enabled)",
+    "compromiseAction": "Protect my account",
+    "compromiseSuccess": "Secondary access has been closed and the account is under security review.",
     "twoFactor": "Two-step verification",
     "twoFactorDescription": "Require a temporary authenticator-app code in addition to your password.",
     "passkeyTitle": "Biometric lock and passkeys",
@@ -989,7 +1016,10 @@
       "passkey_login_succeeded": "Passkey sign-in",
       "recovery_codes_regenerated": "Recovery codes renewed",
       "session_revoked": "Session closed",
-      "all_other_sessions_revoked": "Other sessions closed"
+      "all_other_sessions_revoked": "Other sessions closed",
+      "account_compromise_reported": "Possible compromise reported",
+      "email_verified": "Email verified",
+      "support_id_rotated": "Public support ID rotated"
     }
   },
   "feedback": {
@@ -1016,6 +1046,49 @@
     "fetchAttendees": "Failed to fetch attendees",
     "fetchUsers": "Failed to fetch users",
     "bookClass": "Failed to book class"
+  },
+  "emailVerification": {
+    "eyebrow": "Account verification",
+    "title": "Confirm your email",
+    "description": "Enter the temporary code to prove that you control the address used during signup.",
+    "demoCode": "Code visible only in the local demo: {{code}}",
+    "code": "Six-digit code",
+    "action": "Verify email",
+    "verifying": "Verifying...",
+    "invalid": "The code is invalid or has expired."
+  },
+  "recovery": {
+    "eyebrow": "Access and recovery",
+    "title": "Recover account",
+    "description": "This centre gathers the planned methods without simulating operations that are not connected yet.",
+    "available": "Available",
+    "planned": "Ready to extend",
+    "securityTitle": "Recovery must be completed",
+    "securityNotice": "Opening a link or visiting this screen does not reactivate an account or cancel deletion. Successful verification will be required.",
+    "returnToLogin": "Return to sign in",
+    "methods": {
+      "email": {
+        "title": "Recovery email",
+        "description": "Will request a temporary link when an email provider is configured."
+      },
+      "code": {
+        "title": "Authentication or recovery code",
+        "description": "Will use protected codes linked to the account in a verifiable flow."
+      },
+      "passkey": {
+        "title": "Passkey",
+        "description": "Existing passkeys can already be used from the sign-in screen."
+      },
+      "support": {
+        "title": "Assisted recovery",
+        "description": "Reserved for a future support procedure with identity verification."
+      }
+    }
+  },
+  "captcha": {
+    "label": "Human verification",
+    "help": "This check protects sign-in and registration from abusive automation.",
+    "loadFailed": "Verification could not be loaded. Check your connection and try again."
   },
   "unauthorized": {
     "title": "Access denied",

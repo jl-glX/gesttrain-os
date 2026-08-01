@@ -12,7 +12,11 @@ npm ci
 npm run dev
 ```
 
-The launcher in `scripts/dev.ts` starts Vite and Express together and closes both processes cleanly. If a preferred frontend port is occupied, Vite selects the next available port and prints the final URLs.
+The launcher in `scripts/dev.ts` starts Vite and Express together and closes
+both processes cleanly. The frontend uses port `3000` and the API uses `3001`.
+Ports are strict: the launcher stops with a clear error instead of silently
+moving the frontend to another port. Opening the API root returns an
+orientation response; the actual interface remains on the frontend URL.
 
 ## Environment
 
@@ -30,6 +34,14 @@ Copy `.env.example` to `.env` to override defaults.
 | `RATE_LIMIT_MAX_REQUESTS`      | General API request limit.                                       |
 | `AUTH_RATE_LIMIT_MAX_REQUESTS` | Login and signup attempt limit.                                  |
 | `SEED_DEMO_DATA`               | Reserved for local demos; production rejects a `true` value.     |
+| `VITE_TURNSTILE_SITE_KEY`      | Public Turnstile widget key embedded by the client build.        |
+| `TURNSTILE_SECRET_KEY`         | Private server key used only for Siteverify validation.          |
+
+Local development uses Cloudflare's official always-pass test pair when both
+Turnstile values are empty. Production requires real keys, a managed widget and
+hostname restrictions matching `CLIENT_ORIGIN`; the known test secret is
+rejected. Use distinct widgets for development, staging and production, and
+rotate secrets through the provider rather than committing them.
 
 Never commit `.env`, databases, tokens or real customer data.
 

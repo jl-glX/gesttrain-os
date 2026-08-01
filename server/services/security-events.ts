@@ -3,6 +3,7 @@ import { db } from "../db/client.js";
 
 export type SecurityEventType =
   | "login_succeeded"
+  | "email_verified"
   | "login_failed"
   | "mfa_challenge_created"
   | "mfa_challenge_failed"
@@ -16,6 +17,7 @@ export type SecurityEventType =
   | "session_revoked"
   | "all_other_sessions_revoked"
   | "support_id_rotated"
+  | "account_compromise_reported"
   | "deletion_preference_updated"
   | "account_deletion_scheduled"
   | "account_deletion_cancelled"

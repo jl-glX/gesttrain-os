@@ -1,0 +1,110 @@
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import request from "supertest";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
+
+describe("account compromise response", () => {
+  let directory: string;
+  let database: typeof import("../db/client.js");
+  let app: typeof import("../index.js").app;
+  let currentCookie: string;
+  let previousCookie: string;
+  let originalSupportId: string;
+
+  beforeAll(async () => {
+    directory = await mkdtemp(join(tmpdir(), "gesttrain-compromise-"));
+    vi.stubEnv("DATA_DIRECTORY", directory);
+    vi.stubEnv("NODE_ENV", "test");
+    vi.resetModules();
+    database = await import("../db/client.js");
+    const auth = await import("../services/auth.js");
+    await database.initializeDatabase();
+    const account = await auth.signup(
+      "compromise@example.com",
+      "Compromise",
+      "CompromisePassword123",
+    );
+    await database.db
+      .updateTable("users")
+      .set({ accountStatus: "active", emailVerifiedAt: Date.now() })
+      .where("id", "=", account.user.id)
+      .execute();
+    originalSupportId = (
+      await database.db
+        .selectFrom("accountSupportIdentifiers")
+        .select("publicId")
+        .where("userId", "=", account.user.id)
+        .where("status", "=", "active")
+        .executeTakeFirstOrThrow()
+    ).publicId;
+    app = (await import("../index.js")).app;
+    previousCookie = (
+      await request(app).post("/api/auth/login").send({
+        identifier: "compromise@example.com",
+        password: "CompromisePassword123",
+        accessPortal: "member",
+        rememberDevice: false,
+      })
+    ).headers["set-cookie"][0];
+    currentCookie = (
+      await request(app).post("/api/auth/login").send({
+        identifier: "compromise@example.com",
+        password: "CompromisePassword123",
+        accessPortal: "member",
+        rememberDevice: false,
+      })
+    ).headers["set-cookie"][0];
+  });
+
+  afterAll(async () => {
+    database.closeDatabase();
+    vi.unstubAllEnvs();
+    await rm(directory, { recursive: true, force: true });
+  });
+
+  beforeEach(async () => {
+    await database.db
+      .updateTable("users")
+      .set({ accountStatus: "active" })
+      .where("email", "=", "compromise@example.com")
+      .execute();
+  });
+
+  it("revokes secondary sessions and rotates the public support ID", async () => {
+    const response = await request(app)
+      .post("/api/account/security/compromise")
+      .set("Cookie", currentCookie)
+      .send({ password: "CompromisePassword123" })
+      .expect(200);
+
+    expect(response.body).toMatchObject({ accountStatus: "security_review" });
+    expect(response.body.supportIdentifier.publicId).not.toBe(
+      originalSupportId,
+    );
+    await request(app)
+      .get("/api/auth/session")
+      .set("Cookie", previousCookie)
+      .expect(401);
+    await request(app)
+      .get("/api/auth/session")
+      .set("Cookie", currentCookie)
+      .expect(200);
+  });
+
+  it("rejects a compromise report without valid confirmation", async () => {
+    await request(app)
+      .post("/api/account/security/compromise")
+      .set("Cookie", currentCookie)
+      .send({ password: "WrongPassword123" })
+      .expect(401);
+  });
+});

@@ -28,7 +28,9 @@
     "noData": "No hay datos disponibles",
     "at": "a las",
     "unauthorized": "No tienes permiso para acceder a esta sección",
-    "backHome": "Volver al inicio"
+    "backHome": "Volver al inicio",
+    "continue": "Continuar",
+    "back": "Volver"
   },
   "language": {
     "label": "Idioma",
@@ -373,7 +375,27 @@
     "passwordPolicy": "La contraseña debe tener entre 12 caracteres y 72 bytes, e incluir mayúsculas, minúsculas y un número",
     "createAccount": "Crear cuenta",
     "creatingAccount": "Creando cuenta...",
-    "hasAccount": "¿Ya tienes una cuenta?"
+    "hasAccount": "¿Ya tienes una cuenta?",
+    "lastName": "Apellidos",
+    "signupStep": "Paso {{step}} de {{total}}",
+    "country": "País o jurisdicción principal",
+    "preferredLanguage": "Idioma preferido",
+    "acceptTermsPrefix": "Acepto los",
+    "acceptPrivacy": "Confirmo que he leído la política de privacidad",
+    "emailVerificationPending": "La verificación real por correo todavía no está conectada. La cuenta quedará pendiente de verificación en esta demostración.",
+    "cannotAccess": "No puedo acceder a mi cuenta",
+    "countries": {
+      "ES": "España",
+      "DE": "Alemania",
+      "CH": "Suiza",
+      "AT": "Austria",
+      "NL": "Países Bajos",
+      "PT": "Portugal",
+      "FR": "Francia",
+      "IT": "Italia",
+      "GB": "Reino Unido",
+      "US": "Estados Unidos"
+    }
   },
   "home": {
     "welcome": "Te damos la bienvenida, {{name}}",
@@ -919,6 +941,11 @@
     "eyebrow": "Protección de la cuenta",
     "title": "Seguridad e inicio de sesión",
     "description": "Controla la verificación en dos pasos, los dispositivos con sesión iniciada y la actividad reciente de tu cuenta.",
+    "compromiseTitle": "Creo que mi cuenta ha sido vulnerada",
+    "compromiseDescription": "Verifica tu identidad para cerrar las demás sesiones, invalidar retos pendientes, marcar la cuenta para revisión y rotar el ID público de soporte.",
+    "compromiseCodeOptional": "Código 2FA (obligatorio si está activado)",
+    "compromiseAction": "Proteger mi cuenta",
+    "compromiseSuccess": "Se han cerrado los accesos secundarios y la cuenta ha pasado a revisión de seguridad.",
     "twoFactor": "Verificación en dos pasos",
     "twoFactorDescription": "Añade un código temporal de una aplicación autenticadora además de tu contraseña.",
     "passkeyTitle": "Bloqueo biométrico y claves de acceso",
@@ -999,7 +1026,10 @@
       "passkey_login_succeeded": "Inicio de sesión con clave de acceso",
       "recovery_codes_regenerated": "Códigos de recuperación renovados",
       "session_revoked": "Sesión cerrada",
-      "all_other_sessions_revoked": "Se cerraron las demás sesiones"
+      "all_other_sessions_revoked": "Se cerraron las demás sesiones",
+      "account_compromise_reported": "Posible vulneración declarada",
+      "email_verified": "Correo verificado",
+      "support_id_rotated": "ID público de soporte renovado"
     }
   },
   "feedback": {
@@ -1026,6 +1056,49 @@
     "fetchAttendees": "No se han podido cargar los asistentes",
     "fetchUsers": "No se han podido cargar los usuarios",
     "bookClass": "No se ha podido reservar la clase"
+  },
+  "emailVerification": {
+    "eyebrow": "Verificación de la cuenta",
+    "title": "Confirma tu correo",
+    "description": "Introduce el código temporal para demostrar que controlas la dirección utilizada en el registro.",
+    "demoCode": "Código visible solo para la demostración local: {{code}}",
+    "code": "Código de seis cifras",
+    "action": "Verificar correo",
+    "verifying": "Verificando...",
+    "invalid": "El código no es válido o ha caducado."
+  },
+  "recovery": {
+    "eyebrow": "Acceso y recuperación",
+    "title": "Recuperar cuenta",
+    "description": "Este centro reúne los métodos previstos sin simular operaciones que todavía no están conectadas.",
+    "available": "Disponible",
+    "planned": "Preparado para ampliar",
+    "securityTitle": "La recuperación debe completarse",
+    "securityNotice": "Abrir un enlace o visitar esta pantalla no reactiva una cuenta ni cancela un borrado. Será necesaria una verificación satisfactoria.",
+    "returnToLogin": "Volver e iniciar sesión",
+    "methods": {
+      "email": {
+        "title": "Correo de recuperación",
+        "description": "Permitirá solicitar un enlace temporal cuando exista un proveedor de correo configurado."
+      },
+      "code": {
+        "title": "Código de autenticación o recuperación",
+        "description": "Usará los códigos protegidos asociados a la cuenta dentro de un flujo verificable."
+      },
+      "passkey": {
+        "title": "Clave de acceso",
+        "description": "Las claves ya registradas pueden utilizarse desde la pantalla de inicio de sesión."
+      },
+      "support": {
+        "title": "Recuperación asistida",
+        "description": "Queda reservada para un futuro procedimiento de soporte con comprobación de identidad."
+      }
+    }
+  },
+  "captcha": {
+    "label": "Verificación humana",
+    "help": "Esta comprobación protege el acceso y el registro frente a automatizaciones abusivas.",
+    "loadFailed": "No se pudo cargar la verificación. Revisa la conexión e inténtalo de nuevo."
   },
   "unauthorized": {
     "title": "Acceso denegado",

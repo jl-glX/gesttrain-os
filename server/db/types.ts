@@ -1,8 +1,21 @@
+import type { Generated } from "kysely";
+
 interface User {
   id: string;
   email: string;
   phone: string | null;
   name: string;
+  lastName: Generated<string>;
+  countryCode: Generated<string>;
+  locale: Generated<string>;
+  accountStatus: Generated<
+    "pending_verification" | "active" | "security_review"
+  >;
+  emailVerifiedAt: Generated<number | null>;
+  termsVersion: Generated<string>;
+  termsAcceptedAt: Generated<number | null>;
+  privacyVersion: Generated<string>;
+  privacyAcceptedAt: Generated<number | null>;
   avatarDataUrl: string;
   password: string;
   role: "member" | "trainer" | "admin";
@@ -22,6 +35,16 @@ interface AccountSupportIdentifier {
     | null;
   createdAt: number;
   revokedAt: number | null;
+}
+
+interface EmailVerificationChallenge {
+  id: string;
+  userId: string;
+  codeHash: string;
+  createdAt: number;
+  expiresAt: number;
+  attempts: number;
+  consumedAt: number | null;
 }
 
 interface AccountDeletionPreference {
@@ -221,6 +244,7 @@ interface DelegationGrant {
 export interface Database {
   users: User;
   accountSupportIdentifiers: AccountSupportIdentifier;
+  emailVerificationChallenges: EmailVerificationChallenge;
   accountDeletionPreferences: AccountDeletionPreference;
   accountDeletionRequests: AccountDeletionRequest;
   accountDataDeletionDrafts: AccountDataDeletionDraft;

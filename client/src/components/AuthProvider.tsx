@@ -40,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password: string,
       accessPortal: "member" | "staff",
       rememberDevice: boolean,
+      captchaToken: string,
     ) => {
       setIsLoading(true);
       setError(null);
@@ -52,11 +53,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             password,
             accessPortal,
             rememberDevice,
+            captchaToken,
           }),
         });
         const data = (await response.json()) as {
           user?: AuthUser;
           error?: string;
+          demoVerificationCode?: string;
           mfaRequired?: boolean;
         };
         if (!response.ok) throw new Error(data.error ?? "Login failed");
@@ -80,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       identifier: string,
       accessPortal: "member" | "staff",
       rememberDevice: boolean,
+      captchaToken: string,
     ) => {
       setIsLoading(true);
       setError(null);
@@ -89,7 +93,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ identifier, accessPortal, rememberDevice }),
+            body: JSON.stringify({
+              identifier,
+              accessPortal,
+              rememberDevice,
+              captchaToken,
+            }),
           },
         );
         const options = (await optionsResponse.json()) as {
@@ -166,22 +175,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signup = useCallback(
-    async (email: string, name: string, password: string) => {
+    async (input: {
+      email: string;
+      name: string;
+      lastName: string;
+      password: string;
+      countryCode: string;
+      locale: "es" | "en" | "de" | "de-CH";
+      acceptedTerms: boolean;
+      acceptedPrivacy: boolean;
+      captchaToken: string;
+    }) => {
       setIsLoading(true);
       setError(null);
       try {
         const response = await authFetch(`${API_BASE}/api/auth/signup`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, name, password }),
+          body: JSON.stringify(input),
         });
         const data = (await response.json()) as {
           user?: AuthUser;
           error?: string;
+          demoVerificationCode?: string;
         };
         if (!response.ok || !data.user)
           throw new Error(data.error ?? "Signup failed");
         setUser(data.user);
+        return { demoVerificationCode: data.demoVerificationCode };
       } catch (cause) {
         const message =
           cause instanceof Error ? cause.message : "Signup failed";

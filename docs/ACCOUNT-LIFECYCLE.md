@@ -18,6 +18,16 @@ The current implementation can demonstrate:
 - administrator-created retention-policy drafts;
 - internal extension points for retained records, legal holds and future
   deletion candidates.
+- progressive personal signup with surname, jurisdiction, preferred language
+  and versioned acknowledgements;
+- hashed, expiring email-verification challenges with attempt limits;
+- a confirmed-compromise action that revokes secondary sessions and pending
+  challenges, marks the account for review and rotates the support alias;
+- a minimal recovery centre that exposes real passkey access and labels future
+  email, code and support-assisted methods as unavailable.
+- Cloudflare Turnstile protection for signup, password login and passkey login,
+  with mandatory server-side validation of the token, expected action and
+  production hostname.
 
 The demo deliberately does not:
 
@@ -28,6 +38,45 @@ The demo deliberately does not:
 - decide which law applies to a user or a record;
 - claim that a retention duration or legal basis is valid;
 - replace professional legal review.
+- send verification or recovery email through a real provider;
+- complete password reset or support-assisted recovery;
+- automatically remove passkeys after a reported compromise.
+
+Development uses Cloudflare's official test keys. Production fails closed when
+the Turnstile secret is missing or is a known test secret. The public site key
+is supplied as `VITE_TURNSTILE_SITE_KEY`; `TURNSTILE_SECRET_KEY` remains on the
+server. Provider outages reject protected authentication attempts instead of
+silently bypassing verification.
+
+## Progressive account creation
+
+Personal account creation remains separate from joining or creating a sports
+centre. The server stores the selected jurisdiction and locale together with
+the exact draft versions acknowledged at signup. New accounts remain
+`pending_verification` until the six-digit challenge is completed.
+
+Verification codes are stored only as a deterministic hash scoped to the user,
+expire after 15 minutes and stop accepting attempts after five failures. The
+plain code is returned only outside production so the local demo remains
+testable before an email provider exists.
+
+## Reported account compromise
+
+The authenticated security panel can begin a security review after password
+confirmation and, when enabled, a valid MFA or recovery code. It keeps the
+current verified session so the owner can continue remediation, while closing
+other sessions, invalidating pending authentication challenges, rotating the
+public support ID and recording security events. It does not silently remove
+passkeys because the user still needs to review which authenticators are
+legitimate.
+
+## Recovery foundation
+
+`/recover-account` is deliberately an index of recovery capabilities rather
+than a fake password-reset form. Passkeys already work through the login page;
+email reset, recovery-code orchestration and assisted support remain visibly
+planned. Merely opening the page does not reactivate an account or cancel a
+scheduled deletion.
 
 ## Data review before account closure
 

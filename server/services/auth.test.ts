@@ -166,4 +166,47 @@ describe("persistent authentication sessions", () => {
       false,
     );
   });
+
+  it("stores progressive signup identity and versioned acknowledgements", async () => {
+    const result = await auth.signup(
+      "progressive-signup@example.com",
+      "Javier",
+      "ProgressivePassword123",
+      {},
+      {
+        lastName: "López",
+        countryCode: "ES",
+        locale: "es",
+        acceptedTerms: true,
+        acceptedPrivacy: true,
+      },
+    );
+    const stored = await database.db
+      .selectFrom("users")
+      .select([
+        "lastName",
+        "countryCode",
+        "locale",
+        "accountStatus",
+        "emailVerifiedAt",
+        "termsVersion",
+        "termsAcceptedAt",
+        "privacyVersion",
+        "privacyAcceptedAt",
+      ])
+      .where("id", "=", result.user.id)
+      .executeTakeFirstOrThrow();
+
+    expect(stored).toMatchObject({
+      lastName: "López",
+      countryCode: "ES",
+      locale: "es",
+      accountStatus: "pending_verification",
+      emailVerifiedAt: null,
+      termsVersion: "draft-2026-08-01",
+      privacyVersion: "draft-2026-08-01",
+      termsAcceptedAt: expect.any(Number),
+      privacyAcceptedAt: expect.any(Number),
+    });
+  });
 });

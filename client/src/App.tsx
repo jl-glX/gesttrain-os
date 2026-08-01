@@ -31,6 +31,14 @@ const MyBookingsPage = lazyPage(
 );
 const LoginPage = lazyPage(() => import("./pages/LoginPage"), "LoginPage");
 const SignupPage = lazyPage(() => import("./pages/SignupPage"), "SignupPage");
+const RecoverAccountPage = lazyPage(
+  () => import("./pages/RecoverAccountPage"),
+  "RecoverAccountPage",
+);
+const VerifyEmailPage = lazyPage(
+  () => import("./pages/VerifyEmailPage"),
+  "VerifyEmailPage",
+);
 const TrainerDashboardPage = lazyPage(
   () => import("./pages/TrainerDashboardPage"),
   "TrainerDashboardPage",
@@ -117,9 +125,14 @@ type UserRole = "member" | "trainer" | "admin";
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRole?: UserRole | UserRole[];
+  allowPending?: boolean;
 }
 
-function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
+function ProtectedRoute({
+  children,
+  requiredRole,
+  allowPending = false,
+}: ProtectedRouteProps) {
   const { t } = useTranslation();
   const { user, isInitializing } = useAuth();
 
@@ -133,6 +146,19 @@ function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (!allowPending && user.accountStatus !== "active") {
+    return (
+      <Navigate
+        to={
+          user.accountStatus === "pending_verification"
+            ? "/verify-email"
+            : "/recover-account"
+        }
+        replace
+      />
+    );
   }
 
   if (requiredRole) {
@@ -173,7 +199,7 @@ function AppContent() {
 
   return (
     <>
-      {user && !isLegalPage && <Navigation />}
+      {user?.accountStatus === "active" && !isLegalPage && <Navigation />}
       <Suspense
         fallback={
           <div className="flex min-h-screen items-center justify-center text-slate-600">
@@ -184,7 +210,11 @@ function AppContent() {
         <Routes>
           <Route
             path="/"
-            element={user ? <HomePage /> : <Navigate to="/login" replace />}
+            element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/classes"
@@ -325,6 +355,15 @@ function AppContent() {
           />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/recover-account" element={<RecoverAccountPage />} />
+          <Route
+            path="/verify-email"
+            element={
+              <ProtectedRoute allowPending>
+                <VerifyEmailPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
           <Route path="/legal-notice" element={<LegalNoticePage />} />
           <Route

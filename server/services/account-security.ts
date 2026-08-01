@@ -2,6 +2,7 @@ import { db } from "../db/client.js";
 import { mfaStatus } from "./mfa.js";
 import { recordSecurityEvent } from "./security-events.js";
 import { passkeyStatus } from "./passkeys.js";
+import { rotateSupportIdentifier } from "./support-identifiers.js";
 
 export async function getSecurityOverview(userId: string, sessionId: string) {
   const [mfa, passkeys, user, sessions, events] = await Promise.all([
@@ -110,4 +111,42 @@ export async function revokeOtherSessions(
     .where("revokedAt", "is", null)
     .execute();
   await recordSecurityEvent("all_other_sessions_revoked", userId);
+}
+
+export async function secureReportedCompromise(
+  userId: string,
+  currentSessionId: string,
+) {
+  const now = Date.now();
+  await db.transaction().execute(async (transaction) => {
+    await transaction
+      .updateTable("sessions")
+      .set({ revokedAt: now })
+      .where("userId", "=", userId)
+      .where("id", "!=", currentSessionId)
+      .where("revokedAt", "is", null)
+      .execute();
+    await transaction
+      .deleteFrom("authChallenges")
+      .where("userId", "=", userId)
+      .execute();
+    await transaction
+      .deleteFrom("webauthnChallenges")
+      .where("userId", "=", userId)
+      .execute();
+    await transaction
+      .updateTable("users")
+      .set({ accountStatus: "security_review" })
+      .where("id", "=", userId)
+      .execute();
+  });
+
+  const supportIdentifier = await rotateSupportIdentifier(
+    userId,
+    "security_incident",
+  );
+  await recordSecurityEvent("account_compromise_reported", userId, {
+    retainedCurrentSession: true,
+  });
+  return { supportIdentifier, accountStatus: "security_review" as const };
 }

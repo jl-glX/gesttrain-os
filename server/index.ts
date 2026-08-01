@@ -58,7 +58,15 @@ app.use(
 app.use(
   helmet({
     contentSecurityPolicy:
-      process.env.NODE_ENV === "production" ? undefined : false,
+      process.env.NODE_ENV === "production"
+        ? {
+            directives: {
+              scriptSrc: ["'self'", "https://challenges.cloudflare.com"],
+              frameSrc: ["'self'", "https://challenges.cloudflare.com"],
+              connectSrc: ["'self'", "https://challenges.cloudflare.com"],
+            },
+          }
+        : false,
     crossOriginEmbedderPolicy: false,
     strictTransportSecurity:
       process.env.NODE_ENV === "production" ? undefined : false,
@@ -96,6 +104,17 @@ app.use("/api/member-commerce", memberCommerceRouter);
 app.use("/api/account/delegations", delegationsRouter);
 app.use("/api/downloads", downloadsRouter);
 app.use("/api/admin/resource-manager", resourceManagerRouter);
+
+if (process.env.NODE_ENV !== "production") {
+  app.get("/", (_req, res) => {
+    res.json({
+      service: "GestTrain/OS API",
+      message: "The web application runs on the frontend development URL.",
+      frontend: process.env.CLIENT_ORIGIN ?? "http://127.0.0.1:3000",
+      health: "/api/health",
+    });
+  });
+}
 
 // Health check endpoint
 app.get("/api/health", (req: express.Request, res: express.Response) => {

@@ -43,6 +43,21 @@ email address or registered centre phone number. This separation is enforced
 by the API as well as the interface; choosing a different portal cannot elevate
 an account's role or permissions.
 
+## Human verification
+
+Signup, password login and the start of passkey login are protected by
+Cloudflare Turnstile. The widget token is never trusted by the browser alone:
+the API validates it through Siteverify before performing authentication work.
+Production validation checks the expected action and an allowed hostname;
+tokens are provider-managed, expire after five minutes and are single-use.
+
+The secret remains server-side in `TURNSTILE_SECRET_KEY`. The public browser key
+is `VITE_TURNSTILE_SITE_KEY`. Production rejects missing configuration and the
+official always-pass development secret. Authentication remains rate-limited
+before provider verification so the CAPTCHA endpoint cannot become an
+unbounded amplification path. Provider errors fail closed with a controlled
+response.
+
 ## Implemented baseline
 
 - Password hashing with bcrypt and a cost factor of 12.
@@ -59,6 +74,7 @@ an account's role or permissions.
 - Server-side origin checks for state-changing API requests.
 - Passkey challenges bound to configured trusted origins and RP IDs.
 - API and authentication rate limits.
+- Server-validated CAPTCHA on signup, password login and passkey initiation.
 - Small configurable request bodies and centralized error handling.
 - Input validation and automated security tests.
 - Local databases and environment files excluded from version control.
@@ -67,7 +83,9 @@ an account's role or permissions.
 
 ## Production work still required
 
-- Email verification and account recovery.
+- Real email delivery and complete account recovery.
+- Production Turnstile widget, restricted hostnames and operational key
+  rotation in the Cloudflare account.
 - Optional enforcement of 2FA or passkeys for privileged roles.
 - Physical verification of passkeys on representative Android, iOS and macOS devices.
 - CSRF review if cross-site deployment requirements change.

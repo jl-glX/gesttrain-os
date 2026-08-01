@@ -28,6 +28,7 @@ import {
   rememberAccount,
   type SavedAccount,
 } from "../lib/saved-accounts";
+import { CaptchaWidget } from "../components/CaptchaWidget";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -44,6 +45,8 @@ export function LoginPage() {
   const [mfaCode, setMfaCode] = useState("");
   const [showAlternativeSignIn, setShowAlternativeSignIn] = useState(false);
   const [savedAccounts, setSavedAccounts] = useState(getSavedAccounts);
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaResetSignal, setCaptchaResetSignal] = useState(0);
   const { t } = useTranslation();
   const demoAccount =
     accessPortal === "member"
@@ -89,7 +92,7 @@ export function LoginPage() {
     e.preventDefault();
     setValidationError("");
 
-    if (!identifier || !password) {
+    if (!identifier || !password || !captchaToken) {
       setValidationError(t("auth.credentialsRequired"));
       return;
     }
@@ -100,15 +103,25 @@ export function LoginPage() {
         password,
         accessPortal,
         rememberDevice,
+        captchaToken,
       );
       if (result.mfaRequired) {
         setMfaRequired(true);
         if (mfaCode.trim()) {
-          navigateForRole((await verifyMfa(mfaCode.trim())).role);
+          const verifiedUser = await verifyMfa(mfaCode.trim());
+          navigateForRole(verifiedUser.role, verifiedUser.accountStatus);
         }
         return;
       }
       if (result.user) rememberSignedInAccount(result.user);
+      if (result.user?.accountStatus !== "active") {
+        navigate(
+          result.user?.accountStatus === "pending_verification"
+            ? "/verify-email"
+            : "/recover-account",
+        );
+        return;
+      }
       navigate(
         result.user?.role === "admin"
           ? "/admin-dashboard"
@@ -117,6 +130,7 @@ export function LoginPage() {
             : "/classes",
       );
     } catch (err) {
+      setCaptchaResetSignal((value) => value + 1);
       console.error("Login error:", err);
     }
   };
@@ -126,6 +140,14 @@ export function LoginPage() {
     try {
       const verifiedUser = await verifyMfa(mfaCode);
       setSavedAccounts(rememberAccount(verifiedUser, identifier));
+      if (verifiedUser.accountStatus !== "active") {
+        navigate(
+          verifiedUser.accountStatus === "pending_verification"
+            ? "/verify-email"
+            : "/recover-account",
+        );
+        return;
+      }
       navigate(
         verifiedUser.role === "admin"
           ? "/admin-dashboard"
@@ -138,35 +160,41 @@ export function LoginPage() {
     }
   };
 
-  const navigateForRole = (role: "member" | "trainer" | "admin") =>
+  const navigateForRole = (
+    role: "member" | "trainer" | "admin",
+    accountStatus: "pending_verification" | "active" | "security_review",
+  ) =>
     navigate(
-      role === "admin"
-        ? "/admin-dashboard"
-        : role === "trainer"
-          ? "/trainer-dashboard"
-          : "/classes",
+      accountStatus !== "active"
+        ? accountStatus === "pending_verification"
+          ? "/verify-email"
+          : "/recover-account"
+        : role === "admin"
+          ? "/admin-dashboard"
+          : role === "trainer"
+            ? "/trainer-dashboard"
+            : "/classes",
     );
 
   const handlePasskeyLogin = async () => {
     setValidationError("");
-    if (!identifier) {
+    if (!identifier || !captchaToken) {
       setValidationError(t("auth.passkeyIdentifierRequired"));
       return;
     }
     let platformAuthenticatorAvailable = true;
     try {
       platformAuthenticatorAvailable = await platformAuthenticatorIsAvailable();
-      navigateForRole(
-        (
-          await loginWithPasskey(identifier, accessPortal, rememberDevice).then(
-            (user) => {
-              setSavedAccounts(rememberAccount(user, identifier));
-              return user;
-            },
-          )
-        ).role,
+      const signedInUser = await loginWithPasskey(
+        identifier,
+        accessPortal,
+        rememberDevice,
+        captchaToken,
       );
+      setSavedAccounts(rememberAccount(signedInUser, identifier));
+      navigateForRole(signedInUser.role, signedInUser.accountStatus);
     } catch (err) {
+      setCaptchaResetSignal((value) => value + 1);
       const errorCode = err instanceof Error ? err.message : "";
       if (errorCode === "PASSKEY_NOT_CONFIGURED") {
         setValidationError(
@@ -346,6 +374,12 @@ export function LoginPage() {
             </span>
           </label>
 
+          <CaptchaWidget
+            action="login"
+            onToken={setCaptchaToken}
+            resetSignal={captchaResetSignal}
+          />
+
           <Button
             type="submit"
             className="h-11 w-full rounded-xl bg-blue-600 shadow-md shadow-blue-600/15 hover:bg-blue-700"
@@ -422,7 +456,13 @@ export function LoginPage() {
       )}
 
       {accessPortal === "member" && (
-        <div className="mt-6 text-center">
+        <div className="mt-6 space-y-2 text-center">
+          <Link
+            to="/recover-account"
+            className="block text-sm font-semibold text-blue-600 hover:underline"
+          >
+            {t("auth.cannotAccess")}
+          </Link>
           <p className="text-sm text-gray-600">
             {t("auth.noAccount")}{" "}
             <Link

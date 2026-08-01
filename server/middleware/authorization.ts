@@ -13,6 +13,7 @@ export interface AuthenticatedUser {
   name: string;
   avatarDataUrl: string;
   role: UserRole;
+  accountStatus: "pending_verification" | "active" | "security_review";
 }
 
 function unauthorized(res: Response, message = "Authentication required") {
@@ -30,10 +31,11 @@ export function getAuthenticatedUser(res: Response): AuthenticatedUser {
   return res.locals.auth as AuthenticatedUser;
 }
 
-export async function authenticate(
+async function authenticateSession(
   req: Request,
   res: Response,
   next: NextFunction,
+  allowInactive: boolean,
 ): Promise<void> {
   const token = readSessionToken(req);
   if (!token) {
@@ -49,10 +51,33 @@ export async function authenticate(
     }
 
     res.locals.auth = session;
+    if (!allowInactive && session.accountStatus !== "active") {
+      res.status(403).json({
+        error: "Account activation or security review is required",
+        code: "ACCOUNT_NOT_ACTIVE",
+      });
+      return;
+    }
     next();
   } catch (error) {
     next(error);
   }
+}
+
+export function authenticate(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  return authenticateSession(req, res, next, false);
+}
+
+export function authenticateAccountSession(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  return authenticateSession(req, res, next, true);
 }
 
 export function requireRole(...roles: UserRole[]) {

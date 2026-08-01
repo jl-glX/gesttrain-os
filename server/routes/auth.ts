@@ -13,9 +13,11 @@ import {
   passkeyAuthenticationOptionsValidation,
   passkeyResponseValidation,
   signupValidation,
+  emailVerificationValidation,
 } from "../middleware/validation.js";
 import {
   authenticate,
+  authenticateAccountSession,
   getAuthenticatedUser,
 } from "../middleware/authorization.js";
 import {
@@ -35,21 +37,57 @@ import {
 } from "../services/passkeys.js";
 import type { AuthenticationResponseJSON } from "@simplewebauthn/server";
 import { getWebauthnContext } from "../lib/request-origin.js";
+import {
+  createEmailVerificationChallenge,
+  verifyEmailCode,
+} from "../services/email-verification.js";
+import { requireCaptcha } from "../middleware/captcha.js";
+import { getRecoveryCapabilities } from "../services/account-recovery.js";
 
 export const authRouter = express.Router();
+
+authRouter.get("/recovery/capabilities", (_req, res) => {
+  res.json({ methods: getRecoveryCapabilities() });
+});
 
 authRouter.post(
   "/signup",
   authenticationLimiter,
   signupValidation,
+  requireCaptcha("signup"),
   async (req: express.Request, res: express.Response) => {
     try {
-      const { email, name, password } = req.body;
-      const { sessionToken, user } = await signup(email, name, password, {
-        userAgent: req.get("User-Agent"),
-      });
+      const {
+        email,
+        name,
+        lastName,
+        password,
+        countryCode,
+        locale,
+        acceptedTerms,
+        acceptedPrivacy,
+      } = req.body;
+      const { sessionToken, user } = await signup(
+        email,
+        name,
+        password,
+        { userAgent: req.get("User-Agent") },
+        {
+          lastName,
+          countryCode,
+          locale,
+          acceptedTerms,
+          acceptedPrivacy,
+        },
+      );
+      const verificationCode = await createEmailVerificationChallenge(user.id);
       setSessionCookie(res, sessionToken);
-      res.status(201).json({ user });
+      res.status(201).json({
+        user,
+        verificationRequired: true,
+        demoVerificationCode:
+          process.env.NODE_ENV === "production" ? undefined : verificationCode,
+      });
     } catch (error) {
       console.error("[Auth] Signup failed");
       res.status(400).json({
@@ -60,9 +98,25 @@ authRouter.post(
 );
 
 authRouter.post(
+  "/verify-email",
+  authenticateAccountSession,
+  authenticationLimiter,
+  emailVerificationValidation,
+  async (req: express.Request, res: express.Response) => {
+    const auth = getAuthenticatedUser(res);
+    if (!(await verifyEmailCode(auth.userId, req.body.code))) {
+      res.status(400).json({ error: "Invalid or expired verification code" });
+      return;
+    }
+    res.json({ verified: true });
+  },
+);
+
+authRouter.post(
   "/login",
   authenticationLimiter,
   loginValidation,
+  requireCaptcha("login"),
   async (req: express.Request, res: express.Response) => {
     try {
       const { identifier, password, accessPortal, rememberDevice } = req.body;
@@ -91,6 +145,7 @@ authRouter.post(
   "/passkey/options",
   authenticationLimiter,
   passkeyAuthenticationOptionsValidation,
+  requireCaptcha("login"),
   async (req: express.Request, res: express.Response) => {
     try {
       const { identifier, accessPortal, rememberDevice } = req.body;
@@ -177,7 +232,7 @@ authRouter.post(
 
 authRouter.get(
   "/session",
-  authenticate,
+  authenticateAccountSession,
   (_req: express.Request, res: express.Response) => {
     const session = getAuthenticatedUser(res);
     res.json({
@@ -187,6 +242,7 @@ authRouter.get(
         name: session.name,
         avatarDataUrl: session.avatarDataUrl,
         role: session.role,
+        accountStatus: session.accountStatus,
       },
     });
   },
@@ -194,7 +250,7 @@ authRouter.get(
 
 authRouter.post(
   "/logout",
-  authenticate,
+  authenticateAccountSession,
   async (req: express.Request, res: express.Response) => {
     const token = readSessionToken(req);
     if (token) {

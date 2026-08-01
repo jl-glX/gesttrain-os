@@ -6,6 +6,7 @@ export interface AuthUser {
   name: string;
   avatarDataUrl: string;
   role: "member" | "trainer" | "admin";
+  accountStatus: "pending_verification" | "active" | "security_review";
 }
 
 export interface AuthContextValue {
@@ -14,17 +15,29 @@ export interface AuthContextValue {
   isInitializing: boolean;
   error: string | null;
   clearError: () => void;
-  signup: (email: string, name: string, password: string) => Promise<void>;
+  signup: (input: {
+    email: string;
+    name: string;
+    lastName: string;
+    password: string;
+    countryCode: string;
+    locale: "es" | "en" | "de" | "de-CH";
+    acceptedTerms: boolean;
+    acceptedPrivacy: boolean;
+    captchaToken: string;
+  }) => Promise<{ demoVerificationCode?: string }>;
   login: (
     identifier: string,
     password: string,
     accessPortal: "member" | "staff",
     rememberDevice: boolean,
+    captchaToken: string,
   ) => Promise<{ mfaRequired: boolean; user?: AuthUser }>;
   loginWithPasskey: (
     identifier: string,
     accessPortal: "member" | "staff",
     rememberDevice: boolean,
+    captchaToken: string,
   ) => Promise<AuthUser>;
   verifyMfa: (code: string) => Promise<AuthUser>;
   refreshUser: () => Promise<void>;

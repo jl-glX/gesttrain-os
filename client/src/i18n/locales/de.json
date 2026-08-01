@@ -26,6 +26,8 @@
     "at": "um",
     "unauthorized": "Du hast keine Berechtigung für diesen Bereich",
     "backHome": "Zurück zur Startseite",
+    "continue": "Weiter",
+    "back": "Zurück",
     "loadingAnalytics": "Analyse wird geladen...",
     "loadingBookings": "Buchungen werden geladen...",
     "loadingClasses": "Klassen werden geladen..."
@@ -111,6 +113,26 @@
     "createAccount": "Konto erstellen",
     "creatingAccount": "Konto wird erstellt...",
     "hasAccount": "Du hast bereits ein Konto?",
+    "lastName": "Nachname",
+    "signupStep": "Schritt {{step}} von {{total}}",
+    "country": "Land oder Hauptrechtsraum",
+    "preferredLanguage": "Bevorzugte Sprache",
+    "acceptTermsPrefix": "Ich akzeptiere die",
+    "acceptPrivacy": "Ich bestätige, dass ich die Datenschutzerklärung gelesen habe",
+    "emailVerificationPending": "Die echte E-Mail-Verifizierung ist noch nicht verbunden. Das Konto bleibt in dieser Demo als ausstehend markiert.",
+    "cannotAccess": "Ich kann nicht auf mein Konto zugreifen",
+    "countries": {
+      "ES": "Spanien",
+      "DE": "Deutschland",
+      "CH": "Schweiz",
+      "AT": "Österreich",
+      "NL": "Niederlande",
+      "PT": "Portugal",
+      "FR": "Frankreich",
+      "IT": "Italien",
+      "GB": "Vereinigtes Königreich",
+      "US": "Vereinigte Staaten"
+    },
     "highlights": {
       "waitlists": "Intelligente Wartelisten mit Live-Verfügbarkeit",
       "weekly": "Buchen Sie Ihre Woche in Sekundenschnelle",
@@ -921,6 +943,11 @@
   "security": {
     "eyebrow": "Kontoschutz",
     "title": "Sicherheit und Anmeldung",
+    "compromiseTitle": "Ich glaube, mein Konto wurde kompromittiert",
+    "compromiseDescription": "Bestätigen Sie Ihre Identität, um andere Sitzungen zu schließen, offene Prüfungen zu verwerfen, das Konto zu markieren und die öffentliche Support-ID zu wechseln.",
+    "compromiseCodeOptional": "2FA-Code (bei aktivierter 2FA erforderlich)",
+    "compromiseAction": "Mein Konto schützen",
+    "compromiseSuccess": "Weitere Zugriffe wurden geschlossen und das Konto wird sicherheitstechnisch geprüft.",
     "twoFactor": "Zweistufige Verifizierung",
     "description": "Kontrollieren Sie die zweistufige Verifizierung, angemeldete Geräte und aktuelle Kontoaktivitäten.",
     "passkeyDescription": "Aktivieren Sie einen Passkey, um sich mithilfe des Geräteschutzes anzumelden, anstatt Ihr Passwort einzugeben.",
@@ -1002,7 +1029,48 @@
       "recovery_codes_regenerated": "Wiederherstellungscodes erneuert",
       "passkey_login_succeeded": "Passkey-Anmeldung",
       "all_other_sessions_revoked": "Andere Sitzungen geschlossen",
+      "account_compromise_reported": "Mögliche Kompromittierung gemeldet",
+      "email_verified": "E-Mail verifiziert",
+      "support_id_rotated": "Öffentliche Support-ID erneuert",
       "session_revoked": "Sitzung geschlossen"
+    }
+  },
+  "emailVerification": {
+    "eyebrow": "Kontoverifizierung",
+    "title": "E-Mail bestätigen",
+    "description": "Geben Sie den temporären Code ein, um die Kontrolle über die bei der Registrierung verwendete Adresse zu bestätigen.",
+    "demoCode": "Nur in der lokalen Demo sichtbarer Code: {{code}}",
+    "code": "Sechsstelliger Code",
+    "action": "E-Mail verifizieren",
+    "verifying": "Wird verifiziert...",
+    "invalid": "Der Code ist ungültig oder abgelaufen."
+  },
+  "recovery": {
+    "eyebrow": "Zugang und Wiederherstellung",
+    "title": "Konto wiederherstellen",
+    "description": "Diese Übersicht bündelt vorgesehene Methoden, ohne noch nicht verbundene Vorgänge vorzutäuschen.",
+    "available": "Verfügbar",
+    "planned": "Erweiterbar",
+    "securityTitle": "Die Wiederherstellung muss abgeschlossen werden",
+    "securityNotice": "Das Öffnen eines Links oder dieser Seite reaktiviert kein Konto und stoppt keine Löschung. Eine erfolgreiche Prüfung ist erforderlich.",
+    "returnToLogin": "Zur Anmeldung zurückkehren",
+    "methods": {
+      "email": {
+        "title": "Wiederherstellungs-E-Mail",
+        "description": "Ermöglicht einen zeitlich begrenzten Link, sobald ein E-Mail-Dienst eingerichtet ist."
+      },
+      "code": {
+        "title": "Authentifizierungs- oder Wiederherstellungscode",
+        "description": "Verwendet geschützte, mit dem Konto verknüpfte Codes in einem prüfbaren Ablauf."
+      },
+      "passkey": {
+        "title": "Passkey",
+        "description": "Bereits registrierte Passkeys können über die Anmeldeseite genutzt werden."
+      },
+      "support": {
+        "title": "Unterstützte Wiederherstellung",
+        "description": "Für ein künftiges Supportverfahren mit Identitätsprüfung vorgesehen."
+      }
     }
   },
   "feedback": {
@@ -1029,6 +1097,11 @@
     "fetchUsers": "Benutzer konnten nicht abgerufen werden",
     "fetchTrainerClasses": "Trainerklassen konnten nicht abgerufen werden",
     "bookClass": "Kursbuchung fehlgeschlagen"
+  },
+  "captcha": {
+    "label": "Bestätigung durch eine Person",
+    "help": "Diese Prüfung schützt Anmeldung und Registrierung vor missbräuchlicher Automatisierung.",
+    "loadFailed": "Die Überprüfung konnte nicht geladen werden. Prüfe die Verbindung und versuche es erneut."
   },
   "unauthorized": {
     "title": "Zugriff verweigert",

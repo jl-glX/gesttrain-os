@@ -9,6 +9,7 @@ import {
   LogOut,
   RefreshCw,
   ShieldCheck,
+  ShieldAlert,
   Smartphone,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -88,6 +89,8 @@ export function AccountSecurityPage() {
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
   const [password, setPassword] = useState("");
   const [passkeyPassword, setPasskeyPassword] = useState("");
+  const [compromisePassword, setCompromisePassword] = useState("");
+  const [compromiseCode, setCompromiseCode] = useState("");
   const [passkeySupported, setPasskeySupported] = useState(false);
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
@@ -228,6 +231,19 @@ export function AccountSecurityPage() {
       t("security.sessionTimeoutSaved"),
     );
 
+  const reportCompromise = () =>
+    action(async () => {
+      await api("/api/account/security/compromise", {
+        method: "POST",
+        body: JSON.stringify({
+          password: compromisePassword,
+          code: compromiseCode || undefined,
+        }),
+      });
+      setCompromisePassword("");
+      setCompromiseCode("");
+    }, t("security.compromiseSuccess"));
+
   const date = (value: number) =>
     new Intl.DateTimeFormat(i18n.language, {
       dateStyle: "medium",
@@ -322,6 +338,43 @@ export function AccountSecurityPage() {
         )}
 
         <ProfilePhotoSettings />
+
+        <Card className="mb-6 rounded-3xl border-amber-200 bg-amber-50 p-6 shadow-sm sm:p-8">
+          <div className="flex items-start gap-3">
+            <ShieldAlert className="mt-1 shrink-0 text-amber-700" />
+            <div>
+              <h2 className="text-xl font-bold text-amber-950">
+                {t("security.compromiseTitle")}
+              </h2>
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-amber-900">
+                {t("security.compromiseDescription")}
+              </p>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <PasswordInput
+              value={compromisePassword}
+              maxLength={72}
+              autoComplete="current-password"
+              placeholder={t("security.confirmPassword")}
+              onChange={(event) => setCompromisePassword(event.target.value)}
+            />
+            <Input
+              value={compromiseCode}
+              autoComplete="one-time-code"
+              placeholder={t("security.compromiseCodeOptional")}
+              onChange={(event) => setCompromiseCode(event.target.value)}
+            />
+          </div>
+          <Button
+            className="mt-4"
+            variant="destructive"
+            disabled={busy || !compromisePassword}
+            onClick={reportCompromise}
+          >
+            <ShieldAlert /> {t("security.compromiseAction")}
+          </Button>
+        </Card>
 
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <Card className="rounded-3xl border-slate-200 p-6 shadow-sm sm:p-8">

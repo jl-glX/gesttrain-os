@@ -97,7 +97,17 @@ export const validateId = (name: string) =>
   ]);
 
 export const signupValidation = validateRequest([
-  strictBody(["email", "name", "password"]),
+  strictBody([
+    "email",
+    "name",
+    "lastName",
+    "password",
+    "countryCode",
+    "locale",
+    "acceptedTerms",
+    "acceptedPrivacy",
+    "captchaToken",
+  ]),
   body("email")
     .isString()
     .trim()
@@ -105,6 +115,20 @@ export const signupValidation = validateRequest([
     .normalizeEmail()
     .isLength({ max: 254 }),
   body("name").isString().trim().isLength({ min: 1, max: 100 }),
+  body("lastName").isString().trim().isLength({ min: 1, max: 100 }),
+  body("countryCode")
+    .isString()
+    .trim()
+    .toUpperCase()
+    .matches(/^[A-Z]{2}$/),
+  body("locale").isIn(["es", "en", "de", "de-CH"]),
+  body("acceptedTerms")
+    .isBoolean()
+    .custom((value) => value === true),
+  body("acceptedPrivacy")
+    .isBoolean()
+    .custom((value) => value === true),
+  body("captchaToken").optional().isString().isLength({ min: 1, max: 2048 }),
   body("password")
     .isString()
     .isLength({ min: 12, max: 128 })
@@ -115,7 +139,14 @@ export const signupValidation = validateRequest([
 ]);
 
 export const loginValidation = validateRequest([
-  strictBody(["identifier", "password", "accessPortal", "rememberDevice"]),
+  strictBody([
+    "identifier",
+    "password",
+    "accessPortal",
+    "rememberDevice",
+    "captchaToken",
+  ]),
+  body("captchaToken").optional().isString().isLength({ min: 1, max: 2048 }),
   body("identifier")
     .isString()
     .trim()
@@ -145,6 +176,14 @@ export const mfaCodeValidation = validateRequest([
     .withMessage("Code must be a 6-digit TOTP or a recovery code"),
 ]);
 
+export const emailVerificationValidation = validateRequest([
+  strictBody(["code"]),
+  body("code")
+    .isString()
+    .trim()
+    .matches(/^\d{6}$/),
+]);
+
 export const accountMfaConfirmationValidation = validateRequest([
   strictBody(["password", "code"]),
   body("password")
@@ -152,6 +191,19 @@ export const accountMfaConfirmationValidation = validateRequest([
     .isLength({ min: 1, max: 128 })
     .custom(enforcePasswordHashLimit),
   body("code")
+    .isString()
+    .trim()
+    .matches(/^(?:\d{6}|[A-Fa-f0-9]{6}-?[A-Fa-f0-9]{6})$/),
+]);
+
+export const accountCompromiseValidation = validateRequest([
+  strictBody(["password", "code"]),
+  body("password")
+    .isString()
+    .isLength({ min: 1, max: 128 })
+    .custom(enforcePasswordHashLimit),
+  body("code")
+    .optional({ values: "falsy" })
     .isString()
     .trim()
     .matches(/^(?:\d{6}|[A-Fa-f0-9]{6}-?[A-Fa-f0-9]{6})$/),
@@ -166,7 +218,8 @@ export const passwordConfirmationValidation = validateRequest([
 ]);
 
 export const passkeyAuthenticationOptionsValidation = validateRequest([
-  strictBody(["identifier", "accessPortal", "rememberDevice"]),
+  strictBody(["identifier", "accessPortal", "rememberDevice", "captchaToken"]),
+  body("captchaToken").optional().isString().isLength({ min: 1, max: 2048 }),
   body("identifier").isString().trim().isLength({ min: 3, max: 254 }),
   body("accessPortal").isIn(["member", "staff"]),
   body("rememberDevice").optional().isBoolean(),

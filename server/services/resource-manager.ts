@@ -134,6 +134,10 @@ async function cleanupExpiredAuthenticationData(): Promise<number> {
       .deleteFrom("webauthnChallenges")
       .where("expiresAt", "<", now)
       .executeTakeFirst(),
+    db
+      .deleteFrom("emailVerificationChallenges")
+      .where("expiresAt", "<", now)
+      .executeTakeFirst(),
   ]);
 
   return results.reduce(

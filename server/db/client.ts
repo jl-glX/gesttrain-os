@@ -91,6 +91,15 @@ export async function initializeDatabase() {
         email TEXT NOT NULL UNIQUE,
         phone TEXT UNIQUE,
         name TEXT NOT NULL,
+        lastName TEXT NOT NULL DEFAULT '',
+        countryCode TEXT NOT NULL DEFAULT 'ES',
+        locale TEXT NOT NULL DEFAULT 'es',
+        accountStatus TEXT NOT NULL DEFAULT 'active' CHECK(accountStatus IN ('pending_verification', 'active', 'security_review')),
+        emailVerifiedAt INTEGER,
+        termsVersion TEXT NOT NULL DEFAULT 'draft-v1',
+        termsAcceptedAt INTEGER,
+        privacyVersion TEXT NOT NULL DEFAULT 'draft-v1',
+        privacyAcceptedAt INTEGER,
         avatarDataUrl TEXT NOT NULL DEFAULT '',
         password TEXT NOT NULL DEFAULT '',
         role TEXT NOT NULL DEFAULT 'member',
@@ -153,6 +162,23 @@ export async function initializeDatabase() {
       );
     }
 
+    const accountIdentityColumns: Array<[string, string]> = [
+      ["lastName", "TEXT NOT NULL DEFAULT ''"],
+      ["countryCode", "TEXT NOT NULL DEFAULT 'ES'"],
+      ["locale", "TEXT NOT NULL DEFAULT 'es'"],
+      ["accountStatus", "TEXT NOT NULL DEFAULT 'active'"],
+      ["emailVerifiedAt", "INTEGER"],
+      ["termsVersion", "TEXT NOT NULL DEFAULT 'draft-v1'"],
+      ["termsAcceptedAt", "INTEGER"],
+      ["privacyVersion", "TEXT NOT NULL DEFAULT 'draft-v1'"],
+      ["privacyAcceptedAt", "INTEGER"],
+    ];
+    for (const [column, definition] of accountIdentityColumns) {
+      if (!columnNames.includes(column)) {
+        sqliteDb.exec(`ALTER TABLE users ADD COLUMN ${column} ${definition}`);
+      }
+    }
+
     const indexes = sqliteDb
       .prepare(
         "SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='users'",
@@ -186,6 +212,35 @@ export async function initializeDatabase() {
       CREATE INDEX idx_supportIdentifiers_userId
         ON accountSupportIdentifiers(userId);
     `);
+  }
+
+  if (!tableNames.includes("emailVerificationChallenges")) {
+    console.log("Creating email verification challenges table...");
+    sqliteDb.exec(`
+      CREATE TABLE emailVerificationChallenges (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        codeHash TEXT NOT NULL,
+        createdAt INTEGER NOT NULL,
+        expiresAt INTEGER NOT NULL,
+        attempts INTEGER NOT NULL DEFAULT 0,
+        consumedAt INTEGER,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+      );
+      CREATE INDEX idx_emailVerificationChallenges_userId
+        ON emailVerificationChallenges(userId);
+      CREATE INDEX idx_emailVerificationChallenges_expiresAt
+        ON emailVerificationChallenges(expiresAt);
+    `);
+  } else {
+    const emailChallengeColumns = sqliteDb
+      .prepare("PRAGMA table_info(emailVerificationChallenges)")
+      .all() as Array<{ name: string }>;
+    if (!emailChallengeColumns.some((column) => column.name === "codeHash")) {
+      sqliteDb.exec(
+        "ALTER TABLE emailVerificationChallenges ADD COLUMN codeHash TEXT NOT NULL DEFAULT ''",
+      );
+    }
   }
 
   const usersWithoutSupportId = sqliteDb

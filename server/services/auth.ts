@@ -9,6 +9,10 @@ import {
   isPasswordWithinHashLimit,
   isStrongPassword,
 } from "../lib/password-policy.js";
+import {
+  CURRENT_PRIVACY_VERSION,
+  CURRENT_TERMS_VERSION,
+} from "../lib/legal-versions.js";
 
 export { isStrongPassword } from "../lib/password-policy.js";
 
@@ -25,6 +29,7 @@ export interface SessionData {
   name: string;
   avatarDataUrl: string;
   role: "member" | "trainer" | "admin";
+  accountStatus: "pending_verification" | "active" | "security_review";
   createdAt: number;
   expiresAt: number;
 }
@@ -38,6 +43,7 @@ export interface AuthResult {
     name: string;
     avatarDataUrl: string;
     role: "member" | "trainer" | "admin";
+    accountStatus: "pending_verification" | "active" | "security_review";
   };
 }
 
@@ -50,6 +56,14 @@ export interface SessionMetadata {
 }
 
 export type AccessPortal = "member" | "staff";
+
+export interface SignupProfile {
+  lastName: string;
+  countryCode: string;
+  locale: "es" | "en" | "de" | "de-CH";
+  acceptedTerms: boolean;
+  acceptedPrivacy: boolean;
+}
 
 export async function hashPassword(password: string): Promise<string> {
   if (!isPasswordWithinHashLimit(password)) {
@@ -102,7 +116,15 @@ export async function createSession(
     .execute();
 
   await markMeaningfulAccountActivity(user.id, now);
-  return { sessionToken: token, user, rememberDevice };
+  const publicUser: AuthResult["user"] = {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    avatarDataUrl: user.avatarDataUrl,
+    role: user.role,
+    accountStatus: user.accountStatus,
+  };
+  return { sessionToken: token, user: publicUser, rememberDevice };
 }
 
 export async function signup(
@@ -110,6 +132,13 @@ export async function signup(
   name: string,
   password: string,
   metadata: SessionMetadata = {},
+  profile: SignupProfile = {
+    lastName: "",
+    countryCode: "ES",
+    locale: "es",
+    acceptedTerms: true,
+    acceptedPrivacy: true,
+  },
 ): Promise<AuthResult> {
   if (!isStrongPassword(password)) {
     throw new Error("Password does not meet the security requirements");
@@ -124,12 +153,26 @@ export async function signup(
   if (existingUser) {
     throw new Error("Unable to create account with these credentials");
   }
+  if (!profile.acceptedTerms || !profile.acceptedPrivacy) {
+    throw new Error("Terms and privacy acknowledgement are required");
+  }
+
+  const createdAt = Date.now();
 
   const user = {
     id: `user-${randomBytes(8).toString("hex")}`,
     email,
     phone: null,
     name,
+    lastName: profile.lastName,
+    countryCode: profile.countryCode,
+    locale: profile.locale,
+    accountStatus: "pending_verification" as const,
+    emailVerifiedAt: null,
+    termsVersion: CURRENT_TERMS_VERSION,
+    termsAcceptedAt: createdAt,
+    privacyVersion: CURRENT_PRIVACY_VERSION,
+    privacyAcceptedAt: createdAt,
     avatarDataUrl: "",
     role: "member" as const,
     sessionIdleTimeoutMinutes: DEFAULT_SESSION_IDLE_TIMEOUT_MINUTES,
@@ -140,7 +183,7 @@ export async function signup(
     .values({
       ...user,
       password: await hashPassword(password),
-      createdAt: Date.now(),
+      createdAt,
     })
     .execute();
 
@@ -227,6 +270,7 @@ export async function login(
       name: user.name,
       avatarDataUrl: user.avatarDataUrl,
       role: user.role,
+      accountStatus: user.accountStatus,
     },
     metadata,
     rememberDevice,
@@ -255,6 +299,7 @@ export async function completeMfaLogin(
       "users.name",
       "users.avatarDataUrl",
       "users.role",
+      "users.accountStatus",
     ])
     .where("authChallenges.id", "=", challengeId)
     .executeTakeFirst();
@@ -295,6 +340,7 @@ export async function completeMfaLogin(
       name: challenge.name,
       avatarDataUrl: challenge.avatarDataUrl,
       role: challenge.role,
+      accountStatus: challenge.accountStatus,
     },
     metadata,
     challenge.rememberDevice === 1,
@@ -325,6 +371,7 @@ export async function verifyToken(token: string): Promise<SessionData | null> {
       "users.name",
       "users.avatarDataUrl",
       "users.role",
+      "users.accountStatus",
     ])
     .where("sessions.id", "=", sessionId(token))
     .executeTakeFirst();
@@ -365,6 +412,7 @@ export async function verifyToken(token: string): Promise<SessionData | null> {
     name: record.name,
     avatarDataUrl: record.avatarDataUrl,
     role: record.role,
+    accountStatus: record.accountStatus,
     createdAt: record.createdAt,
     expiresAt: record.expiresAt,
     sessionId: sessionId(token),
