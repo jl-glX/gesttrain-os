@@ -58,6 +58,7 @@ npm run security:password-resilience # synthetic bcrypt laboratory check
 - [Development guide](./DEVELOPMENT.md)
 - [Architecture](./docs/ARCHITECTURE.md)
 - [Security](./docs/SECURITY.md)
+- [Integral security audit standard](./docs/SECURITY-AUDIT-STANDARD.md)
 - [Local black/gray/white-box assessment](./docs/SECURITY-ASSESSMENT-EXTREME-2026-08-01.md)
 - [Account lifecycle foundation](./docs/ACCOUNT-LIFECYCLE.md)
 - [Legal readiness checklist](./docs/LEGAL-READINESS.md)

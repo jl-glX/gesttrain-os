@@ -6,6 +6,7 @@ const SCRIPT_ID = "cloudflare-turnstile-script";
 const SCRIPT_URL =
   "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 const DEVELOPMENT_SITE_KEY = "1x00000000000000000000AA";
+const SUCCESS_VISIBILITY_MS = 10_000;
 
 declare global {
   interface Window {
@@ -61,6 +62,8 @@ export function CaptchaWidget({
   const widgetId = useRef<string | null>(null);
   const onTokenRef = useRef(onToken);
   const [loadFailed, setLoadFailed] = useState(false);
+  const [verificationSucceeded, setVerificationSucceeded] = useState(false);
+  const [hideVerifiedWidget, setHideVerifiedWidget] = useState(false);
   const { i18n, t } = useTranslation();
   const language = turnstileLanguage(i18n.resolvedLanguage ?? i18n.language);
   onTokenRef.current = onToken;
@@ -72,6 +75,8 @@ export function CaptchaWidget({
       (import.meta.env.DEV ? DEVELOPMENT_SITE_KEY : "");
     if (!sitekey) {
       setLoadFailed(true);
+      setVerificationSucceeded(false);
+      setHideVerifiedWidget(false);
       onTokenRef.current("");
       return;
     }
@@ -84,15 +89,30 @@ export function CaptchaWidget({
           theme: "auto",
           size: "flexible",
           language,
-          callback: (token) => onTokenRef.current(token),
-          "expired-callback": () => onTokenRef.current(""),
+          callback: (token) => {
+            setLoadFailed(false);
+            setVerificationSucceeded(true);
+            setHideVerifiedWidget(false);
+            onTokenRef.current(token);
+          },
+          "expired-callback": () => {
+            setVerificationSucceeded(false);
+            setHideVerifiedWidget(false);
+            onTokenRef.current("");
+          },
           "error-callback": () => {
             onTokenRef.current("");
             setLoadFailed(true);
+            setVerificationSucceeded(false);
+            setHideVerifiedWidget(false);
           },
         });
       })
-      .catch(() => setLoadFailed(true));
+      .catch(() => {
+        setLoadFailed(true);
+        setVerificationSucceeded(false);
+        setHideVerifiedWidget(false);
+      });
     return () => {
       disposed = true;
       if (widgetId.current && window.turnstile) {
@@ -102,15 +122,31 @@ export function CaptchaWidget({
   }, [action, containerId, language]);
 
   useEffect(() => {
+    if (!verificationSucceeded) return;
+    const hideTimer = window.setTimeout(
+      () => setHideVerifiedWidget(true),
+      SUCCESS_VISIBILITY_MS,
+    );
+    return () => window.clearTimeout(hideTimer);
+  }, [verificationSucceeded]);
+
+  useEffect(() => {
     if (resetSignal && widgetId.current && window.turnstile) {
       onTokenRef.current("");
+      setLoadFailed(false);
+      setVerificationSucceeded(false);
+      setHideVerifiedWidget(false);
       window.turnstile.reset(widgetId.current);
     }
   }, [resetSignal]);
 
   return (
     <div className="space-y-2" aria-label={t("captcha.label")}>
-      <div id={containerId} className="min-h-16 w-full" />
+      <div
+        id={containerId}
+        className={`min-h-16 w-full ${hideVerifiedWidget ? "hidden" : ""}`}
+        aria-hidden={hideVerifiedWidget}
+      />
       {loadFailed && (
         <p role="alert" className="text-xs text-red-600">
           {t("captcha.loadFailed")}

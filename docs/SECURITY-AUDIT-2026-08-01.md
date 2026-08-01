@@ -1,5 +1,9 @@
 # Auditoría de estabilidad y seguridad — 1 de agosto de 2026
 
+Esta auditoría es un registro histórico. El procedimiento repetible para futuras
+evaluaciones se mantiene en el
+[estándar interno de auditoría integral](./SECURITY-AUDIT-STANDARD.md).
+
 ## Resumen ejecutivo
 
 Se realizó una revisión defensiva de caja blanca del repositorio, acompañada de

@@ -1,5 +1,7 @@
 # Security
 
+Future reviews follow the
+[`SECURITY-AUDIT-STANDARD.md`](./SECURITY-AUDIT-STANDARD.md) internal standard.
 The latest local black-box, gray-box and white-box assessment is documented in
 [`SECURITY-ASSESSMENT-EXTREME-2026-08-01.md`](./SECURITY-ASSESSMENT-EXTREME-2026-08-01.md).
 The preceding hardening review remains available in
@@ -50,6 +52,10 @@ Cloudflare Turnstile. The widget token is never trusted by the browser alone:
 the API validates it through Siteverify before performing authentication work.
 Production validation checks the expected action and an allowed hostname;
 tokens are provider-managed, expire after five minutes and are single-use.
+
+- After a successful challenge, the visible widget remains for 10 seconds so
+  the user can see the result and is then collapsed. It becomes visible again
+  if the challenge expires, fails or the form requests a reset.
 
 The secret remains server-side in `TURNSTILE_SECRET_KEY`. The public browser key
 is `VITE_TURNSTILE_SITE_KEY`. Production rejects missing configuration and the

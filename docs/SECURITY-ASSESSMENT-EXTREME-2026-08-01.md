@@ -1,5 +1,9 @@
 # Evaluación extrema local de seguridad — 1 de agosto de 2026
 
+Esta evaluación es el registro histórico que sirvió, junto con la auditoría de
+estabilidad precedente, para crear el
+[estándar interno de auditoría integral](./SECURITY-AUDIT-STANDARD.md).
+
 ## Resumen ejecutivo
 
 GestTrain/OS fue sometido a una evaluación defensiva de caja negra, caja gris y
