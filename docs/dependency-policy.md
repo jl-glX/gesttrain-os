@@ -5,8 +5,8 @@ committed lockfile as the reproducible source for installations.
 
 ## Supported toolchain
 
-- Node.js 26.5.x
-- npm 12.0.x
+- Node.js 24 LTS (24.15.0 or newer in the 24.x line)
+- npm 11 (11.12.0 or newer)
 - TypeScript 7.0.x as the native project compiler
 - TypeScript 6.0.x only as the temporary programmatic API consumed by
   `typescript-eslint`
@@ -36,12 +36,13 @@ major releases remain isolated for explicit migration and testing.
 
 ## Temporary React Router advisory
 
-React Router 7.18.2 is the latest published release, but npm currently reports
-`GHSA-qwww-vcr4-c8h2` for its optional React Server Components action mode.
-GestTrain/OS uses only declarative client-side `BrowserRouter` routing and does
-not enable the affected RSC mode.
+React Router 7.18.2 is the safest currently verified release for this client,
+but npm reports `GHSA-qwww-vcr4-c8h2` for its optional React Server Components
+action mode. GestTrain/OS uses declarative client-side `BrowserRouter` routing
+and does not enable the affected RSC mode.
 
-The audit runner therefore permits only that advisory, only through the exact
-`react-router` and `react-router-dom` 7.18.2 dependency chain. Any other
-advisory, package or version still fails CI. Remove this narrow exception as
-soon as an upstream patched release is available.
+Older releases are not an acceptable workaround: the npm advisory database
+reports multiple XSS, open-redirect, RCE and denial-of-service ranges below
+7.18. The audit runner therefore permits only the RSC advisory, only through
+the exact `react-router` and `react-router-dom` 7.18.2 dependency chain. Any
+other advisory, package or version fails CI.

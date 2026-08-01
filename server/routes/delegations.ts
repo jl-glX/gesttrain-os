@@ -11,6 +11,11 @@ import {
   revokeDelegationGrant,
   type DelegationDuration,
 } from "../services/delegations.js";
+import {
+  delegationDurationValidation,
+  delegationRedeemValidation,
+  validateId,
+} from "../middleware/validation.js";
 
 const allowedDurations = new Set<DelegationDuration>([
   "24h",
@@ -40,33 +45,49 @@ delegationsRouter.get("/", async (_req, res, next) => {
   }
 });
 
-delegationsRouter.post("/tokens", async (req, res, next) => {
-  try {
-    const { userId } = getAuthenticatedUser(res);
-    const duration = req.body?.duration as DelegationDuration;
-    if (!allowedDurations.has(duration)) {
-      res.status(400).json({ code: "DELEGATION_DURATION_INVALID" });
-      return;
+delegationsRouter.post(
+  "/tokens",
+  delegationDurationValidation,
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    try {
+      const { userId } = getAuthenticatedUser(res);
+      const duration = req.body?.duration as DelegationDuration;
+      if (!allowedDurations.has(duration)) {
+        res.status(400).json({ code: "DELEGATION_DURATION_INVALID" });
+        return;
+      }
+      res.status(201).json(await createDelegationToken(userId, duration));
+    } catch (error) {
+      if (!sendDelegationError(res, error)) next(error);
     }
-    res.status(201).json(await createDelegationToken(userId, duration));
-  } catch (error) {
-    if (!sendDelegationError(res, error)) next(error);
-  }
-});
+  },
+);
 
-delegationsRouter.post("/redeem", async (req, res, next) => {
-  try {
-    const { userId } = getAuthenticatedUser(res);
-    const token = typeof req.body?.token === "string" ? req.body.token : "";
-    if (!/^hfd_[A-Za-z0-9_-]{32}$/.test(token)) {
-      res.status(400).json({ code: "DELEGATION_TOKEN_INVALID" });
-      return;
+delegationsRouter.post(
+  "/redeem",
+  delegationRedeemValidation,
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    try {
+      const { userId } = getAuthenticatedUser(res);
+      const token = typeof req.body?.token === "string" ? req.body.token : "";
+      if (!/^hfd_[A-Za-z0-9_-]{32}$/.test(token)) {
+        res.status(400).json({ code: "DELEGATION_TOKEN_INVALID" });
+        return;
+      }
+      res.json(await redeemDelegationToken(token, userId));
+    } catch (error) {
+      if (!sendDelegationError(res, error)) next(error);
     }
-    res.json(await redeemDelegationToken(token, userId));
-  } catch (error) {
-    if (!sendDelegationError(res, error)) next(error);
-  }
-});
+  },
+);
 
 delegationsRouter.delete("/history", async (_req, res, next) => {
   try {
@@ -79,12 +100,20 @@ delegationsRouter.delete("/history", async (_req, res, next) => {
   }
 });
 
-delegationsRouter.delete("/:id", async (req, res, next) => {
-  try {
-    const { userId } = getAuthenticatedUser(res);
-    await revokeDelegationGrant(req.params.id, userId);
-    res.status(204).end();
-  } catch (error) {
-    if (!sendDelegationError(res, error)) next(error);
-  }
-});
+delegationsRouter.delete(
+  "/:id",
+  validateId("id"),
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    try {
+      const { userId } = getAuthenticatedUser(res);
+      await revokeDelegationGrant(req.params.id, userId);
+      res.status(204).end();
+    } catch (error) {
+      if (!sendDelegationError(res, error)) next(error);
+    }
+  },
+);

@@ -32,6 +32,19 @@ const strictBody = (allowedFields: string[], requireAtLeastOne = false) =>
     return true;
   });
 
+const emptyObjectOrMissing = (value: unknown): boolean => {
+  if (value === undefined) return true;
+  if (
+    typeof value !== "object" ||
+    value === null ||
+    Array.isArray(value) ||
+    Object.keys(value).length > 0
+  ) {
+    throw new Error("This request does not accept fields");
+  }
+  return true;
+};
+
 function validateRequest(
   validations: ValidationChain[],
 ): Array<
@@ -145,6 +158,78 @@ export const sessionIdValidation = validateRequest([
   param("sessionId")
     .isString()
     .matches(/^[a-f0-9]{64}$/i),
+]);
+
+export const sessionSettingsValidation = validateRequest([
+  strictBody(["timeoutMinutes"]),
+  body("timeoutMinutes").isInt({ min: 15, max: 43_200 }).toInt(),
+]);
+
+export const inactivityPreferenceValidation = validateRequest([
+  strictBody(["inactivityMonths"]),
+  body("inactivityMonths").custom((value) => {
+    if (value === null || value === "disabled") return true;
+    return [6, 12, 18, 24, 36].includes(Number(value));
+  }),
+]);
+
+export const deletionReviewValidation = validateRequest([
+  strictBody(["selectedCategories", "intent"]),
+  body("selectedCategories").isArray({ max: 5 }),
+  body("selectedCategories.*").isIn([
+    "account_profile",
+    "preferences",
+    "bookings",
+    "billing_records",
+    "security_events",
+  ]),
+  body("intent").isIn(["selected_data", "account_closure"]),
+]);
+
+export const emptyAccountDeletionRequestValidation = validateRequest([
+  body().custom(emptyObjectOrMissing),
+  query().custom(emptyObjectOrMissing),
+]);
+
+export const retentionPolicyValidation = validateRequest([
+  strictBody([
+    "name",
+    "jurisdiction",
+    "dataCategory",
+    "retentionDays",
+    "legalBasisReference",
+  ]),
+  body("name").isString().trim().isLength({ min: 1, max: 120 }),
+  body("jurisdiction").isString().trim().isLength({ min: 1, max: 80 }),
+  body("dataCategory").isString().trim().isLength({ min: 1, max: 80 }),
+  body("retentionDays")
+    .optional({ nullable: true, values: "falsy" })
+    .isInt({ min: 1, max: 36_500 })
+    .toInt(),
+  body("legalBasisReference")
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 500 }),
+]);
+
+export const delegationDurationValidation = validateRequest([
+  strictBody(["duration"]),
+  body("duration").isIn(["24h", "7d", "30d", "indefinite"]),
+]);
+
+export const delegationRedeemValidation = validateRequest([
+  strictBody(["token"]),
+  body("token")
+    .isString()
+    .trim()
+    .matches(/^hfd_[A-Za-z0-9_-]{32}$/),
+]);
+
+export const resourceTaskStateValidation = validateRequest([
+  param("taskId").isString().matches(ID_PATTERN),
+  strictBody(["enabled"]),
+  body("enabled").isBoolean(),
 ]);
 
 export const feedbackValidation = validateRequest([

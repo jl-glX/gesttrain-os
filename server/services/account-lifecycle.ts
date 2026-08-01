@@ -103,7 +103,7 @@ export async function scheduleAccountDeletion(
   if (existing) return getAccountLifecycle(userId);
 
   const now = Date.now();
-  await db
+  const result = await db
     .insertInto("accountDeletionRequests")
     .values({
       id: requestId(),
@@ -115,8 +115,13 @@ export async function scheduleAccountDeletion(
       cancelledAt: null,
       completedAt: null,
     })
-    .execute();
-  await recordSecurityEvent("account_deletion_scheduled", userId, { trigger });
+    .onConflict((conflict) => conflict.doNothing())
+    .executeTakeFirst();
+  if (Number(result.numInsertedOrUpdatedRows) > 0) {
+    await recordSecurityEvent("account_deletion_scheduled", userId, {
+      trigger,
+    });
+  }
   return getAccountLifecycle(userId);
 }
 

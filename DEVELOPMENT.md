@@ -2,8 +2,8 @@
 
 ## Requirements
 
-- Node.js 26.5.x.
-- npm 12.0.x.
+- Node.js 24 LTS (24.15.0 or newer in the 24.x line).
+- npm 11 (11.12.0 or newer).
 
 ## Installation and local execution
 
@@ -22,12 +22,14 @@ Copy `.env.example` to `.env` to override defaults.
 | ------------------------------ | ---------------------------------------------------------------- |
 | `NODE_ENV`                     | Runtime mode. Production enables stricter cookies, CSP and HSTS. |
 | `PORT`                         | Express API port. Defaults to `3001`.                            |
-| `CLIENT_ORIGIN`                | Comma-separated origins allowed by CORS.                         |
+| `CLIENT_ORIGIN`                | Required HTTPS browser origin(s) in production.                  |
+| `WEBAUTHN_ORIGIN`              | Public trusted origin used for passkey verification.             |
+| `WEBAUTHN_RP_ID`               | Relying-party domain bound to passkey credentials.               |
 | `MAX_REQUEST_SIZE`             | Maximum JSON and form body size.                                 |
 | `RATE_LIMIT_WINDOW_MINUTES`    | Rate-limit window.                                               |
 | `RATE_LIMIT_MAX_REQUESTS`      | General API request limit.                                       |
 | `AUTH_RATE_LIMIT_MAX_REQUESTS` | Login and signup attempt limit.                                  |
-| `SEED_DEMO_DATA`               | Explicitly enables demo data; keep disabled in production.       |
+| `SEED_DEMO_DATA`               | Reserved for local demos; production rejects a `true` value.     |
 
 Never commit `.env`, databases, tokens or real customer data.
 
@@ -82,6 +84,12 @@ documented in `docs/dependency-policy.md`.
 ## Database changes
 
 The current MVP initializes SQLite tables from `server/db/client.ts`. Before production use, introduce versioned migrations and a documented backup/restore process. Local database files under `data/` are ignored by Git.
+
+SQLite enables foreign-key checks, WAL journaling and a bounded busy timeout.
+Reservation and cancellation changes run in transactions. These protections
+improve the single-instance deployment; a multi-instance production service
+must move reservations to PostgreSQL or another database with equivalent
+transaction and locking guarantees.
 
 ## Adding a page or endpoint
 

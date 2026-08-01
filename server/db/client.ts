@@ -15,6 +15,9 @@ if (!fs.existsSync(dataDirectory)) {
 
 const databasePath = path.join(dataDirectory, "database.sqlite");
 const sqliteDb = new Database(databasePath);
+sqliteDb.pragma("foreign_keys = ON");
+sqliteDb.pragma("journal_mode = WAL");
+sqliteDb.pragma("busy_timeout = 5000");
 
 export const db = new Kysely<DatabaseSchema>({
   dialect: new SqliteDialect({ database: sqliteDb }),
@@ -305,6 +308,15 @@ export async function initializeDatabase() {
       CREATE INDEX idx_bookings_classId ON bookings(classId);
       CREATE INDEX idx_bookings_userId ON bookings(userId);
       CREATE INDEX idx_bookings_status ON bookings(status);
+      CREATE UNIQUE INDEX idx_bookings_active_user_class
+        ON bookings(classId, userId)
+        WHERE status IN ('confirmed', 'waitlist');
+    `);
+  } else {
+    sqliteDb.exec(`
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_bookings_active_user_class
+        ON bookings(classId, userId)
+        WHERE status IN ('confirmed', 'waitlist');
     `);
   }
 

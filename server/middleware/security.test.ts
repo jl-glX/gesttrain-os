@@ -47,6 +47,30 @@ describe("API security baseline", () => {
     expect(JSON.stringify(response.body)).not.toContain("true");
   });
 
+  it("rejects cross-site state changes before authentication or validation", async () => {
+    const untrustedOrigin = await request(app)
+      .post("/api/auth/login")
+      .set("Origin", "https://attacker.example")
+      .send({
+        identifier: "someone@example.com",
+        password: "Password123",
+        accessPortal: "member",
+      })
+      .expect(403);
+    const fetchMetadata = await request(app)
+      .post("/api/auth/login")
+      .set("Sec-Fetch-Site", "cross-site")
+      .send({
+        identifier: "someone@example.com",
+        password: "Password123",
+        accessPortal: "member",
+      })
+      .expect(403);
+
+    expect(untrustedOrigin.body.code).toBe("UNTRUSTED_ORIGIN");
+    expect(fetchMetadata.body.code).toBe("UNTRUSTED_ORIGIN");
+  });
+
   it("normalizes malformed JSON, oversized bodies, and unknown API routes", async () => {
     const malformed = await request(app)
       .post("/api/auth/login")

@@ -25,12 +25,18 @@ import { memberCommerceRouter } from "./routes/member-commerce.js";
 import { delegationsRouter } from "./routes/delegations.js";
 import { downloadsRouter } from "./routes/downloads.js";
 import { resourceManagerRouter } from "./routes/resource-manager.js";
-import { apiLimiter, apiSecurityHeaders } from "./middleware/security.js";
+import {
+  apiLimiter,
+  apiSecurityHeaders,
+  enforceTrustedMutationOrigin,
+} from "./middleware/security.js";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
 import {
   startResourceManager,
   stopResourceManager,
 } from "./services/resource-manager.js";
+import { getAllowedClientOrigins } from "./lib/request-origin.js";
+import { shouldSeedDemoData } from "./lib/demo-data-policy.js";
 
 dotenv.config();
 
@@ -39,13 +45,10 @@ export const app = express();
 app.disable("x-powered-by");
 app.set("trust proxy", false);
 
-const clientOrigin = process.env.CLIENT_ORIGIN || "http://localhost:3000";
+const clientOrigins = getAllowedClientOrigins();
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === "production" && !process.env.CLIENT_ORIGIN
-        ? false
-        : clientOrigin.split(",").map((origin) => origin.trim()),
+    origin: clientOrigins.length ? clientOrigins : false,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -63,6 +66,7 @@ app.use(
 );
 
 app.use("/api", apiSecurityHeaders);
+app.use("/api", enforceTrustedMutationOrigin);
 app.use("/api", apiLimiter);
 
 // Facility logos use a larger JSON allowance inside their authenticated router.
@@ -74,7 +78,7 @@ app.use("/api/account/identity", accountIdentityRouter);
 // Body parsing middleware
 const requestLimit = process.env.MAX_REQUEST_SIZE || "32kb";
 app.use(express.json({ limit: requestLimit }));
-app.use(express.urlencoded({ extended: true, limit: requestLimit }));
+app.use(express.urlencoded({ extended: false, limit: requestLimit }));
 
 // API routes
 app.use("/api/auth", authRouter);
@@ -111,10 +115,7 @@ export async function startServer(port: string | number): Promise<Server> {
   try {
     // Initialize database
     await initializeDatabase();
-    if (
-      process.env.NODE_ENV !== "production" ||
-      process.env.SEED_DEMO_DATA === "true"
-    ) {
+    if (shouldSeedDemoData()) {
       await seedDatabase();
     }
     startResourceManager();
