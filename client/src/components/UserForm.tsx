@@ -8,6 +8,7 @@ import {
 } from "../hooks/useUsers";
 import { useTranslation } from "react-i18next";
 import { PasswordInput } from "./PasswordInput";
+import { isPasswordWithinHashLimit } from "../lib/passwordPolicy";
 
 interface UserFormProps {
   user?: User | null;
@@ -36,6 +37,7 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
       if (
         formData.password &&
         (formData.password.length < 12 ||
+          !isPasswordWithinHashLimit(formData.password) ||
           !/[a-z]/.test(formData.password) ||
           !/[A-Z]/.test(formData.password) ||
           !/[0-9]/.test(formData.password))
@@ -121,6 +123,7 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
             <PasswordInput
               required={!user}
               value={formData.password}
+              maxLength={72}
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
               }

@@ -352,6 +352,7 @@ export function AccountSecurityPage() {
                   id="setup-password"
                   autoComplete="current-password"
                   value={password}
+                  maxLength={72}
                   onChange={(event) => setPassword(event.target.value)}
                 />
                 <Button
@@ -423,6 +424,7 @@ export function AccountSecurityPage() {
                       className="mt-2"
                       autoComplete="current-password"
                       value={password}
+                      maxLength={72}
                       onChange={(event) => setPassword(event.target.value)}
                     />
                   </div>
@@ -523,6 +525,7 @@ export function AccountSecurityPage() {
                 id="passkey-password"
                 autoComplete="current-password"
                 value={passkeyPassword}
+                maxLength={72}
                 onChange={(event) => setPasskeyPassword(event.target.value)}
               />
               {overview?.passkeys.enabled ? (

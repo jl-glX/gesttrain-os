@@ -6,9 +6,22 @@ import {
   ValidationChain,
   validationResult,
 } from "express-validator";
+import {
+  BCRYPT_MAX_PASSWORD_BYTES,
+  isPasswordWithinHashLimit,
+} from "../lib/password-policy.js";
 
 const ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
 const roles = ["member", "trainer", "admin"];
+
+const enforcePasswordHashLimit = (value: string): boolean => {
+  if (!isPasswordWithinHashLimit(value)) {
+    throw new Error(
+      `Password must not exceed ${BCRYPT_MAX_PASSWORD_BYTES} UTF-8 bytes`,
+    );
+  }
+  return true;
+};
 
 const strictBody = (allowedFields: string[], requireAtLeastOne = false) =>
   body().custom((value) => {
@@ -95,6 +108,7 @@ export const signupValidation = validateRequest([
   body("password")
     .isString()
     .isLength({ min: 12, max: 128 })
+    .custom(enforcePasswordHashLimit)
     .matches(/[a-z]/)
     .matches(/[A-Z]/)
     .matches(/[0-9]/),
@@ -114,7 +128,10 @@ export const loginValidation = validateRequest([
       }
       return true;
     }),
-  body("password").isString().isLength({ min: 1, max: 128 }),
+  body("password")
+    .isString()
+    .isLength({ min: 1, max: 128 })
+    .custom(enforcePasswordHashLimit),
   body("accessPortal").isIn(["member", "staff"]),
   body("rememberDevice").optional().isBoolean(),
 ]);
@@ -130,7 +147,10 @@ export const mfaCodeValidation = validateRequest([
 
 export const accountMfaConfirmationValidation = validateRequest([
   strictBody(["password", "code"]),
-  body("password").isString().isLength({ min: 1, max: 128 }),
+  body("password")
+    .isString()
+    .isLength({ min: 1, max: 128 })
+    .custom(enforcePasswordHashLimit),
   body("code")
     .isString()
     .trim()
@@ -139,7 +159,10 @@ export const accountMfaConfirmationValidation = validateRequest([
 
 export const passwordConfirmationValidation = validateRequest([
   strictBody(["password"]),
-  body("password").isString().isLength({ min: 1, max: 128 }),
+  body("password")
+    .isString()
+    .isLength({ min: 1, max: 128 })
+    .custom(enforcePasswordHashLimit),
 ]);
 
 export const passkeyAuthenticationOptionsValidation = validateRequest([
@@ -486,6 +509,7 @@ export const createUserValidation = validateRequest([
   body("password")
     .isString()
     .isLength({ min: 12, max: 128 })
+    .custom(enforcePasswordHashLimit)
     .matches(/[a-z]/)
     .matches(/[A-Z]/)
     .matches(/[0-9]/),
@@ -507,6 +531,7 @@ export const updateUserValidation = validateRequest([
     .optional()
     .isString()
     .isLength({ min: 12, max: 128 })
+    .custom(enforcePasswordHashLimit)
     .matches(/[a-z]/)
     .matches(/[A-Z]/)
     .matches(/[0-9]/),

@@ -5,6 +5,12 @@ import { mfaStatus, verifyMfaCode } from "./mfa.js";
 import { recordSecurityEvent } from "./security-events.js";
 import { ensureSupportIdentifier } from "./support-identifiers.js";
 import { markMeaningfulAccountActivity } from "./account-lifecycle.js";
+import {
+  isPasswordWithinHashLimit,
+  isStrongPassword,
+} from "../lib/password-policy.js";
+
+export { isStrongPassword } from "../lib/password-policy.js";
 
 export const SESSION_DURATION = 24 * 60 * 60 * 1000;
 export const REMEMBERED_SESSION_DURATION = 30 * 24 * 60 * 60 * 1000;
@@ -46,23 +52,19 @@ export interface SessionMetadata {
 export type AccessPortal = "member" | "staff";
 
 export async function hashPassword(password: string): Promise<string> {
+  if (!isPasswordWithinHashLimit(password)) {
+    throw new Error("Password exceeds the supported byte length");
+  }
   return bcryptjs.hash(password, 12);
-}
-
-export function isStrongPassword(password: string): boolean {
-  return (
-    password.length >= 12 &&
-    password.length <= 128 &&
-    /[a-z]/.test(password) &&
-    /[A-Z]/.test(password) &&
-    /[0-9]/.test(password)
-  );
 }
 
 export async function verifyUserPassword(
   userId: string,
   password: string,
 ): Promise<boolean> {
+  if (!isPasswordWithinHashLimit(password)) {
+    return false;
+  }
   const user = await db
     .selectFrom("users")
     .select("password")
@@ -153,6 +155,15 @@ export async function login(
   rememberDevice = false,
   metadata: SessionMetadata = {},
 ): Promise<LoginResult> {
+  if (!isPasswordWithinHashLimit(password)) {
+    await bcryptjs.hash("InvalidPasswordLength123", 12);
+    await recordSecurityEvent("login_failed", null, {
+      portal: accessPortal,
+      reason: "password_length",
+    });
+    throw new Error("Invalid email or password");
+  }
+
   const normalizedIdentifier = identifier.trim().toLowerCase();
   const normalizedPhone = identifier.replace(/[\s()-]/g, "");
   const user = await db

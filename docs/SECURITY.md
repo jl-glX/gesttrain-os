@@ -1,6 +1,8 @@
 # Security
 
-The latest repository security review is documented in
+The latest local black-box, gray-box and white-box assessment is documented in
+[`SECURITY-ASSESSMENT-EXTREME-2026-08-01.md`](./SECURITY-ASSESSMENT-EXTREME-2026-08-01.md).
+The preceding hardening review remains available in
 [`SECURITY-AUDIT-2026-08-01.md`](./SECURITY-AUDIT-2026-08-01.md).
 
 ## Account protection
@@ -8,16 +10,17 @@ The latest repository security review is documented in
 GestTrain/OS supports TOTP two-step verification with common authenticator apps,
 single-use recovery codes, revocable server-side sessions, WebAuthn passkeys and
 a recent security activity log. MFA secrets are encrypted with AES-256-GCM and
-recovery codes are stored as keyed hashes. Production deployments must provide a unique
-`MFA_ENCRYPTION_KEY`; it must not be committed or shared between unrelated
-environments.
+recovery codes are stored as keyed hashes. Production deployments must provide
+a unique `MFA_ENCRYPTION_KEY`; it must not be committed or shared between
+unrelated environments.
 
 The implementation uses browser standards and responsive web controls, so the
 same flow is available in current browsers on Windows, macOS, Android and iOS.
 Physical-device and native-app verification is still required before claiming
-platform certification. GestTrain/OS does not store passwords or session tokens in
-browser storage. WebAuthn delegates biometric or PIN verification to the device;
-GestTrain/OS stores a public credential, never a fingerprint, face template or device PIN.
+platform certification. GestTrain/OS does not store passwords or session tokens
+in browser storage. WebAuthn delegates biometric or PIN verification to the
+device; GestTrain/OS stores a public credential, never a fingerprint, face
+template or device PIN.
 
 ## Delegation history
 
@@ -43,7 +46,8 @@ an account's role or permissions.
 ## Implemented baseline
 
 - Password hashing with bcrypt and a cost factor of 12.
-- Password policy of 12-128 characters with uppercase, lowercase and digits.
+- Password policy of at least 12 characters, uppercase, lowercase and digits,
+  with a hard maximum of 72 UTF-8 bytes to prevent bcrypt truncation aliases.
 - Opaque random session tokens; only their SHA-256 hashes are stored.
 - Persistent, expiring and revocable database sessions.
 - Browser-session cookies by default, plus optional remembered sessions with an explicit 30-day expiry and server-side revocation.
