@@ -19,7 +19,7 @@
     "npm": ">=11.12.0 <12"
   },
   "scripts": {
-    "dev": "tsx watch scripts/dev.ts",
+    "dev": "tsx scripts/dev.ts",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build",
     "build:server": "tsc --project tsconfig.server.json",

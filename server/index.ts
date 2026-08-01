@@ -140,7 +140,7 @@ export async function startServer(port: string | number): Promise<Server> {
     if (shouldSeedDemoData()) {
       await seedDatabase();
     }
-    startResourceManager();
+    await startResourceManager();
 
     return await new Promise<Server>((resolve, reject) => {
       const server = app.listen(port, () => {
@@ -151,18 +151,21 @@ export async function startServer(port: string | number): Promise<Server> {
     });
   } catch (err) {
     console.error("Failed to start server:", err);
+    await stopResourceManager();
     throw err;
   }
 }
 
 export function stopServer(server: Server): void {
   console.log("Shutting down gracefully...");
-  stopResourceManager();
-  server.close((error) => {
-    closeDatabase();
-    if (error) console.error("Failed to stop API server:", error);
-    process.exit(error ? 1 : 0);
-  });
+  void (async () => {
+    await stopResourceManager();
+    server.close((error) => {
+      closeDatabase();
+      if (error) console.error("Failed to stop API server:", error);
+      process.exit(error ? 1 : 0);
+    });
+  })();
 }
 
 // Start the server directly if this is the main module

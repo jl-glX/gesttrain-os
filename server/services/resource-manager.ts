@@ -37,6 +37,17 @@ interface ManagedTaskRuntime {
   runCount: number;
   errorCount: number;
   lastError: string | null;
+  currentRun: Promise<void> | null;
+}
+
+type RuntimeCheckPhase =
+  "manager-start" | "task-start" | "task-finish" | "manager-stop";
+
+interface RuntimeCheckStatus {
+  phase: RuntimeCheckPhase;
+  taskId: string | null;
+  checkedAt: number;
+  staleRecordsRemoved: number;
 }
 
 export interface ManagedTaskStatus {
@@ -60,6 +71,36 @@ export interface ManagedTaskStatus {
 
 const tasks = new Map<string, ManagedTaskRuntime>();
 let started = false;
+let runtimeCheckCount = 0;
+let staleRuntimeRecordsRemoved = 0;
+let lastRuntimeCheck: RuntimeCheckStatus | null = null;
+
+function runtimeCheckIntervalMs(): number {
+  const configured = Number.parseInt(
+    process.env.RESOURCE_RUNTIME_CHECK_INTERVAL_MS ?? "300000",
+    10,
+  );
+  if (!Number.isFinite(configured)) return 300_000;
+  return Math.min(Math.max(configured, 30_000), 3_600_000);
+}
+
+async function checkResidualBackgroundProcesses(
+  phase: RuntimeCheckPhase,
+  taskId: string | null = null,
+): Promise<RuntimeCheckStatus> {
+  const removed = await cleanupStaleRuntimeRecords();
+  const result = {
+    phase,
+    taskId,
+    checkedAt: Date.now(),
+    staleRecordsRemoved: removed,
+  } satisfies RuntimeCheckStatus;
+
+  runtimeCheckCount += 1;
+  staleRuntimeRecordsRemoved += removed;
+  lastRuntimeCheck = result;
+  return result;
+}
 
 function serializeTask(task: ManagedTaskRuntime): ManagedTaskStatus {
   return {
@@ -109,6 +150,7 @@ function registerTask(definition: ManagedTaskDefinition): void {
     runCount: 0,
     errorCount: 0,
     lastError: null,
+    currentRun: null,
   });
 }
 
@@ -184,7 +226,7 @@ registerTask({
   name: "Project runtime cleanup",
   description:
     "Removes stale GestTrain/OS runtime records without touching unrelated operating-system processes.",
-  intervalMs: 15 * 60 * 1000,
+  intervalMs: runtimeCheckIntervalMs(),
   priority: "normal",
   enabledByDefault: true,
   run: async () => {
@@ -225,13 +267,14 @@ registerTask({
   run: optimizeSqlitePlanner,
 });
 
-export function startResourceManager(): void {
+export async function startResourceManager(): Promise<void> {
   if (started) return;
+  await checkResidualBackgroundProcesses("manager-start");
   started = true;
   for (const task of tasks.values()) schedule(task);
 }
 
-export function stopResourceManager(): void {
+export async function stopResourceManager(): Promise<void> {
   started = false;
   for (const task of tasks.values()) {
     if (task.timer) clearTimeout(task.timer);
@@ -241,6 +284,13 @@ export function stopResourceManager(): void {
       task.state = task.enabled ? "idle" : "paused";
     }
   }
+
+  await Promise.allSettled(
+    [...tasks.values()]
+      .map((task) => task.currentRun)
+      .filter((run): run is Promise<void> => run !== null),
+  );
+  await checkResidualBackgroundProcesses("manager-stop");
 }
 
 export async function runManagedTask(
@@ -257,31 +307,42 @@ export async function runManagedTask(
   task.state = "running";
   const startedAt = performance.now();
 
+  const execution = (async () => {
+    try {
+      await checkResidualBackgroundProcesses("task-start", taskId);
+      const result = await task.definition.run();
+      task.lastResultCount =
+        typeof result === "number"
+          ? result
+          : result && typeof result === "object"
+            ? result.count
+            : null;
+      task.lastSummary =
+        result && typeof result === "object" ? result.summary : null;
+      task.lastFindings =
+        result && typeof result === "object" ? (result.findings ?? []) : [];
+      task.lastError = null;
+      task.state = task.enabled ? "idle" : "paused";
+      task.runCount += 1;
+    } catch (error) {
+      task.errorCount += 1;
+      task.lastError =
+        error instanceof Error ? error.message : "Unknown task error";
+      task.state = "error";
+      throw error;
+    } finally {
+      await checkResidualBackgroundProcesses("task-finish", taskId);
+      task.lastRunAt = Date.now();
+      task.lastDurationMs = Math.round(performance.now() - startedAt);
+      schedule(task);
+    }
+  })();
+
+  task.currentRun = execution;
   try {
-    const result = await task.definition.run();
-    task.lastResultCount =
-      typeof result === "number"
-        ? result
-        : result && typeof result === "object"
-          ? result.count
-          : null;
-    task.lastSummary =
-      result && typeof result === "object" ? result.summary : null;
-    task.lastFindings =
-      result && typeof result === "object" ? (result.findings ?? []) : [];
-    task.lastError = null;
-    task.state = task.enabled ? "idle" : "paused";
-    task.runCount += 1;
-  } catch (error) {
-    task.errorCount += 1;
-    task.lastError =
-      error instanceof Error ? error.message : "Unknown task error";
-    task.state = "error";
-    throw error;
+    await execution;
   } finally {
-    task.lastRunAt = Date.now();
-    task.lastDurationMs = Math.round(performance.now() - startedAt);
-    schedule(task);
+    if (task.currentRun === execution) task.currentRun = null;
   }
 
   return serializeTask(task);
@@ -322,6 +383,11 @@ export function getResourceManagerStatus() {
       },
       nodeVersion: process.version,
       pid: process.pid,
+    },
+    residualProcessChecks: {
+      totalChecks: runtimeCheckCount,
+      staleRecordsRemoved: staleRuntimeRecordsRemoved,
+      lastCheck: lastRuntimeCheck,
     },
     tasks: [...tasks.values()].map(serializeTask),
   };

@@ -18,8 +18,10 @@ describe("resource manager API", () => {
     vi.resetModules();
 
     database = await import("../db/client.js");
+    const resources = await import("../services/resource-manager.js");
     const auth = await import("../services/auth.js");
     await database.initializeDatabase();
+    await resources.startResourceManager();
     await database.db
       .insertInto("users")
       .values([
@@ -67,7 +69,7 @@ describe("resource manager API", () => {
 
   afterAll(async () => {
     const resources = await import("../services/resource-manager.js");
-    resources.stopResourceManager();
+    await resources.stopResourceManager();
     database.closeDatabase();
     vi.unstubAllEnvs();
     await rm(directory, { recursive: true, force: true });
@@ -91,6 +93,11 @@ describe("resource manager API", () => {
         }),
       ]),
     );
+    expect(
+      response.body.tasks.find(
+        (task: { id: string }) => task.id === "project-runtime-cleanup",
+      ),
+    ).toMatchObject({ intervalMs: 300_000, enabled: true });
     expect(response.body.process).toMatchObject({
       uptimeSeconds: expect.any(Number),
       memory: {
@@ -98,9 +105,20 @@ describe("resource manager API", () => {
         heapUsedBytes: expect.any(Number),
       },
     });
+    expect(response.body.residualProcessChecks).toMatchObject({
+      totalChecks: expect.any(Number),
+      staleRecordsRemoved: expect.any(Number),
+      lastCheck: expect.anything(),
+    });
   });
 
   it("runs the source audit without deleting project files", async () => {
+    const checksBefore = (
+      await request(app)
+        .get("/api/admin/resource-manager")
+        .set("Cookie", adminCookie)
+        .expect(200)
+    ).body.residualProcessChecks.totalChecks;
     const response = await request(app)
       .post("/api/admin/resource-manager/tasks/source-hygiene-audit/run")
       .set("Cookie", adminCookie)
@@ -111,6 +129,18 @@ describe("resource manager API", () => {
       lastResultCount: expect.any(Number),
       lastSummary: expect.any(String),
       lastFindings: expect.any(Array),
+    });
+
+    const status = await request(app)
+      .get("/api/admin/resource-manager")
+      .set("Cookie", adminCookie)
+      .expect(200);
+    expect(status.body.residualProcessChecks.totalChecks).toBe(
+      checksBefore + 2,
+    );
+    expect(status.body.residualProcessChecks.lastCheck).toMatchObject({
+      phase: "task-finish",
+      taskId: "source-hygiene-audit",
     });
   });
 

@@ -9,6 +9,7 @@ import {
   Play,
   RefreshCw,
   ServerCog,
+  ShieldCheck,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { authFetch } from "../lib/api";
@@ -45,6 +46,16 @@ interface ResourceManagerStatus {
     };
     nodeVersion: string;
     pid: number;
+  };
+  residualProcessChecks: {
+    totalChecks: number;
+    staleRecordsRemoved: number;
+    lastCheck: {
+      phase: "manager-start" | "task-start" | "task-finish" | "manager-stop";
+      taskId: string | null;
+      checkedAt: number;
+      staleRecordsRemoved: number;
+    } | null;
   };
   tasks: ManagedTask[];
 }
@@ -182,6 +193,35 @@ export function ResourceManagerPage() {
                   <p className="mt-1 text-2xl font-bold">{value}</p>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-emerald-950 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <ShieldCheck className="mt-0.5 shrink-0 text-emerald-700" />
+                <div>
+                  <p className="font-bold">
+                    {t("resourceManager.residualChecksTitle")}
+                  </p>
+                  <p className="mt-1 text-sm leading-6 text-emerald-800">
+                    {t("resourceManager.residualChecksSummary", {
+                      checks: status.residualProcessChecks.totalChecks,
+                      removed: status.residualProcessChecks.staleRecordsRemoved,
+                    })}
+                  </p>
+                </div>
+              </div>
+              <p className="shrink-0 text-sm font-medium text-emerald-800">
+                {status.residualProcessChecks.lastCheck
+                  ? t("resourceManager.lastResidualCheck", {
+                      date: new Intl.DateTimeFormat(undefined, {
+                        dateStyle: "short",
+                        timeStyle: "medium",
+                      }).format(
+                        status.residualProcessChecks.lastCheck.checkedAt,
+                      ),
+                    })
+                  : t("resourceManager.noResidualCheck")}
+              </p>
             </div>
 
             <div className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">

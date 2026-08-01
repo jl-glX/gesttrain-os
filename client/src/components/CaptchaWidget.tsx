@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { turnstileLanguage } from "../lib/captchaLocalization";
 
 const SCRIPT_ID = "cloudflare-turnstile-script";
 const SCRIPT_URL =
@@ -16,6 +17,7 @@ declare global {
           action: string;
           theme: "auto";
           size: "flexible";
+          language: string;
           callback: (token: string) => void;
           "expired-callback": () => void;
           "error-callback": () => void;
@@ -59,7 +61,8 @@ export function CaptchaWidget({
   const widgetId = useRef<string | null>(null);
   const onTokenRef = useRef(onToken);
   const [loadFailed, setLoadFailed] = useState(false);
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
+  const language = turnstileLanguage(i18n.resolvedLanguage ?? i18n.language);
   onTokenRef.current = onToken;
 
   useEffect(() => {
@@ -80,6 +83,7 @@ export function CaptchaWidget({
           action,
           theme: "auto",
           size: "flexible",
+          language,
           callback: (token) => onTokenRef.current(token),
           "expired-callback": () => onTokenRef.current(""),
           "error-callback": () => {
@@ -95,7 +99,7 @@ export function CaptchaWidget({
         window.turnstile.remove(widgetId.current);
       }
     };
-  }, [action, containerId]);
+  }, [action, containerId, language]);
 
   useEffect(() => {
     if (resetSignal && widgetId.current && window.turnstile) {

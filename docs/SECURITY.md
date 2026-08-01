@@ -75,6 +75,9 @@ response.
 - Passkey challenges bound to configured trusted origins and RP IDs.
 - API and authentication rate limits.
 - Server-validated CAPTCHA on signup, password login and passkey initiation.
+- The CAPTCHA widget follows the active application language (`es`, `en` or
+  `de`; Swiss German uses Cloudflare's German interface). Provider-owned test
+  banners can remain in English when the official development key is active.
 - Small configurable request bodies and centralized error handling.
 - Input validation and automated security tests.
 - Local databases and environment files excluded from version control.

@@ -14,6 +14,20 @@ npm run dev
 
 The launcher in `scripts/dev.ts` starts Vite and Express together and closes
 both processes cleanly. The frontend uses port `3000` and the API uses `3001`.
+The resource manager checks GestTrain/OS runtime records when it starts, before
+and after every managed task, and again during shutdown. Vite also closes its
+own HTTP/HMR connections, file watcher and plugin resources during a graceful
+development shutdown. These safeguards never terminate unrelated Windows
+processes merely because they use Node.js or a nearby port.
+The residual check also runs periodically (every five minutes by default) so it
+does not depend only on observable task boundaries. Configure it with
+`RESOURCE_RUNTIME_CHECK_INTERVAL_MS`; values are limited to 30 seconds through
+60 minutes to prevent either excessive polling or an ineffective interval. If
+Vite does not complete its normal close within `VITE_SHUTDOWN_TIMEOUT_MS`, the
+launcher asks Vite's owned HMR, watcher, plugin and environment resources to
+close defensively. The default `npm run dev` launcher deliberately avoids an
+extra watch-process wrapper; frontend hot module replacement remains provided
+by Vite, while backend code changes require restarting the launcher.
 Ports are strict: the launcher stops with a clear error instead of silently
 moving the frontend to another port. Opening the API root returns an
 orientation response; the actual interface remains on the frontend URL.
