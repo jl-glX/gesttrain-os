@@ -61,7 +61,7 @@ npm run check        # run the complete validation sequence
 
 ## Demo data
 
-Development mode seeds demonstration accounts and classes. Demo credentials are shown on the sign-in page and must never be enabled in production. `SEED_DEMO_DATA` defaults to `false` in `.env.example`.
+Development mode seeds demonstration accounts and classes. Demo credentials are shown on the sign-in page and must never be enabled in production. The server now rejects a production startup when `SEED_DEMO_DATA=true` instead of creating accounts with public passwords.
 
 ## Known limitations
 

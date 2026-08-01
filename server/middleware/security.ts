@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { NextFunction, Request, Response } from "express";
 import rateLimit from "express-rate-limit";
+import { isTrustedOrigin } from "../lib/request-origin.js";
 
 const parsePositiveInteger = (value: string | undefined, fallback: number) => {
   const parsed = Number.parseInt(value ?? "", 10);
@@ -65,5 +66,37 @@ export function apiSecurityHeaders(
     "Permissions-Policy",
     "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
   );
+  next();
+}
+
+const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+
+export function enforceTrustedMutationOrigin(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void {
+  if (SAFE_METHODS.has(req.method)) {
+    next();
+    return;
+  }
+
+  if (req.get("Sec-Fetch-Site") === "cross-site") {
+    res.status(403).json({
+      error: "Cross-site request rejected",
+      code: "UNTRUSTED_ORIGIN",
+    });
+    return;
+  }
+
+  const origin = req.get("Origin");
+  if (origin && !isTrustedOrigin(origin.replace(/\/$/, ""))) {
+    res.status(403).json({
+      error: "Request origin is not allowed",
+      code: "UNTRUSTED_ORIGIN",
+    });
+    return;
+  }
+
   next();
 }

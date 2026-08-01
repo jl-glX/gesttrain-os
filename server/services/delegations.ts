@@ -89,7 +89,7 @@ export async function redeemDelegationToken(
   if (grant.ownerUserId === delegateUserId) {
     throw new Error("DELEGATION_SELF_NOT_ALLOWED");
   }
-  if (grant.delegateUserId && grant.delegateUserId !== delegateUserId) {
+  if (grant.delegateUserId) {
     throw new Error("DELEGATION_TOKEN_ALREADY_USED");
   }
 

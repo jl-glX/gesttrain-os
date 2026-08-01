@@ -34,13 +34,9 @@ import {
   finishPasskeyAuthentication,
 } from "../services/passkeys.js";
 import type { AuthenticationResponseJSON } from "@simplewebauthn/server";
+import { getWebauthnContext } from "../lib/request-origin.js";
 
 export const authRouter = express.Router();
-
-function webauthnContext(req: express.Request) {
-  const origin = req.get("Origin") ?? `${req.protocol}://${req.get("host")}`;
-  return { origin, rpID: new URL(origin).hostname };
-}
 
 authRouter.post(
   "/signup",
@@ -98,7 +94,7 @@ authRouter.post(
   async (req: express.Request, res: express.Response) => {
     try {
       const { identifier, accessPortal, rememberDevice } = req.body;
-      const { rpID } = webauthnContext(req);
+      const { rpID } = getWebauthnContext(req);
       const result = await beginPasskeyAuthentication(
         identifier,
         accessPortal,
@@ -130,7 +126,7 @@ authRouter.post(
       return;
     }
     try {
-      const { origin, rpID } = webauthnContext(req);
+      const { origin, rpID } = getWebauthnContext(req);
       const result = await finishPasskeyAuthentication(
         challengeToken,
         req.body.response as AuthenticationResponseJSON,

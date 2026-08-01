@@ -311,7 +311,15 @@ export async function seedDatabase() {
         const userEmail = DEMO_USERS[j % DEMO_USERS.length].email;
         const userId = `user-${userEmail.split("@")[0]}`;
 
-        try {
+        const existingBooking = await db
+          .selectFrom("bookings")
+          .select("id")
+          .where("classId", "=", classId)
+          .where("userId", "=", userId)
+          .where("status", "in", ["confirmed", "waitlist"])
+          .executeTakeFirst();
+
+        if (!existingBooking) {
           await db
             .insertInto("bookings")
             .values({
@@ -323,8 +331,6 @@ export async function seedDatabase() {
               cancelledAt: null,
             })
             .execute();
-        } catch {
-          console.log(`Booking already exists for class ${classId}`);
         }
       }
     }

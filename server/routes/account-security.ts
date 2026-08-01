@@ -10,6 +10,7 @@ import {
   passkeyResponseValidation,
   passwordConfirmationValidation,
   sessionIdValidation,
+  sessionSettingsValidation,
 } from "../middleware/validation.js";
 import {
   clearPasskeyChallengeCookie,
@@ -38,14 +39,10 @@ import {
   removePasskeys,
 } from "../services/passkeys.js";
 import type { RegistrationResponseJSON } from "@simplewebauthn/server";
+import { getWebauthnContext } from "../lib/request-origin.js";
 
 export const accountSecurityRouter = express.Router();
 accountSecurityRouter.use(authenticate);
-
-function webauthnContext(req: express.Request) {
-  const origin = req.get("Origin") ?? `${req.protocol}://${req.get("host")}`;
-  return { origin, rpID: new URL(origin).hostname };
-}
 
 accountSecurityRouter.get("/", async (_req, res, next) => {
   try {
@@ -71,7 +68,7 @@ accountSecurityRouter.post(
         res.status(401).json({ error: "Invalid security confirmation" });
         return;
       }
-      const { rpID } = webauthnContext(req);
+      const { rpID } = getWebauthnContext(req);
       const result = await beginPasskeyRegistration(
         { id: auth.userId, email: auth.email, name: auth.name },
         rpID,
@@ -100,7 +97,7 @@ accountSecurityRouter.post(
     }
     try {
       const auth = getAuthenticatedUser(res);
-      const { origin, rpID } = webauthnContext(req);
+      const { origin, rpID } = getWebauthnContext(req);
       await finishPasskeyRegistration(
         auth.userId,
         token,
@@ -273,21 +270,29 @@ accountSecurityRouter.post(
   },
 );
 
-accountSecurityRouter.patch("/sessions/settings", async (req, res, next) => {
-  try {
-    const auth = getAuthenticatedUser(res);
-    const timeoutMinutes = Number(req.body?.timeoutMinutes);
-    if (
-      !SESSION_IDLE_TIMEOUT_OPTIONS.includes(
-        timeoutMinutes as (typeof SESSION_IDLE_TIMEOUT_OPTIONS)[number],
-      )
-    ) {
-      res.status(400).json({ error: "Invalid session inactivity timeout" });
-      return;
+accountSecurityRouter.patch(
+  "/sessions/settings",
+  sessionSettingsValidation,
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    try {
+      const auth = getAuthenticatedUser(res);
+      const timeoutMinutes = Number(req.body?.timeoutMinutes);
+      if (
+        !SESSION_IDLE_TIMEOUT_OPTIONS.includes(
+          timeoutMinutes as (typeof SESSION_IDLE_TIMEOUT_OPTIONS)[number],
+        )
+      ) {
+        res.status(400).json({ error: "Invalid session inactivity timeout" });
+        return;
+      }
+      await updateSessionIdleTimeout(auth.userId, timeoutMinutes);
+      res.status(204).end();
+    } catch (error) {
+      next(error);
     }
-    await updateSessionIdleTimeout(auth.userId, timeoutMinutes);
-    res.status(204).end();
-  } catch (error) {
-    next(error);
-  }
-});
+  },
+);

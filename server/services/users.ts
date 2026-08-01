@@ -2,6 +2,8 @@ import { db } from "../db/client.js";
 import { hashPassword, isStrongPassword, logoutAll } from "./auth.js";
 import { randomBytes } from "crypto";
 import { ensureSupportIdentifier } from "./support-identifiers.js";
+import type { Transaction } from "kysely";
+import type { Database } from "../db/types.js";
 
 export interface UserWithoutPassword {
   id: string;
@@ -160,9 +162,18 @@ export async function updateUser(
 }
 
 export async function deleteUser(id: string): Promise<void> {
-  const user = await db
+  await db
+    .transaction()
+    .execute((transaction) => deleteUserInTransaction(transaction, id));
+}
+
+async function deleteUserInTransaction(
+  transaction: Transaction<Database>,
+  id: string,
+): Promise<void> {
+  const user = await transaction
     .selectFrom("users")
-    .selectAll()
+    .select("id")
     .where("id", "=", id)
     .executeTakeFirst();
 
@@ -170,26 +181,22 @@ export async function deleteUser(id: string): Promise<void> {
     throw new Error("User not found");
   }
 
-  await logoutAll(id);
+  await transaction.deleteFrom("bookings").where("userId", "=", id).execute();
 
-  // Delete user's bookings
-  await db.deleteFrom("bookings").where("userId", "=", id).execute();
+  await transaction
+    .deleteFrom("waitlistEntries")
+    .where("userId", "=", id)
+    .execute();
 
-  // Delete user's waitlist entries
-  await db.deleteFrom("waitlistEntries").where("userId", "=", id).execute();
-
-  // Delete user
-  await db.deleteFrom("users").where("id", "=", id).execute();
+  await transaction.deleteFrom("users").where("id", "=", id).execute();
 }
 
 export async function deleteMultipleUsers(userIds: string[]): Promise<void> {
-  for (const id of userIds) {
-    try {
-      await deleteUser(id);
-    } catch (err) {
-      console.error(`Error deleting user ${id}:`, err);
+  await db.transaction().execute(async (transaction) => {
+    for (const id of userIds) {
+      await deleteUserInTransaction(transaction, id);
     }
-  }
+  });
 }
 
 export async function updateUserRole(

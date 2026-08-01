@@ -1,5 +1,8 @@
 # Security
 
+The latest repository security review is documented in
+[`SECURITY-AUDIT-2026-08-01.md`](./SECURITY-AUDIT-2026-08-01.md).
+
 ## Account protection
 
 GestTrain/OS supports TOTP two-step verification with common authenticator apps,
@@ -49,10 +52,14 @@ an account's role or permissions.
 - Server-side authentication and role authorization.
 - Helmet protections, production CSP and HSTS.
 - Restricted CORS with credentials.
+- Server-side origin checks for state-changing API requests.
+- Passkey challenges bound to configured trusted origins and RP IDs.
 - API and authentication rate limits.
 - Small configurable request bodies and centralized error handling.
 - Input validation and automated security tests.
 - Local databases and environment files excluded from version control.
+- SQLite foreign-key enforcement and transactional reservation changes.
+- Spreadsheet-formula neutralization in attendee CSV exports.
 
 ## Production work still required
 

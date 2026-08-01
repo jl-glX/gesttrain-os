@@ -15,7 +15,11 @@ import {
   updateUserValidation,
   validateId,
 } from "../middleware/validation.js";
-import { authenticate, requireRole } from "../middleware/authorization.js";
+import {
+  authenticate,
+  getAuthenticatedUser,
+  requireRole,
+} from "../middleware/authorization.js";
 
 export const usersRouter = express.Router();
 usersRouter.use(authenticate, requireRole("admin"));
@@ -75,6 +79,14 @@ usersRouter.put(
   async (req: express.Request, res: express.Response) => {
     try {
       const { email, name, password, role } = req.body;
+      const auth = getAuthenticatedUser(res);
+      if (req.params.id === auth.userId && role && role !== "admin") {
+        res.status(400).json({
+          error: "You cannot remove your own administrator role",
+          code: "ADMIN_SELF_ROLE_CHANGE",
+        });
+        return;
+      }
 
       const user = await updateUser(req.params.id, {
         email,
@@ -98,9 +110,17 @@ usersRouter.patch(
   async (req: express.Request, res: express.Response) => {
     try {
       const { role } = req.body;
+      const auth = getAuthenticatedUser(res);
 
       if (!role || !["member", "trainer", "admin"].includes(role)) {
         res.status(400).json({ error: "Invalid role" });
+        return;
+      }
+      if (req.params.id === auth.userId && role !== "admin") {
+        res.status(400).json({
+          error: "You cannot remove your own administrator role",
+          code: "ADMIN_SELF_ROLE_CHANGE",
+        });
         return;
       }
 
@@ -120,6 +140,13 @@ usersRouter.delete(
   validateId("id"),
   async (req: express.Request, res: express.Response) => {
     try {
+      if (req.params.id === getAuthenticatedUser(res).userId) {
+        res.status(400).json({
+          error: "You cannot delete your active administrator account",
+          code: "ADMIN_SELF_DELETE",
+        });
+        return;
+      }
       await deleteUser(req.params.id);
       res.json({ message: "User deleted successfully" });
     } catch (error) {
@@ -137,9 +164,18 @@ usersRouter.post(
   async (req: express.Request, res: express.Response) => {
     try {
       const { userIds } = req.body;
+      const auth = getAuthenticatedUser(res);
 
       if (!Array.isArray(userIds) || userIds.length === 0) {
         res.status(400).json({ error: "Invalid userIds array" });
+        return;
+      }
+      if (userIds.includes(auth.userId)) {
+        res.status(400).json({
+          error:
+            "Bulk deletion cannot include your active administrator account",
+          code: "ADMIN_SELF_DELETE",
+        });
         return;
       }
 

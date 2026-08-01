@@ -111,6 +111,12 @@ describe("delegations API", () => {
       .set("Cookie", delegateCookie)
       .send({ token })
       .expect(200);
+    const replay = await request(app)
+      .post("/api/account/delegations/redeem")
+      .set("Cookie", delegateCookie)
+      .send({ token })
+      .expect(400);
+    expect(replay.body.code).toBe("DELEGATION_TOKEN_ALREADY_USED");
 
     await request(app)
       .post("/api/bookings")
