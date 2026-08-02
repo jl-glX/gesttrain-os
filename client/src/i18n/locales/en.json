@@ -128,6 +128,8 @@
     "adminAnalyticsDescription": "Study occupancy, demand, attendance and time slots.",
     "resourceManager": "Resource manager",
     "resourceManagerDescription": "Monitor frontend, backend and API processes and capabilities.",
+    "securityManager": "Security manager",
+    "securityManagerDescription": "Centralize controls, signals and risk observations without automatic blocking.",
     "dataRetention": "Data retention",
     "dataRetentionDescription": "Prepare draft policies and review their future records.",
     "notifications": "Notifications",
@@ -490,6 +492,33 @@
         "format": ".zip"
       }
     }
+  },
+  "securityManager": {
+    "eyebrow": "Security monitoring",
+    "title": "Security manager",
+    "description": "Review control status and recent signals from one administrative view.",
+    "loadError": "Security status could not be loaded.",
+    "observeTitle": "Risk engine in observation mode",
+    "observeDescription": "Signals are recorded for evaluation, but this version does not automatically block a connection because of its risk score.",
+    "failedLogins24h": "Failed sign-ins in 24h",
+    "captchaFailures24h": "Failed CAPTCHA checks in 24h",
+    "riskObservations7d": "Risk signals in 7 days",
+    "highRiskObservations7d": "High signals in 7 days",
+    "controlsTitle": "Coordinated controls",
+    "controlsDescription": "Current state of protections enforced by the application and API.",
+    "captchaControl": "Manual CAPTCHA with server validation",
+    "originControl": "Origin checks on sensitive operations",
+    "rateLimitControl": "Authentication attempt limit",
+    "headersControl": "Security headers",
+    "riskControl": "Risk observation",
+    "coordinationTitle": "Manager coordination",
+    "coordinationDescription": "{{managers}} managers share signals and work scopes. There are {{operations}} active exclusive operations.",
+    "available": "Available",
+    "notConfigured": "Configuration required",
+    "eventsTitle": "Recent activity",
+    "eventsDescription": "Latest security events recorded during the last seven days.",
+    "noDetails": "No additional details",
+    "noEvents": "There is no recent security activity yet."
   },
   "resourceManager": {
     "eyebrow": "API operations",
@@ -1121,6 +1150,9 @@
     }
   },
   "captcha": {
+    "start": "Verify that I am human",
+    "verifying": "Checking the browser…",
+    "blockingError": "Error no. {{number}}: enable CAPTCHA to access this page",
     "label": "Human verification",
     "help": "This check protects sign-in and registration from abusive automation.",
     "loadFailed": "Verification could not be loaded. Check your connection and try again."

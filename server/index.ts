@@ -26,6 +26,7 @@ import { memberCommerceRouter } from "./routes/member-commerce.js";
 import { delegationsRouter } from "./routes/delegations.js";
 import { downloadsRouter } from "./routes/downloads.js";
 import { resourceManagerRouter } from "./routes/resource-manager.js";
+import { securityManagerRouter } from "./routes/security-manager.js";
 import {
   apiLimiter,
   apiSecurityHeaders,
@@ -110,6 +111,7 @@ app.use("/api/member-commerce", memberCommerceRouter);
 app.use("/api/account/delegations", delegationsRouter);
 app.use("/api/downloads", downloadsRouter);
 app.use("/api/admin/resource-manager", resourceManagerRouter);
+app.use("/api/admin/security-manager", securityManagerRouter);
 
 if (process.env.NODE_ENV !== "production") {
   app.get("/", (_req, res) => {

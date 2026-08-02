@@ -14,6 +14,21 @@ interface TurnstileResponse {
 }
 
 export type CaptchaAction = "login" | "signup";
+export type CaptchaVerificationReason =
+  | "verified"
+  | "test_environment"
+  | "not_configured"
+  | "missing_token"
+  | "token_too_long"
+  | "provider_unavailable"
+  | "provider_rejected"
+  | "action_mismatch"
+  | "hostname_mismatch";
+
+export interface CaptchaVerificationResult {
+  success: boolean;
+  reason: CaptchaVerificationReason;
+}
 
 function configuredSecret(): string | null {
   const secret = process.env.TURNSTILE_SECRET_KEY?.trim();
@@ -56,9 +71,23 @@ export async function verifyCaptcha(
   action: CaptchaAction,
   remoteIp?: string,
 ): Promise<boolean> {
-  if (process.env.NODE_ENV === "test") return true;
+  return (await verifyCaptchaDetailed(token, action, remoteIp)).success;
+}
+
+export async function verifyCaptchaDetailed(
+  token: string,
+  action: CaptchaAction,
+  remoteIp?: string,
+): Promise<CaptchaVerificationResult> {
+  if (process.env.NODE_ENV === "test") {
+    return { success: true, reason: "test_environment" };
+  }
   const secret = configuredSecret();
-  if (!secret || !token || token.length > 2_048) return false;
+  if (!secret) return { success: false, reason: "not_configured" };
+  if (!token) return { success: false, reason: "missing_token" };
+  if (token.length > 2_048) {
+    return { success: false, reason: "token_too_long" };
+  }
 
   const body = new URLSearchParams({
     secret,
@@ -74,16 +103,26 @@ export async function verifyCaptcha(
       body,
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
-    if (!response.ok) return false;
+    if (!response.ok) {
+      return { success: false, reason: "provider_unavailable" };
+    }
     const result = (await response.json()) as TurnstileResponse;
-    if (!result.success) return false;
+    if (!result.success) {
+      return { success: false, reason: "provider_rejected" };
+    }
 
     // Official development keys do not represent a production hostname/action.
-    if (secret === DEVELOPMENT_SECRET) return true;
-    if (result.action !== action) return false;
+    if (secret === DEVELOPMENT_SECRET) {
+      return { success: true, reason: "verified" };
+    }
+    if (result.action !== action) {
+      return { success: false, reason: "action_mismatch" };
+    }
     const hostnames = allowedHostnames();
-    return Boolean(result.hostname && hostnames.has(result.hostname));
+    return result.hostname && hostnames.has(result.hostname)
+      ? { success: true, reason: "verified" }
+      : { success: false, reason: "hostname_mismatch" };
   } catch {
-    return false;
+    return { success: false, reason: "provider_unavailable" };
   }
 }

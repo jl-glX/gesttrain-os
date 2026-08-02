@@ -3,6 +3,12 @@ import { sql } from "kysely";
 import { db, reconcileBookingIntegrity } from "../db/client.js";
 import { cleanupStaleRuntimeRecords } from "../lib/runtime-registry.js";
 import { auditSourceHygiene } from "./source-hygiene.js";
+import {
+  getManagerCoordinationStatus,
+  ManagerCoordinationConflictError,
+  publishManagerSignal,
+  withCoordinatedManagerOperation,
+} from "./manager-coordinator.js";
 
 type TaskPriority = "critical" | "normal" | "low";
 type TaskState = "idle" | "running" | "paused" | "error";
@@ -75,6 +81,15 @@ let startInProgress: Promise<void> | null = null;
 let runtimeCheckCount = 0;
 let staleRuntimeRecordsRemoved = 0;
 let lastRuntimeCheck: RuntimeCheckStatus | null = null;
+
+const taskCoordinationScopes: Record<string, string[]> = {
+  "expired-auth-cleanup": ["authentication-records"],
+  "deleted-account-residual-cleanup": ["account-records"],
+  "booking-integrity-cleanup": ["booking-records"],
+  "project-runtime-cleanup": ["runtime-records"],
+  "source-hygiene-audit": ["source-tree"],
+  "sqlite-query-planner": ["database-maintenance"],
+};
 
 function runtimeCheckIntervalMs(): number {
   const configured = Number.parseInt(
@@ -368,7 +383,12 @@ export async function runManagedTask(
   const execution = (async () => {
     try {
       await checkResidualBackgroundProcesses("task-start", taskId);
-      const result = await task.definition.run();
+      const result = await withCoordinatedManagerOperation(
+        "resource",
+        taskId,
+        taskCoordinationScopes[taskId] ?? [`resource-task:${taskId}`],
+        task.definition.run,
+      );
       task.lastResultCount =
         typeof result === "number"
           ? result
@@ -383,10 +403,27 @@ export async function runManagedTask(
       task.state = task.enabled ? "idle" : "paused";
       task.runCount += 1;
     } catch (error) {
+      if (error instanceof ManagerCoordinationConflictError) {
+        task.lastSummary = `Deferred because ${error.conflictingOperation.manager} is running ${error.conflictingOperation.operation}.`;
+        task.state = task.enabled ? "idle" : "paused";
+        publishManagerSignal(
+          "resource",
+          "info",
+          "RESOURCE_TASK_DEFERRED",
+          `${taskId} deferred for coordinated access.`,
+        );
+        throw error;
+      }
       task.errorCount += 1;
       task.lastError =
         error instanceof Error ? error.message : "Unknown task error";
       task.state = "error";
+      publishManagerSignal(
+        "resource",
+        "warning",
+        "RESOURCE_TASK_FAILED",
+        `${taskId}: ${task.lastError}`,
+      );
       throw error;
     } finally {
       try {
@@ -461,6 +498,7 @@ export function getResourceManagerStatus() {
       staleRecordsRemoved: staleRuntimeRecordsRemoved,
       lastCheck: lastRuntimeCheck,
     },
+    coordination: getManagerCoordinationStatus(),
     tasks: [...tasks.values()].map(serializeTask),
   };
 }

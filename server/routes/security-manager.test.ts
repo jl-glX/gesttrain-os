@@ -1,0 +1,145 @@
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import request from "supertest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+
+describe("security manager API", () => {
+  let directory: string;
+  let database: typeof import("../db/client.js");
+  let app: typeof import("../index.js").app;
+  let adminCookie: string;
+  let memberCookie: string;
+
+  beforeAll(async () => {
+    directory = await mkdtemp(join(tmpdir(), "gesttrain-security-manager-"));
+    vi.stubEnv("DATA_DIRECTORY", directory);
+    vi.stubEnv("NODE_ENV", "test");
+    vi.resetModules();
+
+    database = await import("../db/client.js");
+    const auth = await import("../services/auth.js");
+    await database.initializeDatabase();
+    const password = await auth.hashPassword("SecurityManagerPassword123");
+    await database.db
+      .insertInto("users")
+      .values([
+        {
+          id: "security-manager-admin",
+          email: "security-manager-admin@example.com",
+          phone: null,
+          name: "Security Manager Admin",
+          avatarDataUrl: "",
+          password,
+          role: "admin",
+          sessionIdleTimeoutMinutes: 7 * 24 * 60,
+          createdAt: Date.now(),
+        },
+        {
+          id: "security-manager-member",
+          email: "security-manager-member@example.com",
+          phone: null,
+          name: "Security Manager Member",
+          avatarDataUrl: "",
+          password,
+          role: "member",
+          sessionIdleTimeoutMinutes: 7 * 24 * 60,
+          createdAt: Date.now(),
+        },
+      ])
+      .execute();
+    await database.db
+      .insertInto("securityEvents")
+      .values({
+        id: "security-manager-event",
+        userId: null,
+        type: "risk_observed",
+        createdAt: Date.now(),
+        metadata: JSON.stringify({
+          surface: "password_login",
+          level: "high",
+          reason: "automation_marker",
+        }),
+      })
+      .execute();
+
+    app = (await import("../index.js")).app;
+    const adminLogin = await request(app).post("/api/auth/login").send({
+      identifier: "security-manager-admin@example.com",
+      password: "SecurityManagerPassword123",
+      accessPortal: "staff",
+      rememberDevice: false,
+    });
+    const memberLogin = await request(app).post("/api/auth/login").send({
+      identifier: "security-manager-member@example.com",
+      password: "SecurityManagerPassword123",
+      accessPortal: "member",
+      rememberDevice: false,
+    });
+    adminCookie = adminLogin.headers["set-cookie"][0];
+    memberCookie = memberLogin.headers["set-cookie"][0];
+  });
+
+  afterAll(async () => {
+    database.closeDatabase();
+    vi.unstubAllEnvs();
+    await rm(directory, { recursive: true, force: true });
+  });
+
+  it("reports controls, observations and manager coordination to admins", async () => {
+    const response = await request(app)
+      .get("/api/admin/security-manager")
+      .set("Cookie", adminCookie)
+      .expect(200);
+
+    expect(response.body).toMatchObject({
+      mode: "observe",
+      automaticBlockingEnabled: false,
+      controls: {
+        captcha: {
+          configured: true,
+          execution: "manual",
+          serverValidation: true,
+        },
+        riskEngine: "observe",
+      },
+      metrics: {
+        riskObservations7d: 1,
+        highRiskObservations7d: 1,
+      },
+      coordination: {
+        mode: "shared-runtime",
+        managers: ["account", "security", "resource"],
+      },
+    });
+    expect(
+      response.body.recentEvents.find(
+        (event: { type: string }) => event.type === "risk_observed",
+      ),
+    ).toMatchObject({
+      type: "risk_observed",
+      metadata: { level: "high", surface: "password_login" },
+    });
+  });
+
+  it("rejects security manager access for members", async () => {
+    await request(app)
+      .get("/api/admin/security-manager")
+      .set("Cookie", memberCookie)
+      .expect(403);
+  });
+
+  it("exposes CAPTCHA readiness without revealing secrets", async () => {
+    const response = await request(app)
+      .get("/api/auth/captcha-status")
+      .expect(200);
+
+    expect(response.body).toEqual({
+      available: true,
+      execution: "manual",
+      browserVerification: true,
+      serverValidation: true,
+    });
+    expect(JSON.stringify(response.body)).not.toContain("secret");
+  });
+});

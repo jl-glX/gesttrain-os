@@ -15,6 +15,7 @@ import {
   KeyRound,
   LayoutDashboard,
   Settings2,
+  ShieldAlert,
   ShieldCheck,
   ShoppingBag,
   Timer,
@@ -204,6 +205,12 @@ export function AccountControlPage() {
       icon: Gauge,
       title: t("accountControl.resourceManager"),
       description: t("accountControl.resourceManagerDescription"),
+    },
+    {
+      to: "/admin/security-manager",
+      icon: ShieldAlert,
+      title: t("accountControl.securityManager"),
+      description: t("accountControl.securityManagerDescription"),
     },
     {
       to: "/admin/data-retention",

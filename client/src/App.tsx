@@ -111,6 +111,10 @@ const ResourceManagerPage = lazyPage(
   () => import("./pages/ResourceManagerPage"),
   "ResourceManagerPage",
 );
+const SecurityManagerPage = lazyPage(
+  () => import("./pages/SecurityManagerPage"),
+  "SecurityManagerPage",
+);
 const BillingPage = lazyPage(
   () => import("./pages/BillingPage"),
   "BillingPage",
@@ -293,6 +297,14 @@ function AppContent() {
             element={
               <ProtectedRoute requiredRole="admin">
                 <ResourceManagerPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/security-manager"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <SecurityManagerPage />
               </ProtectedRoute>
             }
           />

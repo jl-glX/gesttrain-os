@@ -6,6 +6,7 @@ import {
   type AccountDataCategory,
 } from "./data-retention.js";
 import { recordSecurityEvent } from "./security-events.js";
+import { withCoordinatedManagerOperation } from "./manager-coordinator.js";
 import { getAccountContinuityBridge } from "./account-continuity.js";
 
 export const INACTIVITY_DELETION_OPTIONS = [6, 12, 18, 24, 36] as const;
@@ -176,60 +177,74 @@ export async function scheduleAccountDeletion(
   trigger: "manual" | "inactivity",
   requestedAt = Date.now(),
 ) {
-  const existing = await db
-    .selectFrom("accountDeletionRequests")
-    .selectAll()
-    .where("userId", "=", userId)
-    .where("status", "=", "scheduled")
-    .executeTakeFirst();
-  if (existing) return getAccountLifecycle(userId);
+  return withCoordinatedManagerOperation(
+    "account",
+    "schedule-account-deletion",
+    ["account-records"],
+    async () => {
+      const existing = await db
+        .selectFrom("accountDeletionRequests")
+        .selectAll()
+        .where("userId", "=", userId)
+        .where("status", "=", "scheduled")
+        .executeTakeFirst();
+      if (existing) return getAccountLifecycle(userId);
 
-  const now = requestedAt;
-  const result = await db
-    .insertInto("accountDeletionRequests")
-    .values({
-      id: requestId(),
-      userId,
-      trigger,
-      status: "scheduled",
-      requestedAt: now,
-      graceEndsAt: now + DELETION_GRACE_PERIOD_MS,
-      cancelledAt: null,
-      completedAt: null,
-    })
-    .onConflict((conflict) => conflict.doNothing())
-    .executeTakeFirst();
-  if (Number(result.numInsertedOrUpdatedRows) > 0) {
-    await recordSecurityEvent("account_deletion_scheduled", userId, {
-      trigger,
-    });
-  }
-  return getAccountLifecycle(userId);
+      const now = requestedAt;
+      const result = await db
+        .insertInto("accountDeletionRequests")
+        .values({
+          id: requestId(),
+          userId,
+          trigger,
+          status: "scheduled",
+          requestedAt: now,
+          graceEndsAt: now + DELETION_GRACE_PERIOD_MS,
+          cancelledAt: null,
+          completedAt: null,
+        })
+        .onConflict((conflict) => conflict.doNothing())
+        .executeTakeFirst();
+      if (Number(result.numInsertedOrUpdatedRows) > 0) {
+        await recordSecurityEvent("account_deletion_scheduled", userId, {
+          trigger,
+        });
+      }
+      return getAccountLifecycle(userId);
+    },
+  );
 }
 
 export async function cancelScheduledAccountDeletion(
   userId: string,
   options: { recoveryEvent?: string } = {},
 ) {
-  const now = Date.now();
-  const result = await db
-    .updateTable("accountDeletionRequests")
-    .set({ status: "cancelled", cancelledAt: now })
-    .where("userId", "=", userId)
-    .where("status", "=", "scheduled")
-    .executeTakeFirst();
+  return withCoordinatedManagerOperation(
+    "account",
+    "cancel-account-deletion",
+    ["account-records"],
+    async () => {
+      const now = Date.now();
+      const result = await db
+        .updateTable("accountDeletionRequests")
+        .set({ status: "cancelled", cancelledAt: now })
+        .where("userId", "=", userId)
+        .where("status", "=", "scheduled")
+        .executeTakeFirst();
 
-  if (Number(result.numUpdatedRows) > 0) {
-    await markMeaningfulAccountActivity(
-      userId,
-      options.recoveryEvent
-        ? "account_recovery_completed"
-        : "personal_account_action",
-      now,
-    );
-    await recordSecurityEvent("account_deletion_cancelled", userId);
-  }
-  return getAccountLifecycle(userId);
+      if (Number(result.numUpdatedRows) > 0) {
+        await markMeaningfulAccountActivity(
+          userId,
+          options.recoveryEvent
+            ? "account_recovery_completed"
+            : "personal_account_action",
+          now,
+        );
+        await recordSecurityEvent("account_deletion_cancelled", userId);
+      }
+      return getAccountLifecycle(userId);
+    },
+  );
 }
 
 export async function getDataDeletionReview(userId: string) {

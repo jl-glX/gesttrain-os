@@ -42,9 +42,20 @@ import {
   verifyEmailCode,
 } from "../services/email-verification.js";
 import { requireCaptcha } from "../middleware/captcha.js";
+import { captchaIsConfigured } from "../services/captcha.js";
 import { getRecoveryCapabilities } from "../services/account-recovery.js";
+import { observeSecurityRisk } from "../middleware/security-risk.js";
 
 export const authRouter = express.Router();
+
+authRouter.get("/captcha-status", (_req, res) => {
+  res.json({
+    available: captchaIsConfigured(),
+    execution: "manual",
+    browserVerification: true,
+    serverValidation: true,
+  });
+});
 
 authRouter.get("/recovery/capabilities", (_req, res) => {
   res.json({ methods: getRecoveryCapabilities() });
@@ -53,6 +64,7 @@ authRouter.get("/recovery/capabilities", (_req, res) => {
 authRouter.post(
   "/signup",
   authenticationLimiter,
+  observeSecurityRisk("signup"),
   signupValidation,
   requireCaptcha("signup"),
   async (req: express.Request, res: express.Response) => {
@@ -115,6 +127,7 @@ authRouter.post(
 authRouter.post(
   "/login",
   authenticationLimiter,
+  observeSecurityRisk("password_login"),
   loginValidation,
   requireCaptcha("login"),
   async (req: express.Request, res: express.Response) => {
@@ -144,6 +157,7 @@ authRouter.post(
 authRouter.post(
   "/passkey/options",
   authenticationLimiter,
+  observeSecurityRisk("passkey_options"),
   passkeyAuthenticationOptionsValidation,
   requireCaptcha("login"),
   async (req: express.Request, res: express.Response) => {

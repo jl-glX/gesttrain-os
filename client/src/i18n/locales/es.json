@@ -132,6 +132,8 @@
     "adminAnalyticsDescription": "Estudia ocupación, demanda, asistencia y franjas horarias.",
     "resourceManager": "Gestor de recursos",
     "resourceManagerDescription": "Supervisa procesos y capacidades del frontend, backend y API.",
+    "securityManager": "Gestor de seguridad",
+    "securityManagerDescription": "Centraliza controles, señales y observaciones de riesgo sin aplicar bloqueos automáticos.",
     "dataRetention": "Retención de datos",
     "dataRetentionDescription": "Prepara políticas en borrador y revisa sus futuros registros.",
     "notifications": "Notificaciones",
@@ -494,6 +496,33 @@
         "format": ".zip"
       }
     }
+  },
+  "securityManager": {
+    "eyebrow": "Supervisión de seguridad",
+    "title": "Gestor de seguridad",
+    "description": "Consulta el estado de los controles y las señales recientes desde una única vista administrativa.",
+    "loadError": "No se ha podido cargar el estado de seguridad.",
+    "observeTitle": "Motor de riesgo en modo observación",
+    "observeDescription": "Las señales se registran para poder evaluarlas, pero esta versión no bloquea automáticamente una conexión por su puntuación de riesgo.",
+    "failedLogins24h": "Accesos fallidos en 24 h",
+    "captchaFailures24h": "CAPTCHA fallidos en 24 h",
+    "riskObservations7d": "Señales de riesgo en 7 días",
+    "highRiskObservations7d": "Señales altas en 7 días",
+    "controlsTitle": "Controles coordinados",
+    "controlsDescription": "Estado real de las protecciones aplicadas por la aplicación y la API.",
+    "captchaControl": "CAPTCHA manual con validación en servidor",
+    "originControl": "Control de origen en operaciones sensibles",
+    "rateLimitControl": "Límite de intentos de autenticación",
+    "headersControl": "Cabeceras de seguridad",
+    "riskControl": "Observación de riesgo",
+    "coordinationTitle": "Coordinación entre gestores",
+    "coordinationDescription": "{{managers}} gestores comparten avisos y ámbitos de trabajo. Hay {{operations}} operaciones exclusivas activas.",
+    "available": "Disponible",
+    "notConfigured": "Requiere configuración",
+    "eventsTitle": "Actividad reciente",
+    "eventsDescription": "Últimos eventos de seguridad registrados durante los últimos siete días.",
+    "noDetails": "Sin detalles adicionales",
+    "noEvents": "Todavía no hay actividad de seguridad reciente."
   },
   "resourceManager": {
     "eyebrow": "Operación de la API",
@@ -1131,6 +1160,9 @@
     }
   },
   "captcha": {
+    "start": "Verificar que soy una persona",
+    "verifying": "Comprobando el navegador…",
+    "blockingError": "Error nº {{number}}: habilite el CAPTCHA para poder acceder a la página",
     "label": "Verificación humana",
     "help": "Esta comprobación protege el acceso y el registro frente a automatizaciones abusivas.",
     "loadFailed": "No se pudo cargar la verificación. Revisa la conexión e inténtalo de nuevo."

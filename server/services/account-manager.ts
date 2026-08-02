@@ -1,6 +1,7 @@
 import { getSecurityOverview } from "./account-security.js";
 import { getAccountLifecycle } from "./account-lifecycle.js";
 import { getRecoveryCapabilities } from "./account-recovery.js";
+import { getManagerCoordinationStatus } from "./manager-coordinator.js";
 
 export async function getAccountManagerOverview(
   userId: string,
@@ -35,5 +36,6 @@ export async function getAccountManagerOverview(
         .map((method) => method.id),
     },
     continuity: lifecycle.continuityBridge,
+    coordination: getManagerCoordinationStatus(),
   };
 }
