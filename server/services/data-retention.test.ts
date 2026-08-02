@@ -27,7 +27,7 @@ describe("data retention foundation", () => {
     const policy = await retention.createDraftRetentionPolicy({
       name: "Invoices placeholder",
       jurisdiction: "ES",
-      dataCategory: "invoices",
+      dataCategory: "billing_records",
       retentionDays: 365,
       legalBasisReference: "Pending legal review",
     });
@@ -35,6 +35,8 @@ describe("data retention foundation", () => {
     expect(policy.status).toBe("draft");
     const overview = await retention.listRetentionOverview();
     expect(overview.executionEnabled).toBe(false);
+    expect(overview.legalValidationProvided).toBe(false);
+    expect(overview.catalog).toHaveLength(8);
     expect(overview.policies).toHaveLength(1);
 
     await expect(
@@ -46,20 +48,57 @@ describe("data retention foundation", () => {
     ).rejects.toThrow("Only reviewed active policies");
   });
 
+  it("versions policies by jurisdiction and category", async () => {
+    const first = await retention.createDraftRetentionPolicy({
+      name: "Spanish billing v1",
+      jurisdiction: "es",
+      dataCategory: "billing_records",
+      retentionDays: 365,
+      legalBasisReference: "Internal review reference",
+    });
+    const second = await retention.createDraftRetentionPolicy({
+      name: "Spanish billing v2",
+      jurisdiction: "ES",
+      dataCategory: "billing_records",
+      retentionDays: 730,
+      legalBasisReference: "Updated internal review reference",
+    });
+
+    expect(first.version).toBeGreaterThan(1);
+    expect(second.version).toBe(first.version + 1);
+    expect(second.jurisdiction).toBe("ES");
+  });
+
   it("keeps future execution helpers isolated behind an active policy", async () => {
     const policy = await retention.createDraftRetentionPolicy({
       name: "Security audit placeholder",
       jurisdiction: "EU",
       dataCategory: "security_events",
     });
-    await database.db
-      .updateTable("dataRetentionPolicies")
-      .set({ status: "active", reviewedAt: Date.now() })
-      .where("id", "=", policy.id)
-      .execute();
+    await expect(
+      retention.reviewRetentionPolicy(
+        policy.id,
+        { decision: "activate", reviewConfirmed: true },
+        "reviewer-demo",
+      ),
+    ).rejects.toThrow("Duration and review reference");
+
+    const reviewablePolicy = await retention.createDraftRetentionPolicy({
+      name: "Reviewable security audit placeholder",
+      jurisdiction: "EU",
+      dataCategory: "security_events",
+      retentionDays: 30,
+      legalBasisReference: "Internal review only",
+    });
+    const reviewed = await retention.reviewRetentionPolicy(
+      reviewablePolicy.id,
+      { decision: "activate", reviewConfirmed: true },
+      null,
+    );
+    expect(reviewed.executionEnabled).toBe(false);
 
     const record = await retention.registerRetentionRecord({
-      policyId: policy.id,
+      policyId: reviewablePolicy.id,
       sourceType: "security_event",
       sourceId: "event-demo",
       retainUntil: Date.now() - 1,

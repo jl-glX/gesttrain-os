@@ -28,6 +28,23 @@ export const MEANINGFUL_ACTIVITY_SOURCES = [
 export type MeaningfulActivitySource =
   (typeof MEANINGFUL_ACTIVITY_SOURCES)[number];
 
+export const ACCOUNT_LIFECYCLE_STATES = [
+  "pending_verification",
+  "active",
+  "security_review",
+  "recovery_in_progress",
+  "inactive",
+  "suspended_pending_deletion",
+  "deletion_cancelled",
+  "closure_requested",
+  "deletion_processing",
+  "retained_legal",
+  "legal_hold",
+  "anonymized",
+  "deleted",
+] as const;
+export type AccountLifecycleState = (typeof ACCOUNT_LIFECYCLE_STATES)[number];
+
 function addUtcMonths(timestamp: number, months: number): number {
   const date = new Date(timestamp);
   const originalDay = date.getUTCDate();
@@ -44,35 +61,58 @@ function requestId(): string {
   return `deletion-${randomBytes(12).toString("hex")}`;
 }
 
+function deletionJobId(): string {
+  return `deletion-job-${randomBytes(12).toString("hex")}`;
+}
+
 export async function getAccountLifecycle(userId: string) {
-  const [preference, request, dataDisposition, user] = await Promise.all([
-    db
-      .selectFrom("accountDeletionPreferences")
-      .selectAll()
-      .where("userId", "=", userId)
-      .executeTakeFirst(),
-    db
-      .selectFrom("accountDeletionRequests")
-      .select(["id", "trigger", "status", "requestedAt", "graceEndsAt"])
-      .where("userId", "=", userId)
-      .where("status", "=", "scheduled")
-      .executeTakeFirst(),
-    getAccountDispositionPreview(userId),
-    db
-      .selectFrom("users")
-      .select("createdAt")
-      .where("id", "=", userId)
-      .executeTakeFirstOrThrow(),
-  ]);
+  const [preference, request, deletionJob, dataDisposition, user] =
+    await Promise.all([
+      db
+        .selectFrom("accountDeletionPreferences")
+        .selectAll()
+        .where("userId", "=", userId)
+        .executeTakeFirst(),
+      db
+        .selectFrom("accountDeletionRequests")
+        .select(["id", "trigger", "status", "requestedAt", "graceEndsAt"])
+        .where("userId", "=", userId)
+        .where("status", "=", "scheduled")
+        .executeTakeFirst(),
+      db
+        .selectFrom("accountDeletionJobs")
+        .select(["id", "status", "executionEnabled", "createdAt", "updatedAt"])
+        .where("userId", "=", userId)
+        .where("status", "in", ["planned", "blocked_retention_review"])
+        .orderBy("updatedAt", "desc")
+        .executeTakeFirst(),
+      getAccountDispositionPreview(userId),
+      db
+        .selectFrom("users")
+        .select(["createdAt", "accountStatus"])
+        .where("id", "=", userId)
+        .executeTakeFirstOrThrow(),
+    ]);
+
+  const currentState: AccountLifecycleState = request
+    ? request.trigger === "inactivity"
+      ? "suspended_pending_deletion"
+      : "closure_requested"
+    : user.accountStatus;
 
   return {
+    currentState,
+    supportedStates: ACCOUNT_LIFECYCLE_STATES,
     inactivityMonths: preference?.inactivityMonths ?? null,
     lastMeaningfulActivityAt:
       preference?.lastMeaningfulActivityAt ?? user.createdAt,
     deletionRequest: request ?? null,
+    deletionJob: deletionJob
+      ? { ...deletionJob, executionEnabled: false as const }
+      : null,
     gracePeriodDays: 30,
     dataDisposition,
-    continuityBridge: getAccountContinuityBridge(),
+    continuityBridge: await getAccountContinuityBridge(userId),
   };
 }
 
@@ -191,20 +231,39 @@ export async function scheduleAccountDeletion(
       if (existing) return getAccountLifecycle(userId);
 
       const now = requestedAt;
-      const result = await db
-        .insertInto("accountDeletionRequests")
-        .values({
-          id: requestId(),
-          userId,
-          trigger,
-          status: "scheduled",
-          requestedAt: now,
-          graceEndsAt: now + DELETION_GRACE_PERIOD_MS,
-          cancelledAt: null,
-          completedAt: null,
-        })
-        .onConflict((conflict) => conflict.doNothing())
-        .executeTakeFirst();
+      const newRequestId = requestId();
+      const result = await db.transaction().execute(async (transaction) => {
+        const insertResult = await transaction
+          .insertInto("accountDeletionRequests")
+          .values({
+            id: newRequestId,
+            userId,
+            trigger,
+            status: "scheduled",
+            requestedAt: now,
+            graceEndsAt: now + DELETION_GRACE_PERIOD_MS,
+            cancelledAt: null,
+            completedAt: null,
+          })
+          .onConflict((conflict) => conflict.doNothing())
+          .executeTakeFirst();
+        if (Number(insertResult.numInsertedOrUpdatedRows) > 0) {
+          await transaction
+            .insertInto("accountDeletionJobs")
+            .values({
+              id: deletionJobId(),
+              requestId: newRequestId,
+              userId,
+              status: "blocked_retention_review",
+              executionEnabled: 0,
+              createdAt: now,
+              updatedAt: now,
+              completedAt: null,
+            })
+            .execute();
+        }
+        return insertResult;
+      });
       if (Number(result.numInsertedOrUpdatedRows) > 0) {
         await recordSecurityEvent("account_deletion_scheduled", userId, {
           trigger,
@@ -233,6 +292,12 @@ export async function cancelScheduledAccountDeletion(
         .executeTakeFirst();
 
       if (Number(result.numUpdatedRows) > 0) {
+        await db
+          .updateTable("accountDeletionJobs")
+          .set({ status: "cancelled", updatedAt: now })
+          .where("userId", "=", userId)
+          .where("status", "in", ["planned", "blocked_retention_review"])
+          .execute();
         await markMeaningfulAccountActivity(
           userId,
           options.recoveryEvent

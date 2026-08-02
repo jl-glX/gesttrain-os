@@ -7,9 +7,11 @@ import {
   updateBillingRecordValidation,
   validateId,
 } from "../middleware/validation.js";
+import { requireRecentFormVerification } from "../middleware/form-verification.js";
 
 export const billingRouter = express.Router();
 billingRouter.use(authenticate, requireRole("admin"));
+billingRouter.use(requireRecentFormVerification);
 
 billingRouter.get("/", async (_req, res, next) => {
   try {

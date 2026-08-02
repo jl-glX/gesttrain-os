@@ -203,8 +203,8 @@ describe("persistent authentication sessions", () => {
       locale: "es",
       accountStatus: "pending_verification",
       emailVerifiedAt: null,
-      termsVersion: "draft-2026-08-01",
-      privacyVersion: "draft-2026-08-01",
+      termsVersion: "draft-2026-08-03",
+      privacyVersion: "draft-2026-08-03",
       termsAcceptedAt: expect.any(Number),
       privacyAcceptedAt: expect.any(Number),
     });

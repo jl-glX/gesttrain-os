@@ -330,6 +330,55 @@ export async function initializeDatabase() {
     `);
   }
 
+  if (!tableNames.includes("accountDeletionJobs")) {
+    console.log("Creating account deletion jobs table...");
+    sqliteDb.exec(`
+      CREATE TABLE accountDeletionJobs (
+        id TEXT PRIMARY KEY,
+        requestId TEXT NOT NULL UNIQUE,
+        userId TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'planned' CHECK(status IN ('planned', 'blocked_retention_review', 'cancelled', 'completed')),
+        executionEnabled INTEGER NOT NULL DEFAULT 0 CHECK(executionEnabled IN (0, 1)),
+        createdAt INTEGER NOT NULL,
+        updatedAt INTEGER NOT NULL,
+        completedAt INTEGER,
+        FOREIGN KEY(requestId) REFERENCES accountDeletionRequests(id) ON DELETE CASCADE,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+      );
+      CREATE INDEX idx_accountDeletionJobs_user_status
+        ON accountDeletionJobs(userId, status);
+    `);
+  }
+
+  if (!tableNames.includes("accountRepresentatives")) {
+    console.log("Creating account representatives table...");
+    sqliteDb.exec(`
+      CREATE TABLE accountRepresentatives (
+        id TEXT PRIMARY KEY,
+        ownerUserId TEXT NOT NULL,
+        representativeUserId TEXT NOT NULL,
+        scopes TEXT NOT NULL DEFAULT '[]',
+        reason TEXT NOT NULL CHECK(reason IN ('hospitalization', 'temporary_incapacity', 'permanent_incapacity', 'death_contingency', 'other')),
+        status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft', 'pending_review', 'approved', 'revoked', 'expired')),
+        startsAt INTEGER NOT NULL,
+        expiresAt INTEGER,
+        createdAt INTEGER NOT NULL,
+        updatedAt INTEGER NOT NULL,
+        revokedAt INTEGER,
+        FOREIGN KEY(ownerUserId) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY(representativeUserId) REFERENCES users(id) ON DELETE CASCADE,
+        CHECK(ownerUserId <> representativeUserId)
+      );
+      CREATE INDEX idx_accountRepresentatives_owner
+        ON accountRepresentatives(ownerUserId, status);
+      CREATE INDEX idx_accountRepresentatives_representative
+        ON accountRepresentatives(representativeUserId, status);
+      CREATE UNIQUE INDEX idx_accountRepresentatives_open_pair
+        ON accountRepresentatives(ownerUserId, representativeUserId)
+        WHERE status IN ('draft', 'pending_review', 'approved');
+    `);
+  }
+
   if (!tableNames.includes("dataRetentionPolicies")) {
     console.log("Creating data retention policies table...");
     sqliteDb.exec(`
@@ -469,6 +518,7 @@ export async function initializeDatabase() {
         revokedAt INTEGER,
         userAgent TEXT NOT NULL DEFAULT '',
         remembered INTEGER NOT NULL DEFAULT 0,
+        formVerifiedAt INTEGER NOT NULL DEFAULT 0,
         FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
       );
       CREATE INDEX idx_sessions_userId ON sessions(userId);
@@ -498,6 +548,12 @@ export async function initializeDatabase() {
     if (!sessionColumnNames.includes("remembered")) {
       sqliteDb.exec(
         "ALTER TABLE sessions ADD COLUMN remembered INTEGER NOT NULL DEFAULT 0",
+      );
+    }
+
+    if (!sessionColumnNames.includes("formVerifiedAt")) {
+      sqliteDb.exec(
+        "ALTER TABLE sessions ADD COLUMN formVerifiedAt INTEGER NOT NULL DEFAULT 0",
       );
     }
   }

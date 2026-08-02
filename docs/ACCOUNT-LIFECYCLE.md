@@ -15,7 +15,12 @@ The current implementation can demonstrate:
   closing the account;
 - a reversible account-closure request with a 30-day grace period;
 - cancellation of a scheduled closure;
-- administrator-created retention-policy drafts;
+- administrator-created, versioned retention-policy drafts with an internal
+  review state;
+- non-executable account-deletion jobs that remain blocked until data has been
+  classified;
+- limited account-representation drafts for continuity situations, without
+  transferring identity or credentials;
 - internal extension points for retained records, legal holds and future
   deletion candidates.
 - progressive personal signup with surname, jurisdiction, preferred language
@@ -34,7 +39,10 @@ The demo deliberately does not:
 - delete or anonymize user data;
 - suspend account access when a closure is scheduled;
 - send real email notifications;
-- activate retention policies;
+- treat an internal policy review as legal approval;
+- transfer an account identity, credentials or personal history to a
+  representative;
+- execute deletion jobs or retained-record actions;
 - decide which law applies to a user or a record;
 - claim that a retention duration or legal basis is valid;
 - replace professional legal review.
@@ -78,6 +86,18 @@ email reset, recovery-code orchestration and assisted support remain visibly
 planned. Merely opening the page does not reactivate an account or cancel a
 scheduled deletion.
 
+## Account continuity and representation
+
+The continuity module allows the owner to prepare a limited representation
+draft for hospitalization, temporary or permanent incapacity, death or another
+documented continuity reason. A representative receives only explicitly
+selected scopes, an optional end date and a temporary or permanent designation.
+
+This foundation never changes the account owner, shares credentials, enables
+impersonation or grants blanket access to the profile. Draft creation and
+revocation are auditable, while activation and documentary verification remain
+future controlled processes.
+
 ## Data review before account closure
 
 The inactivity preference remains on the account-lifecycle screen. Manual data
@@ -112,24 +132,27 @@ A public support ID is an alias, not a password, session token or proof of
 ownership. Rotating it must not change the internal account ID or break
 historical audit relationships.
 
-## Account closure states
+## Account lifecycle states
 
-The current closure request uses a deliberately small state model:
+The shared lifecycle vocabulary is:
 
 ```text
-active account
-  -> closure scheduled
-  -> 30-day grace period
-  -> future execution boundary
-
-closure scheduled
-  -> user cancels
-  -> active account
+pending_verification | active | security_review | recovery_in_progress
+inactive | suspended_pending_deletion | deletion_cancelled
+closure_requested | deletion_processing | retained_legal | legal_hold
+anonymized | deleted
 ```
 
-The future execution boundary has no implementation yet. A production design
-must separately decide what is deleted, anonymized, retained under restriction
-or blocked from ordinary use.
+Only states backed by current behaviour are derived automatically. A manual
+closure request becomes `closure_requested`; an inactivity-triggered request is
+shown as `suspended_pending_deletion`; otherwise the stored account state is
+reported. Scheduling also creates a deletion job in
+`blocked_retention_review` with execution explicitly disabled. Cancelling the
+request cancels that job.
+
+The remaining states are a stable contract for future services, not simulated
+transitions. A production design must separately authorize what is deleted,
+anonymized, retained under restriction or blocked from ordinary use.
 
 Only an authenticated action by the account owner should cancel a scheduled
 closure. Merely opening an email link or receiving an automated request must
@@ -138,8 +161,8 @@ not count as proof of control.
 ## Inactivity preference
 
 The user may choose an inactivity period or disable automatic scheduling. The
-current demo stores the preference and the latest meaningful activity. It does
-not run a background job that schedules or executes deletion.
+current scheduler can create the same reversible closure request and blocked
+deletion job when the threshold is reached. It never executes deletion.
 
 Before enabling that automation, define and test:
 
@@ -150,7 +173,7 @@ Before enabling that automation, define and test:
 - active subscriptions, disputes and other closure blockers;
 - accessibility and support-assisted recovery.
 
-## Retention policy drafts
+## Versioned retention policies
 
 An administrator can create a policy with:
 
@@ -160,8 +183,19 @@ An administrator can create a policy with:
 - an optional draft duration;
 - an optional reference that still requires review.
 
-Every policy created by the demo remains in `draft`. The interface has no
-activation control and reports that execution is disabled.
+Policies are versioned by jurisdiction and data category. An administrator can
+mark a version active or retired only after an explicit internal review. An
+active version requires a duration and reference; activating it retires an
+older active version for the same jurisdiction and category.
+
+This status is operational metadata, not legal approval. Every policy reports
+`legalValidationProvided: false`, and execution remains disabled.
+
+The current classification catalogue covers account profile, preferences,
+bookings, sessions, authentication factors, delegations, billing records and
+security events. The first six categories default to delete or anonymize;
+billing and security data can only be retained when an applicable reviewed
+policy actually requires it.
 
 The server contains narrow internal helpers for future work:
 
@@ -205,6 +239,40 @@ reviewed policy
 
 The executor should be idempotent, produce an audit trail, tolerate partial
 failures and never infer legal rules from a country code alone.
+
+## Confirmed product decisions
+
+- The internal account ID is immutable and never acts as a credential.
+- The public support ID is a rotatable alias and does not prove ownership.
+- Account identity is never transferred to a representative.
+- Representation is scoped, revocable and separately verifiable.
+- Manual closure includes a 30-day grace period and remains reversible before
+  execution.
+- Selective data deletion and full account closure are separate intentions.
+- Retention is configurable and versioned; it is not one hard-coded timer.
+- Legal holds override ordinary expiration until explicitly released.
+- Destructive execution stays disabled until classification, authorization and
+  auditing are complete.
+- Sensitive authenticated forms require a recent human-verification session;
+  direct API requests are subject to the same gate.
+
+## Open product and legal decisions
+
+The following items deliberately remain unresolved rather than being guessed:
+
+- final public support-ID format and rotation policy;
+- selectable inactivity periods and the exact definition of meaningful
+  activity;
+- roles and authentication strength required for each lifecycle operation;
+- evidence and review procedure for incapacity, death and legal
+  representation;
+- countries and controller arrangements supported at launch;
+- validated retention rules, purposes and legal bases per data category;
+- irreversible anonymization strategy and collision risks;
+- final retention period for security audit events;
+- operational responsibility for review, authorization and execution;
+- data export scope, format and delivery controls;
+- final user interface, notifications, accessibility and recovery handling.
 
 ## Documentation still pending
 

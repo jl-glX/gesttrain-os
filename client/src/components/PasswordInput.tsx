@@ -8,6 +8,9 @@ type PasswordInputProps = Omit<ComponentProps<typeof Input>, "type">;
 export function PasswordInput({
   className = "",
   disabled,
+  onBlur,
+  onCopy,
+  onCut,
   ...props
 }: PasswordInputProps) {
   const { t } = useTranslation();
@@ -25,6 +28,18 @@ export function PasswordInput({
         {...props}
         type={isVisible ? "text" : "password"}
         disabled={disabled}
+        onBlur={(event) => {
+          setIsVisible(false);
+          onBlur?.(event);
+        }}
+        onCopy={(event) => {
+          onCopy?.(event);
+          if (isVisible) event.preventDefault();
+        }}
+        onCut={(event) => {
+          onCut?.(event);
+          if (isVisible) event.preventDefault();
+        }}
         className={`pr-11 ${className}`}
       />
       <button

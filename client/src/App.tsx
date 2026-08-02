@@ -95,6 +95,10 @@ const AccountLifecyclePage = lazyPage(
   () => import("./pages/AccountLifecyclePage"),
   "AccountLifecyclePage",
 );
+const AccountContinuityPage = lazyPage(
+  () => import("./pages/AccountContinuityPage"),
+  "AccountContinuityPage",
+);
 const AccountDataDeletionPage = lazyPage(
   () => import("./pages/AccountDataDeletionPage"),
   "AccountDataDeletionPage",
@@ -257,6 +261,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <AccountLifecyclePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/account/continuity"
+            element={
+              <ProtectedRoute>
+                <AccountContinuityPage />
               </ProtectedRoute>
             }
           />

@@ -251,15 +251,50 @@ export const inactivityPreferenceValidation = validateRequest([
 
 export const deletionReviewValidation = validateRequest([
   strictBody(["selectedCategories", "intent"]),
-  body("selectedCategories").isArray({ max: 5 }),
+  body("selectedCategories").isArray({ max: 8 }),
   body("selectedCategories.*").isIn([
     "account_profile",
     "preferences",
     "bookings",
+    "sessions",
+    "authentication_factors",
+    "delegations",
     "billing_records",
     "security_events",
   ]),
   body("intent").isIn(["selected_data", "account_closure"]),
+]);
+
+export const accountRepresentationValidation = validateRequest([
+  strictBody(["supportIdentifier", "scopes", "reason", "expiresAt"]),
+  body("supportIdentifier")
+    .isString()
+    .trim()
+    .toUpperCase()
+    .matches(/^GT-U-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}$/),
+  body("scopes").isArray({ min: 1, max: 6 }),
+  body("scopes.*").isIn([
+    "cancel_bookings",
+    "stop_subscriptions",
+    "download_authorized_documents",
+    "manage_pending_payments",
+    "contact_support",
+    "request_account_closure",
+  ]),
+  body("reason").isIn([
+    "hospitalization",
+    "temporary_incapacity",
+    "permanent_incapacity",
+    "death_contingency",
+    "other",
+  ]),
+  body("expiresAt").optional({ nullable: true }).isInt().toInt(),
+]);
+
+export const accountRepresentationIdValidation = validateRequest([
+  param("representationId").isString().matches(ID_PATTERN),
+  body().custom(emptyObjectOrMissing),
+  query().custom(emptyObjectOrMissing),
 ]);
 
 export const emptyAccountDeletionRequestValidation = validateRequest([
@@ -285,7 +320,16 @@ export const retentionPolicyValidation = validateRequest([
   ]),
   body("name").isString().trim().isLength({ min: 1, max: 120 }),
   body("jurisdiction").isString().trim().isLength({ min: 1, max: 80 }),
-  body("dataCategory").isString().trim().isLength({ min: 1, max: 80 }),
+  body("dataCategory").isIn([
+    "account_profile",
+    "preferences",
+    "bookings",
+    "sessions",
+    "authentication_factors",
+    "delegations",
+    "billing_records",
+    "security_events",
+  ]),
   body("retentionDays")
     .optional({ nullable: true, values: "falsy" })
     .isInt({ min: 1, max: 36_500 })
@@ -295,6 +339,14 @@ export const retentionPolicyValidation = validateRequest([
     .isString()
     .trim()
     .isLength({ max: 500 }),
+]);
+
+export const retentionPolicyReviewValidation = validateRequest([
+  strictBody(["decision", "reviewConfirmed"]),
+  body("decision").isIn(["activate", "retire"]),
+  body("reviewConfirmed")
+    .isBoolean()
+    .custom((value) => value === true),
 ]);
 
 export const delegationDurationValidation = validateRequest([
@@ -317,9 +369,10 @@ export const resourceTaskStateValidation = validateRequest([
 ]);
 
 export const feedbackValidation = validateRequest([
-  strictBody(["category", "message"]),
+  strictBody(["category", "message", "captchaToken"]),
   body("category").isIn(["suggestion", "problem", "accessibility", "other"]),
   body("message").isString().trim().isLength({ min: 10, max: 2000 }),
+  body("captchaToken").optional().isString().isLength({ max: 2048 }),
 ]);
 
 const FACILITY_LOGO_MAX_BYTES = 512 * 1024;

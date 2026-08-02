@@ -20,9 +20,11 @@ import {
   getAuthenticatedUser,
   requireRole,
 } from "../middleware/authorization.js";
+import { requireRecentFormVerification } from "../middleware/form-verification.js";
 
 export const usersRouter = express.Router();
 usersRouter.use(authenticate, requireRole("admin"));
+usersRouter.use(requireRecentFormVerification);
 
 // Get all users
 usersRouter.get("/", async (req: express.Request, res: express.Response) => {

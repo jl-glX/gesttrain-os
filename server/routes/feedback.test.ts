@@ -28,7 +28,11 @@ describe("feedback API", () => {
   it("accepts minimal anonymous feedback without storing contact data", async () => {
     await request(app)
       .post("/api/feedback")
-      .send({ category: "suggestion", message: "A useful product suggestion." })
+      .send({
+        category: "suggestion",
+        message: "A useful product suggestion.",
+        captchaToken: "test-token",
+      })
       .expect(201, { submitted: true });
 
     const stored = await database.db

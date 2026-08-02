@@ -7,6 +7,7 @@ import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 
 interface AccountLifecycle {
+  currentState: string;
   inactivityMonths: number | null;
   lastMeaningfulActivityAt: number;
 }
@@ -95,6 +96,14 @@ export function AccountLifecyclePage() {
             {t("accountLifecycle.description")}
           </p>
         </header>
+
+        {lifecycle && (
+          <div className="mt-6 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-950">
+            {t("accountLifecycle.currentState", {
+              state: t(`accountLifecycle.states.${lifecycle.currentState}`),
+            })}
+          </div>
+        )}
 
         {(error || notice) && (
           <div

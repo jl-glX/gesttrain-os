@@ -45,6 +45,10 @@ import { requireCaptcha } from "../middleware/captcha.js";
 import { captchaIsConfigured } from "../services/captcha.js";
 import { getRecoveryCapabilities } from "../services/account-recovery.js";
 import { observeSecurityRisk } from "../middleware/security-risk.js";
+import {
+  getFormVerificationStatus,
+  markFormSessionVerified,
+} from "../services/form-verification.js";
 
 export const authRouter = express.Router();
 
@@ -56,6 +60,33 @@ authRouter.get("/captcha-status", (_req, res) => {
     serverValidation: true,
   });
 });
+
+authRouter.get(
+  "/form-verification",
+  authenticateAccountSession,
+  async (_req, res, next) => {
+    try {
+      const { sessionId } = getAuthenticatedUser(res);
+      res.json(await getFormVerificationStatus(sessionId));
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+authRouter.post(
+  "/form-verification",
+  authenticateAccountSession,
+  requireCaptcha("form_access"),
+  async (_req, res, next) => {
+    try {
+      const { sessionId, userId } = getAuthenticatedUser(res);
+      res.json(await markFormSessionVerified(sessionId, userId));
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 authRouter.get("/recovery/capabilities", (_req, res) => {
   res.json({ methods: getRecoveryCapabilities() });

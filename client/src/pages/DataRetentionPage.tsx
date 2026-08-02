@@ -6,6 +6,7 @@ import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import { VerifiedForm } from "../components/VerifiedForm";
 
 interface RetentionPolicy {
   id: string;
@@ -21,7 +22,13 @@ interface RetentionPolicy {
 interface RetentionOverview {
   policies: RetentionPolicy[];
   records: Array<{ id: string; status: string }>;
+  catalog: Array<{
+    dataCategory: string;
+    defaultDisposition: string;
+    retentionRequiresReviewedPolicy: boolean;
+  }>;
   executionEnabled: false;
+  legalValidationProvided: false;
 }
 
 async function request<T>(path = "", init?: RequestInit): Promise<T> {
@@ -88,6 +95,28 @@ export function DataRetentionPage() {
     }
   };
 
+  const reviewPolicy = async (
+    policyId: string,
+    decision: "activate" | "retire",
+  ) => {
+    setBusy(true);
+    setError("");
+    setNotice("");
+    try {
+      setOverview(
+        await request<RetentionOverview>(`/policies/${policyId}/review`, {
+          method: "PATCH",
+          body: JSON.stringify({ decision, reviewConfirmed: true }),
+        }),
+      );
+      setNotice(t(`dataRetention.reviewed.${decision}`));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6">
       <div className="mx-auto w-full max-w-6xl">
@@ -125,7 +154,7 @@ export function DataRetentionPage() {
             <h2 className="mt-4 text-xl font-black text-slate-950">
               {t("dataRetention.createTitle")}
             </h2>
-            <form className="mt-5 space-y-4" onSubmit={createDraft}>
+            <VerifiedForm className="mt-5 space-y-4" onSubmit={createDraft}>
               <div>
                 <Label htmlFor="policy-name">{t("dataRetention.name")}</Label>
                 <Input
@@ -154,13 +183,27 @@ export function DataRetentionPage() {
                   <Label htmlFor="policy-category">
                     {t("dataRetention.category")}
                   </Label>
-                  <Input
+                  <select
                     id="policy-category"
                     required
-                    maxLength={80}
                     value={dataCategory}
                     onChange={(event) => setDataCategory(event.target.value)}
-                  />
+                    className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
+                  >
+                    <option value="">
+                      {t("dataRetention.chooseCategory")}
+                    </option>
+                    {(overview?.catalog ?? []).map((category) => (
+                      <option
+                        key={category.dataCategory}
+                        value={category.dataCategory}
+                      >
+                        {t(
+                          `accountLifecycle.dataCategories.${category.dataCategory}`,
+                        )}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
               <div>
@@ -189,7 +232,7 @@ export function DataRetentionPage() {
                 <Plus size={17} />
                 {t("dataRetention.create")}
               </Button>
-            </form>
+            </VerifiedForm>
           </Card>
 
           <Card className="p-6">
@@ -223,7 +266,14 @@ export function DataRetentionPage() {
                           {policy.name}
                         </h3>
                         <p className="mt-1 text-sm text-slate-600">
-                          {policy.jurisdiction} · {policy.dataCategory}
+                          {policy.jurisdiction} ·{" "}
+                          {t(
+                            `accountLifecycle.dataCategories.${policy.dataCategory}`,
+                          )}{" "}
+                          ·{" "}
+                          {t("dataRetention.version", {
+                            version: policy.version,
+                          })}
                         </p>
                       </div>
                       <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-800">
@@ -241,6 +291,29 @@ export function DataRetentionPage() {
                       <p className="mt-1 text-xs text-slate-500">
                         {policy.legalBasisReference}
                       </p>
+                    )}
+                    {policy.status === "draft" && (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          disabled={busy}
+                          onClick={() =>
+                            void reviewPolicy(policy.id, "activate")
+                          }
+                        >
+                          {t("dataRetention.activateAfterReview")}
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          disabled={busy}
+                          onClick={() => void reviewPolicy(policy.id, "retire")}
+                        >
+                          {t("dataRetention.retire")}
+                        </Button>
+                      </div>
                     )}
                   </article>
                 ))

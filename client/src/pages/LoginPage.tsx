@@ -94,8 +94,12 @@ export function LoginPage() {
     e.preventDefault();
     setValidationError("");
 
-    if (!identifier || !password || !captchaToken) {
+    if (!identifier || !password) {
       setValidationError(t("auth.credentialsRequired"));
+      return;
+    }
+    if (!captchaToken) {
+      setValidationError(t("auth.verificationRequired"));
       return;
     }
 
@@ -180,8 +184,12 @@ export function LoginPage() {
 
   const handlePasskeyLogin = async () => {
     setValidationError("");
-    if (!identifier || !captchaToken) {
+    if (!identifier) {
       setValidationError(t("auth.passkeyIdentifierRequired"));
+      return;
+    }
+    if (!captchaToken) {
+      setValidationError(t("auth.verificationRequired"));
       return;
     }
     let platformAuthenticatorAvailable = true;
@@ -268,6 +276,19 @@ export function LoginPage() {
         </div>
       )}
 
+      {!mfaRequired && (
+        <div className="mb-5 rounded-2xl border border-blue-200 bg-blue-50 p-4">
+          <p className="mb-3 text-sm font-medium text-blue-950">
+            {t("auth.verificationRequired")}
+          </p>
+          <CaptchaWidget
+            action="login"
+            onToken={setCaptchaToken}
+            resetSignal={captchaResetSignal}
+          />
+        </div>
+      )}
+
       {mfaRequired ? (
         <form onSubmit={handleMfaSubmit} className="space-y-5">
           <div className="space-y-2">
@@ -322,7 +343,7 @@ export function LoginPage() {
             </p>
           )}
         </form>
-      ) : (
+      ) : captchaToken ? (
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="identifier" className="text-slate-700">
@@ -377,12 +398,6 @@ export function LoginPage() {
               </span>
             </span>
           </label>
-
-          <CaptchaWidget
-            action="login"
-            onToken={setCaptchaToken}
-            resetSignal={captchaResetSignal}
-          />
 
           <Button
             type="submit"
@@ -457,6 +472,10 @@ export function LoginPage() {
             </div>
           )}
         </form>
+      ) : (
+        <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+          {t("auth.verificationRequired")}
+        </p>
       )}
 
       {accessPortal === "member" && (

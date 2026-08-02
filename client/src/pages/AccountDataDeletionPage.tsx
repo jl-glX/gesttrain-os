@@ -17,6 +17,9 @@ type DataCategory =
   | "account_profile"
   | "preferences"
   | "bookings"
+  | "sessions"
+  | "authentication_factors"
+  | "delegations"
   | "billing_records"
   | "security_events";
 
@@ -30,6 +33,13 @@ interface DeletionReview {
     executionEnabled: false;
     categories: Array<{
       dataCategory: DataCategory;
+      defaultDisposition:
+        | "delete"
+        | "delete_or_anonymize"
+        | "cancel_future_anonymize_history"
+        | "revoke_and_delete"
+        | "retain_only_if_policy_applies";
+      retentionRequiresReviewedPolicy: boolean;
       reviewState: "policy_review_required" | "draft_policy" | "unclassified";
       retainedRecordCount: number;
     }>;
@@ -233,6 +243,11 @@ export function AccountDataDeletionPage() {
                     )}
                   </span>
                   <span className="mt-1 block text-sm leading-5 text-slate-600">
+                    {t(
+                      `accountLifecycle.dispositions.${category.defaultDisposition}`,
+                    )}
+                  </span>
+                  <span className="mt-1 block text-xs leading-5 text-slate-500">
                     {t(`accountLifecycle.reviewStates.${category.reviewState}`)}
                   </span>
                 </span>

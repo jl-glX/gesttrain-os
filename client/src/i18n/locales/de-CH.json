@@ -82,6 +82,7 @@
     "emailRequired": "E-Mail und Passwort sind erforderlich",
     "centerIdentifier": "E-Mail oder Telefonnummer des Studios",
     "credentialsRequired": "Kennung und Passwort sind erforderlich",
+    "verificationRequired": "Die Verifizierung ist erforderlich",
     "invalidCredentials": "E-Mail-Adresse, Telefonnummer oder Passwort ist falsch",
     "rememberDevice": "Dieses Gerät 30 Tage speichern",
     "rememberDeviceHelp": "Nur auf einem persönlichen Gerät verwenden. Du kannst die Sitzung unter Sicherheit widerrufen.",
@@ -279,11 +280,13 @@
     "managerRecovery": "Wiederherstellung",
     "managerRecoverySummary": "{{available}} Methoden verfügbar und {{planned}} für später vorbereitet.",
     "managerLifecycle": "Lebenszyklus",
+    "managerLifecycleState": "Aktueller Status: {{state}}.",
     "managerDeletionPending": "Eine reversible Schliessung befindet sich in der Schonfrist.",
     "managerInactivityEnabled": "Löschung bei Inaktivität ist auf {{months}} Monate eingestellt.",
     "managerInactivityDisabled": "Automatische Löschung bei Inaktivität ist deaktiviert.",
     "managerContinuity": "Kontinuität",
     "managerContinuityPlanned": "Die Kontovollmacht ist nur eine Integrationsbasis und kann noch nicht ausgeführt werden.",
+    "managerContinuityDrafts": "{{count}} Vertretungen sind zur Prüfung vorbereitet. Noch keine gewährt Zugriff.",
     "comingSoon": "Kommt bald",
     "open": "Offen",
     "personalSection": "Persönliches Konto",
@@ -304,6 +307,8 @@
     "securityDescription": "Verwalten Sie 2FA, Passkeys und offene Sitzungen.",
     "lifecycle": "Kontolebenszyklus",
     "lifecycleDescription": "Konfigurieren Sie Inaktivität und prüfen Sie geplante Löschungen.",
+    "continuity": "Kontinuität und Vertretung",
+    "continuityDescription": "Begrenzte Vertretungen vorbereiten, ohne Identität oder Zugangsdaten zu übertragen.",
     "downloadsDescription": "Überprüfen Sie die vorbereiteten Ziele für Apps und das tragbare Paket.",
     "bookings": "Buchungen und Kalender",
     "downloads": "Downloads und Apps",
@@ -336,6 +341,53 @@
     "delegationSecurity": "Bei Delegationen kann nur jemand in Ihrem Namen buchen oder stornieren. Sie gewähren keinen Zugriff auf Ihr Profil, Ihr Passwort, Ihre Zahlungen oder Sicherheitseinstellungen.",
     "preferencesDescription": "Thema, Privatsphäre und weitere persönliche Optionen werden nach und nach hinzugefügt."
   },
+  "accountContinuity": {
+    "back": "Zurück zur Kontoverwaltung",
+    "eyebrow": "Kontokontinuität",
+    "title": "Begrenzte und überprüfbare Vertretung",
+    "description": "Legen Sie fest, wer bei einem Notfall helfen könnte, ohne die Kontoinhaberschaft zu übertragen.",
+    "demoTitle": "Funktionsfähige Grundlage ohne aktive Befugnisse",
+    "demoDescription": "Erstellte Einträge sind Entwürfe und erlauben weder Anmeldung noch Aktionen.",
+    "formTitle": "Vertretung vorbereiten",
+    "formDescription": "Identifizieren Sie das andere Konto über seine öffentliche Support-ID und begrenzen Sie die Bereiche ausdrücklich.",
+    "identifierLabel": "Öffentliche Support-ID der Vertretung",
+    "reasonLabel": "Grund der Kontinuität",
+    "expiryLabel": "Optionales Ablaufdatum",
+    "scopesLabel": "Prüfbare Bereiche",
+    "saveDraft": "Entwurf speichern",
+    "saved": "Der Vertretungsentwurf wurde gespeichert.",
+    "saveError": "Der Entwurf konnte nicht gespeichert werden.",
+    "loadError": "Die Kontokontinuität konnte nicht geladen werden.",
+    "listTitle": "Vorbereitete Vertretungen",
+    "empty": "Sie haben noch keine Vertretung vorbereitet.",
+    "revoke": "Widerrufen",
+    "revoked": "Die Vertretung wurde widerrufen.",
+    "revokeError": "Die Vertretung konnte nicht widerrufen werden.",
+    "expires": "Läuft am {{date}} ab",
+    "identityNotice": "Identität, Zugangsdaten, persönlicher Verlauf und Sicherheitseinstellungen werden niemals übertragen.",
+    "reasons": {
+      "hospitalization": "Spitalaufenthalt",
+      "temporary_incapacity": "Vorübergehende Handlungsunfähigkeit",
+      "permanent_incapacity": "Dauerhafte Handlungsunfähigkeit",
+      "death_contingency": "Vorsorge für den Todesfall",
+      "other": "Anderer Notfall"
+    },
+    "scopes": {
+      "cancel_bookings": "Buchungen stornieren",
+      "stop_subscriptions": "Abonnements stoppen",
+      "download_authorized_documents": "Autorisierte Dokumente herunterladen",
+      "manage_pending_payments": "Offene Zahlungen verwalten",
+      "contact_support": "Support kontaktieren",
+      "request_account_closure": "Kontoschliessung beantragen"
+    },
+    "statuses": {
+      "draft": "Entwurf",
+      "pending_review": "Prüfung ausstehend",
+      "approved": "Genehmigt",
+      "revoked": "Widerrufen",
+      "expired": "Abgelaufen"
+    }
+  },
   "accountIdentity": {
     "eyebrow": "Kontoidentität",
     "title": "Öffentliche Support-ID",
@@ -352,6 +404,22 @@
     "eyebrow": "Kontosteuerung",
     "title": "Inaktivität und Löschung",
     "description": "Legen Sie fest, was geschieht, wenn Sie GestTrain/OS nicht mehr verwenden, und prüfen Sie geplante Schliessungen.",
+    "currentState": "Aktueller Kontostatus: {{state}}.",
+    "states": {
+      "pending_verification": "Verifizierung ausstehend",
+      "active": "aktiv",
+      "security_review": "Sicherheitsprüfung",
+      "recovery_in_progress": "Wiederherstellung läuft",
+      "inactive": "inaktiv",
+      "suspended_pending_deletion": "gesperrt und zur Löschung vorgemerkt",
+      "deletion_cancelled": "Löschung abgebrochen",
+      "closure_requested": "Schliessung beantragt",
+      "deletion_processing": "Löschung wird verarbeitet",
+      "retained_legal": "eingeschränkte Aufbewahrung",
+      "legal_hold": "Aufbewahrungssperre",
+      "anonymized": "anonymisiert",
+      "deleted": "gelöscht"
+    },
     "inactivityTitle": "Löschung nach Inaktivität",
     "inactivityDescription": "Wählen Sie, wie lange das Konto inaktiv bleiben darf, bevor die Nachfrist beginnt.",
     "periodLabel": "Inaktivitätszeitraum",
@@ -375,6 +443,9 @@
       "account_profile": "Kontoprofil",
       "preferences": "Präferenzen",
       "bookings": "Buchungen",
+      "sessions": "Offene Sitzungen",
+      "authentication_factors": "Passwort, Passkeys und Zwei-Faktor-Authentifizierung",
+      "delegations": "Berechtigungen und Delegationen",
       "billing_records": "Abrechnung",
       "security_events": "Sicherheitsaktivität"
     },
@@ -382,6 +453,13 @@
       "policy_review_required": "Es gibt eine aktive Richtlinie, aber die endgültige Entscheidung muss noch geprüft werden.",
       "draft_policy": "Es gibt einen Richtlinienentwurf, der noch validiert werden muss.",
       "unclassified": "Es gibt noch keine anwendbare Richtlinie."
+    },
+    "dispositions": {
+      "delete": "Wird gelöscht, sobald die reale Ausführung freigegeben ist.",
+      "delete_or_anonymize": "Wird je nach Abhängigkeiten gelöscht oder anonymisiert.",
+      "cancel_future_anonymize_history": "Zukünftige Einträge werden storniert und der Verlauf gegebenenfalls anonymisiert.",
+      "revoke_and_delete": "Wird zuerst widerrufen und danach gelöscht.",
+      "retain_only_if_policy_applies": "Wird nur bei einer geprüften und anwendbaren Richtlinie aufbewahrt."
     },
     "demoNotice": "Diese Version demonstriert Planung, ausstehende Sperrung, Abbruch und koordinierte Datenprüfung. Daten werden noch nicht gelöscht und Aufbewahrungsrichtlinien noch nicht ausgeführt."
   },
@@ -421,6 +499,7 @@
     "name": "Name",
     "jurisdiction": "Rechtsraum",
     "category": "Datenkategorie",
+    "chooseCategory": "Kategorie auswählen",
     "days": "Unverbindliche Dauer in Tagen (optional)",
     "basis": "Noch zu prüfende Referenz (optional)",
     "create": "Entwurf erstellen",
@@ -430,6 +509,13 @@
     "executionDisabled": "Ausführung deaktiviert",
     "durationValue": "{{count}} konfigurierte Tage",
     "durationPending": "Dauer noch zu prüfen",
+    "version": "Version {{version}}",
+    "activateAfterReview": "Als intern geprüft markieren",
+    "retire": "Entwurf zurückziehen",
+    "reviewed": {
+      "activate": "Die Version wurde als intern geprüft markiert. Dies ist keine rechtliche Prüfung; die Ausführung bleibt deaktiviert.",
+      "retire": "Die Version wurde zurückgezogen."
+    },
     "empty": "Es gibt noch keine Richtlinienentwürfe.",
     "status": {
       "draft": "Entwurf",
@@ -877,7 +963,7 @@
   },
   "legal": {
     "eyebrow": "Rechtliche Informationen",
-    "lastUpdated": "Letzte Aktualisierung: 22. Juli 2026",
+    "lastUpdated": "Letzte Aktualisierung: 3. August 2026",
     "back": "Zurück zu GestTrain/OS",
     "footer": {
       "notice": "Rechtlicher Hinweis",
@@ -909,8 +995,12 @@
             "title": "5. Verfügbarkeit und Haftung",
             "body": "Eine ständige Verfügbarkeit und ein fehlerfreier Betrieb sind während der Entwicklung nicht gewährleistet. GestTrain/OS wird angemessene Massnahmen zum Schutz und zur Aufrechterhaltung des Dienstes ergreifen, ohne Haftungen auszuschliessen, die gesetzlich nicht ausgeschlossen werden können."
           },
+          "identityAndData": {
+            "title": "6. Identität, Kennungen und Daten",
+            "body": "GestTrain/OS trennt die interne Kontoidentität, die öffentliche Support-Kennung, Sicherheitszugangsdaten und -geheimnisse, Betriebsdaten sowie Daten, die einer eingeschränkten Aufbewahrung unterliegen können. Die interne Kennung erhält technische Beziehungen; der öffentliche Alias dient nur dazu, dass autorisierter Support das Konto findet; und nur autorisierte Zugangsdaten und Prüfungen authentifizieren eine Person. Eine öffentliche Kennung allein ist niemals ein Identitäts- oder Zugriffsnachweis."
+          },
           "law": {
-            "title": "6. Anwendbares Recht",
+            "title": "7. Anwendbares Recht",
             "body": "Die endgültige Fassung muss an die tatsächliche Tätigkeit, den Standort und die Rechtsstellung des Inhabers sowie an die geltenden E-Commerce-, Verbraucher- und Datenschutzbestimmungen angepasst werden."
           }
         },
@@ -939,12 +1029,24 @@
             "body": "Stornierungsbedingungen für Kurse, Gebühren oder Abonnements müssen vor einem Kauf oder einer Buchung angezeigt werden. In der endgültigen Fassung werden Fristen, Konsequenzen, Rückerstattungen und Möglichkeiten zur Kündigung des Dienstes erläutert.",
             "title": "5. Stornierungen und Kündigung"
           },
+          "lifecycle": {
+            "title": "6. Lebenszyklus, Inaktivität und Kontoschliessung",
+            "body": "Kontoinhaber können eine Inaktivitätspräferenz festlegen, selektive Datenanfragen vorbereiten oder die vollständige Schliessung beantragen. Eine Schliessungsanfrage startet eine umkehrbare 30-tägige Frist und erzeugt einen bis zur Prüfung gesperrten technischen Auftrag; die aktuelle Version führt keine automatische Löschung oder Anonymisierung aus. Eine Reaktivierung erfordert eine authentifizierte Handlung und relevante Änderungen werden protokolliert."
+          },
+          "representation": {
+            "title": "7. Kontinuität und begrenzte Vertretung",
+            "body": "Konto und Identität werden nicht übertragen. Der Inhaber kann für Krankenhausaufenthalt, Handlungsunfähigkeit oder andere Notlagen eine begrenzte, widerrufbare Vertretung mit festgelegten Bereichen vorbereiten. Künftiger Zugriff setzt ausreichende Prüfung, anwendbare Nachweise und Autorisierung voraus; Zugangsdaten dürfen nie geteilt, der Inhaber nie imitiert und der Kontoverlauf nicht automatisch übernommen werden. Anfragen zu verstorbenen Personen werden nach geltendem Recht und gültigen Weisungen des Inhabers behandelt."
+          },
+          "retention": {
+            "title": "8. Löschung, Anonymisierung und eingeschränkte Aufbewahrung",
+            "body": "Eine Kontoschliessung bedeutet nicht, dass jede Kategorie sofort gelöscht werden kann. Profile, Präferenzen, Sitzungen, Authentifizierungsfaktoren, künftige Buchungen und Delegationen sind zur Löschung oder Anonymisierung vorgesehen; Abrechnungs-, Sicherheits-, Beschwerde- oder Sperrdatensätze können bei anwendbarer gesetzlicher Pflicht oder Rechtsverteidigung zugriffsbeschränkt aufbewahrt werden. Endgültige Fristen und Grundlagen müssen je Kategorie und Rechtsraum validiert werden. Eine interne Richtlinienprüfung ist keine Rechtsprüfung und aktiviert keine Löschung."
+          },
           "changes": {
-            "title": "6. Änderungen dieser Bedingungen",
+            "title": "9. Änderungen dieser Bedingungen",
             "body": "Die Bedingungen können aktualisiert werden, wenn sich Funktionen oder Gesetze ändern. Wesentliche Änderungen müssen klar kommuniziert werden und bedürfen ggf. einer erneuten Akzeptanz."
           },
           "law": {
-            "title": "7. Recht und Streitbeilegung",
+            "title": "10. Recht und Streitbeilegung",
             "body": "Anwendbares Recht, zuständige Gerichte und Beschwerdemechanismen werden entsprechend dem tatsächlichen Standort und der Tätigkeit des Eigentümers festgelegt, wobei stets die zwingenden Verbraucherrechte respektiert werden."
           }
         },
@@ -975,12 +1077,24 @@
             "title": "4. Inhalt und Community"
           },
           "suspension": {
-            "title": "7. Zugangssperre",
+            "title": "10. Zugangssperre",
             "body": "Der Zugriff kann aufgrund von Sicherheitsrisiken, Betrug, schwerwiegenden Verstössen oder rechtlichen Anforderungen eingeschränkt sein. Massnahmen müssen verhältnismässig sein und gegebenenfalls Informations- und Überprüfungsmöglichkeiten bieten."
           },
           "availability": {
             "title": "6. Serviceverfügbarkeit",
             "body": "Es kann zu Wartungsarbeiten und Unterbrechungen kommen. Wichtige Buchungen und Änderungen müssen vor dem produktiven Einsatz über geeignete Bestätigungs- und Wiederherstellungsmechanismen verfügen."
+          },
+          "verification": {
+            "title": "7. Menschliche Verifizierung und sensible Formulare",
+            "body": "Zugriff, Registrierung und authentifizierte Formulare, die Daten ändern, können eine aktuelle menschliche Verifizierung verlangen. Seite und API setzen dieselbe Bedingung durch. Das Deaktivieren, Automatisieren, missbräuchliche Wiederverwenden oder Umgehen der Prüfung ist verboten. Kann der Anbieter nicht geladen oder die Antwort nicht validiert werden, wird der geschützte Vorgang abgelehnt."
+          },
+          "accountRecovery": {
+            "title": "8. Kontowiederherstellung und Sicherheit",
+            "body": "Wiederherstellung, Prüfung eines vermuteten Kontokompromisses, Sitzungswiderruf, Rotation des öffentlichen Alias und Zweitfaktor-Abläufe benötigen verstärkte Kontrollen. Der Support-Alias authentifiziert nicht. Nutzer müssen Geräte, Passkeys und Wiederherstellungsmethoden prüfen und Anomalien melden, ohne Passwörter oder Codes weiterzugeben."
+          },
+          "dataRequests": {
+            "title": "9. Daten- und Kontoanfragen",
+            "body": "Der Inhaber kann eine selektive Anfrage für bestimmte Kategorien vorbereiten, ohne das Konto zu schliessen, oder die vollständige Schliessung beginnen. Vor jeder künftigen Ausführung muss GestTrain/OS Identität und Befugnis prüfen, Daten klassifizieren, Abhängigkeiten, Aufbewahrung und Sperren bewerten, das Ergebnis mitteilen und angemessene Nachvollziehbarkeit sichern. Die aktuelle Oberfläche ist demonstrativ und führt keine destruktive Aktion aus."
           }
         }
       }
@@ -1170,6 +1284,12 @@
     "label": "Bestätigung durch eine Person",
     "help": "Diese Prüfung schützt Anmeldung und Registrierung vor missbräuchlicher Automatisierung.",
     "loadFailed": "Die Überprüfung konnte nicht geladen werden. Prüfe die Verbindung und versuche es erneut."
+  },
+  "formVerification": {
+    "title": "Die Verifizierung ist erforderlich",
+    "description": "Bestätigen Sie vor dem Zugriff auf dieses Formular, dass Sie ein Mensch sind. Die Freigabe gilt 15 Minuten; die API lehnt ungeprüfte Übermittlungen ab.",
+    "checking": "Formularverifizierung wird geprüft…",
+    "error": "Das Formular konnte nicht freigegeben werden. Wiederholen Sie die Verifizierung."
   },
   "unauthorized": {
     "title": "Zugriff verweigert",

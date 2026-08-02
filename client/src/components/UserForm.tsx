@@ -7,6 +7,7 @@ import {
   type UserUpdate,
 } from "../hooks/useUsers";
 import { useTranslation } from "react-i18next";
+import { VerifiedForm } from "./VerifiedForm";
 import { PasswordInput } from "./PasswordInput";
 import { isPasswordWithinHashLimit } from "../lib/passwordPolicy";
 
@@ -85,7 +86,7 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <VerifiedForm onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {t("common.email")}
@@ -158,7 +159,7 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
               {loading ? t("common.saving") : t("common.save")}
             </Button>
           </div>
-        </form>
+        </VerifiedForm>
       </div>
     </div>
   );

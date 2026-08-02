@@ -22,6 +22,7 @@ export async function getAccountManagerOverview(
       recoveryCodesRemaining: security.mfa.recoveryCodesRemaining,
     },
     lifecycle: {
+      currentState: lifecycle.currentState,
       inactivityMonths: lifecycle.inactivityMonths,
       lastMeaningfulActivityAt: lifecycle.lastMeaningfulActivityAt,
       deletionRequest: lifecycle.deletionRequest,

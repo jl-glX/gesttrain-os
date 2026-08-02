@@ -5,12 +5,14 @@ import { db } from "../db/client.js";
 import { feedbackLimiter } from "../middleware/security.js";
 import { readSessionToken } from "../lib/session-cookie.js";
 import { verifyToken } from "../services/auth.js";
+import { requireCaptcha } from "../middleware/captcha.js";
 
 export const feedbackRouter = express.Router();
 
 feedbackRouter.post(
   "/",
   feedbackLimiter,
+  requireCaptcha("feedback"),
   feedbackValidation,
   async (
     req: express.Request,

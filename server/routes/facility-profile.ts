@@ -3,12 +3,14 @@ import type { RequestHandler } from "express";
 import { db } from "../db/client.js";
 import { authenticate, requireRole } from "../middleware/authorization.js";
 import { facilityProfileValidation } from "../middleware/validation.js";
+import { requireRecentFormVerification } from "../middleware/form-verification.js";
 
 const PRIMARY_FACILITY_ID = "primary";
 
 export const facilityProfileRouter = express.Router();
 facilityProfileRouter.use(authenticate);
 facilityProfileRouter.use(express.json({ limit: "768kb" }));
+facilityProfileRouter.use(requireRecentFormVerification);
 
 facilityProfileRouter.get("/", async (_req, res, next) => {
   try {

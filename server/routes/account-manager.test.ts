@@ -66,9 +66,10 @@ describe("account manager API", () => {
         availableMethods: ["passkey"],
       },
       continuity: {
-        status: "planned",
+        status: "draft_available",
         executionEnabled: false,
         identityTransferAllowed: false,
+        representations: [],
       },
     });
     expect(response.body.recovery.plannedMethods).toEqual(

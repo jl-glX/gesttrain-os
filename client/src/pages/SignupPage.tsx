@@ -28,6 +28,7 @@ export function SignupPage() {
   });
   const [step, setStep] = useState<1 | 2>(1);
   const [validationError, setValidationError] = useState("");
+  const [captchaResetSignal, setCaptchaResetSignal] = useState(0);
   const { t, i18n } = useTranslation();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,6 +105,8 @@ export function SignupPage() {
         state: { demoVerificationCode: verification.demoVerificationCode },
       });
     } catch (err) {
+      setFormData((current) => ({ ...current, captchaToken: "" }));
+      setCaptchaResetSignal((value) => value + 1);
       console.error("Signup error:", err);
     }
   };
@@ -120,219 +123,232 @@ export function SignupPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-700">
-          <span>{t("auth.signupStep", { step, total: 2 })}</span>
-          <span className="h-1 flex-1 rounded-full bg-slate-100">
-            <span
-              className="block h-1 rounded-full bg-blue-600"
-              style={{ width: `${step * 50}%` }}
-            />
-          </span>
-        </div>
-        {step === 1 ? (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-slate-700">
-                {t("auth.emailAddress")}
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                name="email"
-                placeholder="your@email.com"
-                value={formData.email}
-                onChange={handleChange}
-                disabled={isLoading}
-                className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
-              />
-            </div>
+      <div className="mb-5 rounded-2xl border border-blue-200 bg-blue-50 p-4">
+        <p className="mb-3 text-sm font-medium text-blue-950">
+          {t("auth.verificationRequired")}
+        </p>
+        <CaptchaWidget
+          action="signup"
+          onToken={(captchaToken) =>
+            setFormData((current) => ({ ...current, captchaToken }))
+          }
+          resetSignal={captchaResetSignal}
+        />
+      </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="lastName" className="text-slate-700">
-                {t("auth.lastName")}
-              </Label>
-              <Input
-                id="lastName"
-                type="text"
-                name="lastName"
-                autoComplete="family-name"
-                value={formData.lastName}
-                onChange={handleChange}
-                disabled={isLoading}
+      {formData.captchaToken ? (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-700">
+            <span>{t("auth.signupStep", { step, total: 2 })}</span>
+            <span className="h-1 flex-1 rounded-full bg-slate-100">
+              <span
+                className="block h-1 rounded-full bg-blue-600"
+                style={{ width: `${step * 50}%` }}
               />
-            </div>
+            </span>
+          </div>
+          {step === 1 ? (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-slate-700">
+                  {t("auth.emailAddress")}
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  name="email"
+                  placeholder="your@email.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                  className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-slate-700">
-                {t("auth.fullName")}
-              </Label>
-              <Input
-                id="name"
-                type="text"
-                name="name"
-                placeholder="John Doe"
-                value={formData.name}
-                onChange={handleChange}
-                disabled={isLoading}
-                className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName" className="text-slate-700">
+                  {t("auth.lastName")}
+                </Label>
+                <Input
+                  id="lastName"
+                  type="text"
+                  name="lastName"
+                  autoComplete="family-name"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-slate-700">
-                {t("common.password")}
-              </Label>
-              <PasswordInput
-                id="password"
-                name="password"
-                placeholder="••••••••"
-                value={formData.password}
-                maxLength={72}
-                onChange={handleChange}
-                disabled={isLoading}
-                className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-slate-700">
+                  {t("auth.fullName")}
+                </Label>
+                <Input
+                  id="name"
+                  type="text"
+                  name="name"
+                  placeholder="John Doe"
+                  value={formData.name}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                  className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-slate-700">
-                {t("auth.confirmPassword")}
-              </Label>
-              <PasswordInput
-                id="confirmPassword"
-                name="confirmPassword"
-                placeholder="••••••••"
-                value={formData.confirmPassword}
-                maxLength={72}
-                onChange={handleChange}
-                disabled={isLoading}
-                className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-slate-700">
+                  {t("common.password")}
+                </Label>
+                <PasswordInput
+                  id="password"
+                  name="password"
+                  placeholder="••••••••"
+                  value={formData.password}
+                  maxLength={72}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                  className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
+                />
+              </div>
 
-            <Button
-              type="button"
-              className="h-11 w-full rounded-xl bg-blue-600 shadow-md shadow-blue-600/15 hover:bg-blue-700"
-              disabled={isLoading}
-              onClick={continueToPreferences}
-            >
-              <span>{t("common.continue")}</span>
-              <ArrowRight />
-            </Button>
-          </>
-        ) : (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="countryCode">{t("auth.country")}</Label>
-              <select
-                id="countryCode"
-                value={formData.countryCode}
-                onChange={(event) =>
-                  setFormData((current) => ({
-                    ...current,
-                    countryCode: event.target.value,
-                  }))
-                }
-                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3"
-              >
-                {[
-                  "ES",
-                  "DE",
-                  "CH",
-                  "AT",
-                  "NL",
-                  "PT",
-                  "FR",
-                  "IT",
-                  "GB",
-                  "US",
-                ].map((country) => (
-                  <option key={country} value={country}>
-                    {t(`auth.countries.${country}`)}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="locale">{t("auth.preferredLanguage")}</Label>
-              <select
-                id="locale"
-                value={formData.locale}
-                onChange={(event) =>
-                  setFormData((current) => ({
-                    ...current,
-                    locale: event.target.value as typeof current.locale,
-                  }))
-                }
-                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3"
-              >
-                <option value="es">Español</option>
-                <option value="en">English</option>
-                <option value="de">Deutsch</option>
-                <option value="de-CH">Deutsch (Schweiz)</option>
-              </select>
-            </div>
-            <label className="flex gap-3 rounded-xl border border-slate-200 p-3 text-sm">
-              <input
-                type="checkbox"
-                checked={formData.acceptedTerms}
-                onChange={(event) =>
-                  setFormData((current) => ({
-                    ...current,
-                    acceptedTerms: event.target.checked,
-                  }))
-                }
-              />
-              <span>
-                {t("auth.acceptTermsPrefix")}{" "}
-                <Link
-                  className="font-semibold text-blue-700"
-                  to="/terms-and-conditions"
-                >
-                  {t("legal.footer.terms")}
-                </Link>
-              </span>
-            </label>
-            <label className="flex gap-3 rounded-xl border border-slate-200 p-3 text-sm">
-              <input
-                type="checkbox"
-                checked={formData.acceptedPrivacy}
-                onChange={(event) =>
-                  setFormData((current) => ({
-                    ...current,
-                    acceptedPrivacy: event.target.checked,
-                  }))
-                }
-              />
-              <span>{t("auth.acceptPrivacy")}</span>
-            </label>
-            <p className="rounded-xl bg-amber-50 p-3 text-xs leading-5 text-amber-900">
-              {t("auth.emailVerificationPending")}
-            </p>
-            <CaptchaWidget
-              action="signup"
-              onToken={(captchaToken) =>
-                setFormData((current) => ({ ...current, captchaToken }))
-              }
-            />
-            <div className="flex gap-2">
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-slate-700">
+                  {t("auth.confirmPassword")}
+                </Label>
+                <PasswordInput
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  placeholder="••••••••"
+                  value={formData.confirmPassword}
+                  maxLength={72}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                  className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
+                />
+              </div>
+
               <Button
                 type="button"
-                variant="outline"
-                onClick={() => setStep(1)}
+                className="h-11 w-full rounded-xl bg-blue-600 shadow-md shadow-blue-600/15 hover:bg-blue-700"
+                disabled={isLoading}
+                onClick={continueToPreferences}
               >
-                {t("common.back")}
+                <span>{t("common.continue")}</span>
+                <ArrowRight />
               </Button>
-              <Button type="submit" className="flex-1" disabled={isLoading}>
-                {isLoading
-                  ? t("auth.creatingAccount")
-                  : t("auth.createAccount")}
-              </Button>
-            </div>
-          </>
-        )}
-      </form>
+            </>
+          ) : (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="countryCode">{t("auth.country")}</Label>
+                <select
+                  id="countryCode"
+                  value={formData.countryCode}
+                  onChange={(event) =>
+                    setFormData((current) => ({
+                      ...current,
+                      countryCode: event.target.value,
+                    }))
+                  }
+                  className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3"
+                >
+                  {[
+                    "ES",
+                    "DE",
+                    "CH",
+                    "AT",
+                    "NL",
+                    "PT",
+                    "FR",
+                    "IT",
+                    "GB",
+                    "US",
+                  ].map((country) => (
+                    <option key={country} value={country}>
+                      {t(`auth.countries.${country}`)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="locale">{t("auth.preferredLanguage")}</Label>
+                <select
+                  id="locale"
+                  value={formData.locale}
+                  onChange={(event) =>
+                    setFormData((current) => ({
+                      ...current,
+                      locale: event.target.value as typeof current.locale,
+                    }))
+                  }
+                  className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3"
+                >
+                  <option value="es">Español</option>
+                  <option value="en">English</option>
+                  <option value="de">Deutsch</option>
+                  <option value="de-CH">Deutsch (Schweiz)</option>
+                </select>
+              </div>
+              <label className="flex gap-3 rounded-xl border border-slate-200 p-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={formData.acceptedTerms}
+                  onChange={(event) =>
+                    setFormData((current) => ({
+                      ...current,
+                      acceptedTerms: event.target.checked,
+                    }))
+                  }
+                />
+                <span>
+                  {t("auth.acceptTermsPrefix")}{" "}
+                  <Link
+                    className="font-semibold text-blue-700"
+                    to="/terms-and-conditions"
+                  >
+                    {t("legal.footer.terms")}
+                  </Link>
+                </span>
+              </label>
+              <label className="flex gap-3 rounded-xl border border-slate-200 p-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={formData.acceptedPrivacy}
+                  onChange={(event) =>
+                    setFormData((current) => ({
+                      ...current,
+                      acceptedPrivacy: event.target.checked,
+                    }))
+                  }
+                />
+                <span>{t("auth.acceptPrivacy")}</span>
+              </label>
+              <p className="rounded-xl bg-amber-50 p-3 text-xs leading-5 text-amber-900">
+                {t("auth.emailVerificationPending")}
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setStep(1)}
+                >
+                  {t("common.back")}
+                </Button>
+                <Button type="submit" className="flex-1" disabled={isLoading}>
+                  {isLoading
+                    ? t("auth.creatingAccount")
+                    : t("auth.createAccount")}
+                </Button>
+              </div>
+            </>
+          )}
+        </form>
+      ) : (
+        <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+          {t("auth.verificationRequired")}
+        </p>
+      )}
 
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-600">

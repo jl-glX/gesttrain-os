@@ -10,6 +10,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { VerifiedForm } from "../components/VerifiedForm";
 import { BillingInvoice } from "../components/BillingInvoice";
 import {
   formatBillingDate,
@@ -290,7 +291,7 @@ export function BillingPage() {
             <h2 className="flex items-center gap-2 text-xl font-bold">
               <Plus className="text-blue-600" /> {t("billing.newRecord")}
             </h2>
-            <form
+            <VerifiedForm
               onSubmit={submit}
               lang={editingLanguage}
               spellCheck
@@ -465,7 +466,7 @@ export function BillingPage() {
               <Button type="submit" className="self-end">
                 <CreditCard /> {t("billing.add")}
               </Button>
-            </form>
+            </VerifiedForm>
           </Card>
 
           <Card className="mt-6 overflow-hidden rounded-3xl border-slate-200 shadow-sm">

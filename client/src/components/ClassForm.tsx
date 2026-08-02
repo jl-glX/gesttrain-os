@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { useAdminClasses, type AdminClass } from "../hooks/useAdminClasses";
 import { useUsers } from "../hooks/useUsers";
 import { useTranslation } from "react-i18next";
+import { VerifiedForm } from "./VerifiedForm";
 
 interface ClassFormProps {
   gymClass?: AdminClass | null;
@@ -95,7 +96,7 @@ export function ClassForm({ gymClass, onClose, onSuccess }: ClassFormProps) {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <VerifiedForm onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {t("admin.className")}
@@ -195,7 +196,7 @@ export function ClassForm({ gymClass, onClose, onSuccess }: ClassFormProps) {
               {loading ? t("common.saving") : t("common.save")}
             </Button>
           </div>
-        </form>
+        </VerifiedForm>
       </div>
     </div>
   );

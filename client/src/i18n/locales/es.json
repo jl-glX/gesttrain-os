@@ -85,11 +85,13 @@
     "managerRecovery": "Recuperación",
     "managerRecoverySummary": "{{available}} métodos disponibles y {{planned}} preparados para el futuro.",
     "managerLifecycle": "Ciclo de vida",
+    "managerLifecycleState": "Estado actual: {{state}}.",
     "managerDeletionPending": "Existe un cierre reversible dentro del periodo de gracia.",
     "managerInactivityEnabled": "Borrado por inactividad configurado a {{months}} meses.",
     "managerInactivityDisabled": "El borrado automático por inactividad está desactivado.",
     "managerContinuity": "Continuidad",
     "managerContinuityPlanned": "La representación de cuenta es solo una base de integración y todavía no puede ejecutarse.",
+    "managerContinuityDrafts": "{{count}} representaciones preparadas para revisión. Ninguna concede acceso todavía.",
     "eyebrow": "Área de control de la cuenta",
     "open": "Abrir",
     "comingSoon": "Próximamente",
@@ -110,6 +112,8 @@
     "securityDescription": "Gestiona 2FA, claves de acceso y sesiones abiertas.",
     "lifecycle": "Ciclo de vida de la cuenta",
     "lifecycleDescription": "Configura la inactividad y revisa cualquier borrado programado.",
+    "continuity": "Continuidad y representación",
+    "continuityDescription": "Prepara representantes limitados sin transferir tu identidad ni tus credenciales.",
     "downloads": "Descargas y aplicaciones",
     "downloadsDescription": "Consulta los destinos preparados para las aplicaciones y el paquete portátil.",
     "bookings": "Reservas y calendario",
@@ -142,6 +146,53 @@
     "preferencesDescription": "Tema, privacidad y más opciones personales se incorporarán de forma progresiva.",
     "delegationSecurity": "Las delegaciones solo permiten reservar o cancelar en tu nombre. No dan acceso a tu perfil, contraseña, pagos ni configuración de seguridad."
   },
+  "accountContinuity": {
+    "back": "Volver al gestor de cuentas",
+    "eyebrow": "Continuidad de la cuenta",
+    "title": "Representación limitada y revisable",
+    "description": "Prepara quién podría ayudarte en una situación de hospitalización, incapacidad u otra contingencia sin transferirle la titularidad de tu cuenta.",
+    "demoTitle": "Base funcional sin poderes activos",
+    "demoDescription": "Los registros creados son borradores. No permiten iniciar sesión, suplantar al titular ni ejecutar acciones hasta que exista un procedimiento de revisión y activación válido.",
+    "formTitle": "Preparar un representante",
+    "formDescription": "Identifica a la otra cuenta mediante su ID público de soporte y limita de forma explícita las futuras funciones autorizables.",
+    "identifierLabel": "ID público de soporte del representante",
+    "reasonLabel": "Motivo de continuidad",
+    "expiryLabel": "Caducidad opcional",
+    "scopesLabel": "Ámbitos que podrían revisarse",
+    "saveDraft": "Guardar borrador",
+    "saved": "El borrador de representación se ha guardado.",
+    "saveError": "No se ha podido guardar el borrador. Revisa los datos y el identificador.",
+    "loadError": "No se ha podido cargar la continuidad de la cuenta.",
+    "listTitle": "Representaciones preparadas",
+    "empty": "Todavía no has preparado ninguna representación.",
+    "revoke": "Revocar",
+    "revoked": "La representación se ha revocado.",
+    "revokeError": "No se ha podido revocar la representación.",
+    "expires": "Caduca el {{date}}",
+    "identityNotice": "La identidad, las credenciales, el historial personal y la configuración de seguridad nunca se transfieren al representante.",
+    "reasons": {
+      "hospitalization": "Hospitalización",
+      "temporary_incapacity": "Incapacidad temporal",
+      "permanent_incapacity": "Incapacidad permanente",
+      "death_contingency": "Previsión por fallecimiento",
+      "other": "Otra contingencia"
+    },
+    "scopes": {
+      "cancel_bookings": "Cancelar reservas",
+      "stop_subscriptions": "Detener suscripciones",
+      "download_authorized_documents": "Descargar documentos autorizados",
+      "manage_pending_payments": "Gestionar pagos pendientes",
+      "contact_support": "Contactar con soporte",
+      "request_account_closure": "Solicitar el cierre de la cuenta"
+    },
+    "statuses": {
+      "draft": "Borrador",
+      "pending_review": "Pendiente de revisión",
+      "approved": "Aprobada",
+      "revoked": "Revocada",
+      "expired": "Caducada"
+    }
+  },
   "accountIdentity": {
     "eyebrow": "Identidad de la cuenta",
     "title": "ID público de soporte",
@@ -158,6 +209,22 @@
     "eyebrow": "Control de la cuenta",
     "title": "Inactividad y borrado",
     "description": "Decide qué debe ocurrir si dejas de utilizar GestTrain/OS y consulta cualquier cierre programado.",
+    "currentState": "Estado actual de la cuenta: {{state}}.",
+    "states": {
+      "pending_verification": "verificación pendiente",
+      "active": "activa",
+      "security_review": "revisión de seguridad",
+      "recovery_in_progress": "recuperación en curso",
+      "inactive": "inactiva",
+      "suspended_pending_deletion": "suspendida y pendiente de borrado",
+      "deletion_cancelled": "borrado cancelado",
+      "closure_requested": "cierre solicitado",
+      "deletion_processing": "borrado en proceso",
+      "retained_legal": "conservación restringida",
+      "legal_hold": "bloqueo de conservación",
+      "anonymized": "anonimizada",
+      "deleted": "eliminada"
+    },
     "inactivityTitle": "Borrado por inactividad",
     "inactivityDescription": "Elige cuánto tiempo puede permanecer inactiva la cuenta antes de iniciar el periodo de gracia.",
     "periodLabel": "Periodo de inactividad",
@@ -181,6 +248,9 @@
       "account_profile": "Perfil de la cuenta",
       "preferences": "Preferencias",
       "bookings": "Reservas",
+      "sessions": "Sesiones abiertas",
+      "authentication_factors": "Contraseña, passkeys y doble factor",
+      "delegations": "Permisos y delegaciones",
       "billing_records": "Facturación",
       "security_events": "Actividad de seguridad"
     },
@@ -188,6 +258,13 @@
       "policy_review_required": "Existe una política activa, pero la decisión final requiere revisión.",
       "draft_policy": "Existe un borrador de política pendiente de validación.",
       "unclassified": "Todavía no existe una política aplicable."
+    },
+    "dispositions": {
+      "delete": "Se eliminará cuando el proceso real esté habilitado.",
+      "delete_or_anonymize": "Se eliminará o anonimizará según sus dependencias.",
+      "cancel_future_anonymize_history": "Se cancelará lo futuro y se anonimizará el historial cuando proceda.",
+      "revoke_and_delete": "Se revocará primero y después se eliminará.",
+      "retain_only_if_policy_applies": "Solo se conservará si existe una política revisada y aplicable."
     },
     "demoNotice": "Esta versión demuestra la programación, la suspensión pendiente, la cancelación y la revisión coordinada de datos. Todavía no elimina datos ni ejecuta políticas de retención."
   },
@@ -227,6 +304,7 @@
     "name": "Nombre",
     "jurisdiction": "Jurisdicción",
     "category": "Categoría de datos",
+    "chooseCategory": "Selecciona una categoría",
     "days": "Duración orientativa en días (opcional)",
     "basis": "Referencia pendiente de revisión (opcional)",
     "create": "Crear borrador",
@@ -236,6 +314,13 @@
     "executionDisabled": "Ejecución desactivada",
     "durationValue": "{{count}} días configurados",
     "durationPending": "Duración pendiente de revisión",
+    "version": "versión {{version}}",
+    "activateAfterReview": "Marcar como revisada internamente",
+    "retire": "Retirar borrador",
+    "reviewed": {
+      "activate": "La versión se ha marcado como revisada internamente. Esto no constituye validación jurídica y la ejecución sigue desactivada.",
+      "retire": "La versión se ha retirado."
+    },
     "empty": "Todavía no hay políticas en borrador.",
     "status": {
       "draft": "Borrador",
@@ -357,6 +442,7 @@
     "emailRequired": "El correo electrónico y la contraseña son obligatorios",
     "centerIdentifier": "Correo o teléfono del centro",
     "credentialsRequired": "El identificador y la contraseña son obligatorios",
+    "verificationRequired": "La verificación es obligatoria",
     "invalidCredentials": "El correo, teléfono o contraseña no son correctos",
     "rememberDevice": "Recordar este dispositivo durante 30 días",
     "rememberDeviceHelp": "Úsalo solo en un dispositivo personal. Podrás revocar la sesión desde Seguridad.",
@@ -875,7 +961,7 @@
   "legal": {
     "eyebrow": "Información legal",
     "back": "Volver a GestTrain/OS",
-    "lastUpdated": "Última actualización: 22 de julio de 2026",
+    "lastUpdated": "Última actualización: 3 de agosto de 2026",
     "draftTitle": "Documento provisional.",
     "draftDescription": "GestTrain/OS está en fase de desarrollo. Este texto debe revisarse y completarse con los datos reales del titular, el servicio y su política comercial antes de publicarse o aceptar pagos.",
     "footer": {
@@ -909,8 +995,12 @@
             "title": "5. Disponibilidad y responsabilidad",
             "body": "Durante la fase de desarrollo no se garantiza la disponibilidad continua ni la ausencia de errores. GestTrain/OS aplicará medidas razonables para proteger y mantener el servicio, sin perjuicio de las responsabilidades que no puedan excluirse legalmente."
           },
+          "identityAndData": {
+            "title": "6. Identidad, identificadores y datos",
+            "body": "GestTrain/OS separa la identidad interna de la cuenta, el identificador público de soporte, las credenciales y secretos de seguridad, los datos operativos y los datos que puedan quedar sujetos a conservación restringida. El identificador interno mantiene las relaciones técnicas; el alias público solo permite localizar la cuenta ante soporte; y únicamente las credenciales y verificaciones autorizadas sirven para autenticar a la persona. Ningún identificador público constituye por sí solo prueba de identidad o acceso."
+          },
           "law": {
-            "title": "6. Legislación aplicable",
+            "title": "7. Legislación aplicable",
             "body": "La versión definitiva deberá adaptarse a la actividad, ubicación y condición jurídica reales del titular, así como a la normativa de comercio electrónico, consumo y protección de datos que resulte aplicable."
           }
         }
@@ -939,12 +1029,24 @@
             "title": "5. Cancelaciones y bajas",
             "body": "Las políticas de cancelación de clases, cuotas o suscripciones deberán mostrarse antes de contratar o reservar. La versión definitiva explicará los plazos, consecuencias, reembolsos y mecanismos para cancelar el servicio."
           },
+          "lifecycle": {
+            "title": "6. Ciclo de vida, inactividad y cierre de cuenta",
+            "body": "La persona titular puede configurar una preferencia de inactividad, preparar solicitudes selectivas sobre sus datos o solicitar el cierre completo. Una solicitud de cierre inicia un periodo de gracia reversible de 30 días y crea un trabajo técnico bloqueado para revisión; la versión actual no ejecuta eliminación ni anonimización automática. La reactivación exige una acción autenticada y los cambios relevantes quedan registrados."
+          },
+          "representation": {
+            "title": "7. Continuidad y representación limitada",
+            "body": "La cuenta y su identidad no se transfieren. La persona titular puede preparar una representación limitada, revocable y con ámbitos concretos para situaciones de hospitalización, incapacidad u otras contingencias. El acceso futuro dependerá de verificación suficiente, documentación aplicable y autorización; nunca implicará compartir credenciales, suplantar al titular ni heredar automáticamente su historial. Las solicitudes relativas a personas fallecidas se atenderán conforme a la normativa y a las instrucciones válidas del titular."
+          },
+          "retention": {
+            "title": "8. Supresión, anonimización y conservación restringida",
+            "body": "La supresión de una cuenta no implica que todas las categorías puedan eliminarse de inmediato. Perfiles, preferencias, sesiones, factores de autenticación, reservas futuras y delegaciones se proponen para supresión o anonimización; determinados registros de facturación, seguridad, reclamaciones o bloqueos podrían conservarse con acceso restringido cuando exista una obligación o defensa jurídica aplicable. Los plazos y fundamentos definitivos deben validarse por categoría y jurisdicción. Una revisión interna de política no equivale a validación legal ni habilita el borrado."
+          },
           "changes": {
-            "title": "6. Cambios en las condiciones",
+            "title": "9. Cambios en las condiciones",
             "body": "Las condiciones podrán actualizarse cuando cambien las funciones o la normativa. Los cambios relevantes deberán comunicarse de forma clara y, cuando corresponda, solicitar una nueva aceptación."
           },
           "law": {
-            "title": "7. Ley y resolución de conflictos",
+            "title": "10. Ley y resolución de conflictos",
             "body": "La ley aplicable, los tribunales competentes y los mecanismos de reclamación se concretarán según el domicilio y la actividad real del titular, respetando siempre los derechos imperativos de consumidores y usuarios."
           }
         }
@@ -977,8 +1079,20 @@
             "title": "6. Disponibilidad del servicio",
             "body": "Pueden realizarse tareas de mantenimiento o producirse interrupciones. Las reservas y cambios importantes deberán diseñarse con mecanismos de confirmación y recuperación adecuados antes del uso en producción."
           },
+          "verification": {
+            "title": "7. Verificación humana y formularios sensibles",
+            "body": "El acceso, el registro y los formularios autenticados que modifican datos pueden exigir una verificación humana reciente. La página y la API aplican la misma condición. No está permitido desactivar, automatizar, reutilizar indebidamente o eludir la verificación. Si el proveedor no puede cargarse o validar la respuesta, la operación protegida se rechaza."
+          },
+          "accountRecovery": {
+            "title": "8. Recuperación y seguridad de la cuenta",
+            "body": "Los flujos de recuperación, revisión por posible compromiso, cierre de sesiones, rotación del alias público y segundo factor requieren controles reforzados. El alias de soporte no autentica. La persona usuaria deberá revisar sus dispositivos, claves de acceso y métodos de recuperación, y comunicar cualquier anomalía sin compartir contraseñas ni códigos."
+          },
+          "dataRequests": {
+            "title": "9. Solicitudes sobre datos y cuenta",
+            "body": "La persona titular podrá preparar una solicitud selectiva sobre categorías concretas sin cerrar la cuenta o iniciar el cierre completo. Antes de una ejecución futura, GestTrain/OS deberá verificar identidad y autoridad, clasificar los datos, evaluar dependencias, conservación y bloqueos, informar del resultado y mantener una trazabilidad adecuada. La interfaz actual es demostrativa y no ejecuta acciones destructivas."
+          },
           "suspension": {
-            "title": "7. Suspensión de acceso",
+            "title": "10. Suspensión de acceso",
             "body": "El acceso podrá limitarse ante riesgos de seguridad, fraude, incumplimientos graves o exigencias legales. Toda medida deberá ser proporcionada y ofrecer información y vías de revisión cuando corresponda."
           }
         }
@@ -1167,6 +1281,12 @@
     "label": "Verificación humana",
     "help": "Esta comprobación protege el acceso y el registro frente a automatizaciones abusivas.",
     "loadFailed": "No se pudo cargar la verificación. Revisa la conexión e inténtalo de nuevo."
+  },
+  "formVerification": {
+    "title": "La verificación es obligatoria",
+    "description": "Verifica que eres una persona antes de acceder a este formulario. La autorización dura 15 minutos y la API rechazará cualquier envío no verificado.",
+    "checking": "Comprobando la verificación del formulario…",
+    "error": "No se ha podido autorizar el formulario. Repite la verificación."
   },
   "unauthorized": {
     "title": "Acceso denegado",

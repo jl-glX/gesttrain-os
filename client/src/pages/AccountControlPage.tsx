@@ -21,6 +21,7 @@ import {
   Timer,
   Trash2,
   UserRound,
+  UserRoundCog,
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -39,6 +40,7 @@ interface AccountManagerOverview {
     recoveryCodesRemaining: number;
   };
   lifecycle: {
+    currentState: string;
     inactivityMonths: number | null;
     lastMeaningfulActivityAt: number;
     deletionRequest: { graceEndsAt: number } | null;
@@ -49,8 +51,9 @@ interface AccountManagerOverview {
     plannedMethods: string[];
   };
   continuity: {
-    status: "planned";
+    status: "draft_available";
     executionEnabled: false;
+    representations: Array<{ status: string }>;
   };
 }
 
@@ -130,6 +133,12 @@ export function AccountControlPage() {
       icon: Trash2,
       title: t("accountControl.lifecycle"),
       description: t("accountControl.lifecycleDescription"),
+    },
+    {
+      to: "/account/continuity",
+      icon: UserRoundCog,
+      title: t("accountControl.continuity"),
+      description: t("accountControl.continuityDescription"),
     },
     {
       to: "/downloads",
@@ -331,13 +340,24 @@ export function AccountControlPage() {
                         })
                       : t("accountControl.managerInactivityDisabled")}
                 </p>
+                <p className="mt-1 text-xs text-slate-500">
+                  {t("accountControl.managerLifecycleState", {
+                    state: t(
+                      `accountLifecycle.states.${overview.lifecycle.currentState}`,
+                    ),
+                  })}
+                </p>
               </div>
               <div className="rounded-2xl bg-slate-50 p-4">
                 <p className="text-sm font-bold text-slate-950">
                   {t("accountControl.managerContinuity")}
                 </p>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  {t("accountControl.managerContinuityPlanned")}
+                  {t("accountControl.managerContinuityDrafts", {
+                    count: overview.continuity.representations.filter((item) =>
+                      ["draft", "pending_review"].includes(item.status),
+                    ).length,
+                  })}
                 </p>
               </div>
             </div>

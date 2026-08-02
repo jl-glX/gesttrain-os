@@ -7,6 +7,7 @@ export type SecurityEventType =
   | "login_failed"
   | "captcha_succeeded"
   | "captcha_failed"
+  | "form_verification_succeeded"
   | "risk_observed"
   | "mfa_challenge_created"
   | "mfa_challenge_failed"
@@ -26,7 +27,10 @@ export type SecurityEventType =
   | "account_deletion_cancelled"
   | "account_data_deletion_draft_updated"
   | "account_recovery_completed"
+  | "account_representation_draft_saved"
+  | "account_representation_revoked"
   | "retention_policy_drafted"
+  | "retention_policy_reviewed"
   | "retention_hold_changed";
 
 export async function recordSecurityEvent(

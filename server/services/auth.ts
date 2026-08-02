@@ -113,6 +113,7 @@ export async function createSession(
       revokedAt: null,
       userAgent: (metadata.userAgent ?? "Unknown device").slice(0, 255),
       remembered: rememberDevice ? 1 : 0,
+      formVerifiedAt: now,
     })
     .execute();
 

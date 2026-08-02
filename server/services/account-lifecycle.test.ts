@@ -39,11 +39,12 @@ describe("account lifecycle", () => {
     );
     expect(configured.inactivityMonths).toBe(12);
     expect(configured.dataDisposition.executionEnabled).toBe(false);
-    expect(configured.dataDisposition.categories).toHaveLength(5);
+    expect(configured.dataDisposition.categories).toHaveLength(8);
     expect(configured.continuityBridge).toMatchObject({
-      status: "planned",
+      status: "draft_available",
       executionEnabled: false,
       identityTransferAllowed: false,
+      representations: [],
     });
 
     const disabled = await lifecycle.updateInactivityDeletionPreference(
@@ -65,9 +66,14 @@ describe("account lifecycle", () => {
 
     const result = await lifecycle.evaluateDueInactivityDeletions();
     expect(result).toMatchObject({ evaluated: 1, scheduled: 1 });
-    expect(
-      (await lifecycle.getAccountLifecycle(userId)).deletionRequest,
-    ).toMatchObject({ trigger: "inactivity", status: "scheduled" });
+    expect(await lifecycle.getAccountLifecycle(userId)).toMatchObject({
+      currentState: "suspended_pending_deletion",
+      deletionRequest: { trigger: "inactivity", status: "scheduled" },
+      deletionJob: {
+        status: "blocked_retention_review",
+        executionEnabled: false,
+      },
+    });
     await lifecycle.cancelScheduledAccountDeletion(userId);
   });
 
@@ -91,6 +97,28 @@ describe("account lifecycle", () => {
   it("schedules one reversible request with a thirty-day grace period", async () => {
     const scheduled = await lifecycle.scheduleAccountDeletion(userId, "manual");
     expect(scheduled.deletionRequest?.status).toBe("scheduled");
+    expect(scheduled.currentState).toBe("closure_requested");
+    expect(scheduled.deletionJob).toMatchObject({
+      status: "blocked_retention_review",
+      executionEnabled: false,
+    });
+    expect(scheduled.supportedStates).toEqual(
+      expect.arrayContaining([
+        "pending_verification",
+        "active",
+        "security_review",
+        "recovery_in_progress",
+        "inactive",
+        "suspended_pending_deletion",
+        "deletion_cancelled",
+        "closure_requested",
+        "deletion_processing",
+        "retained_legal",
+        "legal_hold",
+        "anonymized",
+        "deleted",
+      ]),
+    );
     expect(
       scheduled.deletionRequest!.graceEndsAt -
         scheduled.deletionRequest!.requestedAt,
@@ -101,6 +129,7 @@ describe("account lifecycle", () => {
 
     const cancelled = await lifecycle.cancelScheduledAccountDeletion(userId);
     expect(cancelled.deletionRequest).toBeNull();
+    expect(cancelled.deletionJob).toBeNull();
   });
 
   it("stores a data-only deletion review without scheduling account closure", async () => {

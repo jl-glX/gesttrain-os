@@ -81,11 +81,13 @@
     "managerRecovery": "Recovery",
     "managerRecoverySummary": "{{available}} methods available and {{planned}} prepared for the future.",
     "managerLifecycle": "Lifecycle",
+    "managerLifecycleState": "Current state: {{state}}.",
     "managerDeletionPending": "A reversible closure is currently within its grace period.",
     "managerInactivityEnabled": "Inactivity deletion is configured for {{months}} months.",
     "managerInactivityDisabled": "Automatic inactivity deletion is disabled.",
     "managerContinuity": "Continuity",
     "managerContinuityPlanned": "Account representation is only an integration base and cannot yet be executed.",
+    "managerContinuityDrafts": "{{count}} representations prepared for review. None grants access yet.",
     "eyebrow": "Account control area",
     "open": "Open",
     "comingSoon": "Coming soon",
@@ -106,6 +108,8 @@
     "securityDescription": "Manage 2FA, passkeys and open sessions.",
     "lifecycle": "Account lifecycle",
     "lifecycleDescription": "Configure inactivity and review any scheduled deletion.",
+    "continuity": "Continuity and representation",
+    "continuityDescription": "Prepare limited representatives without transferring your identity or credentials.",
     "downloads": "Downloads and apps",
     "downloadsDescription": "Review the prepared destinations for apps and the portable package.",
     "bookings": "Bookings and calendar",
@@ -138,6 +142,53 @@
     "preferencesDescription": "Theme, privacy and more personal options will be added progressively.",
     "delegationSecurity": "Delegations only allow someone to book or cancel on your behalf. They do not provide access to your profile, password, payments or security settings."
   },
+  "accountContinuity": {
+    "back": "Back to account manager",
+    "eyebrow": "Account continuity",
+    "title": "Limited and reviewable representation",
+    "description": "Prepare who could help during hospitalization, incapacity or another contingency without transferring ownership of your account.",
+    "demoTitle": "Functional foundation without active powers",
+    "demoDescription": "Created records are drafts. They cannot sign in, impersonate the owner or execute actions until a valid review and activation procedure exists.",
+    "formTitle": "Prepare a representative",
+    "formDescription": "Identify the other account using its public support ID and explicitly limit the functions that may be authorized later.",
+    "identifierLabel": "Representative public support ID",
+    "reasonLabel": "Continuity reason",
+    "expiryLabel": "Optional expiry",
+    "scopesLabel": "Scopes that may be reviewed",
+    "saveDraft": "Save draft",
+    "saved": "The representation draft has been saved.",
+    "saveError": "The draft could not be saved. Check the data and identifier.",
+    "loadError": "Account continuity could not be loaded.",
+    "listTitle": "Prepared representations",
+    "empty": "You have not prepared any representation yet.",
+    "revoke": "Revoke",
+    "revoked": "The representation has been revoked.",
+    "revokeError": "The representation could not be revoked.",
+    "expires": "Expires on {{date}}",
+    "identityNotice": "Identity, credentials, personal history and security settings are never transferred to the representative.",
+    "reasons": {
+      "hospitalization": "Hospitalization",
+      "temporary_incapacity": "Temporary incapacity",
+      "permanent_incapacity": "Permanent incapacity",
+      "death_contingency": "Death contingency",
+      "other": "Other contingency"
+    },
+    "scopes": {
+      "cancel_bookings": "Cancel bookings",
+      "stop_subscriptions": "Stop subscriptions",
+      "download_authorized_documents": "Download authorized documents",
+      "manage_pending_payments": "Manage pending payments",
+      "contact_support": "Contact support",
+      "request_account_closure": "Request account closure"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "pending_review": "Pending review",
+      "approved": "Approved",
+      "revoked": "Revoked",
+      "expired": "Expired"
+    }
+  },
   "accountIdentity": {
     "eyebrow": "Account identity",
     "title": "Public support ID",
@@ -154,6 +205,22 @@
     "eyebrow": "Account control",
     "title": "Inactivity and deletion",
     "description": "Decide what should happen if you stop using GestTrain/OS and review any scheduled closure.",
+    "currentState": "Current account state: {{state}}.",
+    "states": {
+      "pending_verification": "pending verification",
+      "active": "active",
+      "security_review": "security review",
+      "recovery_in_progress": "recovery in progress",
+      "inactive": "inactive",
+      "suspended_pending_deletion": "suspended pending deletion",
+      "deletion_cancelled": "deletion cancelled",
+      "closure_requested": "closure requested",
+      "deletion_processing": "deletion processing",
+      "retained_legal": "restricted retention",
+      "legal_hold": "legal hold",
+      "anonymized": "anonymized",
+      "deleted": "deleted"
+    },
     "inactivityTitle": "Deletion after inactivity",
     "inactivityDescription": "Choose how long the account may remain inactive before the grace period starts.",
     "periodLabel": "Inactivity period",
@@ -177,6 +244,9 @@
       "account_profile": "Account profile",
       "preferences": "Preferences",
       "bookings": "Bookings",
+      "sessions": "Open sessions",
+      "authentication_factors": "Password, passkeys and two-factor authentication",
+      "delegations": "Permissions and delegations",
       "billing_records": "Billing",
       "security_events": "Security activity"
     },
@@ -184,6 +254,13 @@
       "policy_review_required": "An active policy exists, but the final decision still requires review.",
       "draft_policy": "A draft policy exists and still requires validation.",
       "unclassified": "No applicable policy exists yet."
+    },
+    "dispositions": {
+      "delete": "It will be deleted when real execution is enabled.",
+      "delete_or_anonymize": "It will be deleted or anonymized according to its dependencies.",
+      "cancel_future_anonymize_history": "Future items will be cancelled and history anonymized when appropriate.",
+      "revoke_and_delete": "It will be revoked first and then deleted.",
+      "retain_only_if_policy_applies": "It will only be retained if a reviewed and applicable policy exists."
     },
     "demoNotice": "This version demonstrates scheduling, pending suspension, cancellation and coordinated data review. It does not delete data or execute retention policies yet."
   },
@@ -223,6 +300,7 @@
     "name": "Name",
     "jurisdiction": "Jurisdiction",
     "category": "Data category",
+    "chooseCategory": "Choose a category",
     "days": "Indicative duration in days (optional)",
     "basis": "Reference pending review (optional)",
     "create": "Create draft",
@@ -232,6 +310,13 @@
     "executionDisabled": "Execution disabled",
     "durationValue": "{{count}} configured days",
     "durationPending": "Duration pending review",
+    "version": "version {{version}}",
+    "activateAfterReview": "Mark as internally reviewed",
+    "retire": "Retire draft",
+    "reviewed": {
+      "activate": "The version was marked as internally reviewed. This is not legal validation and execution remains disabled.",
+      "retire": "The version was retired."
+    },
     "empty": "There are no draft policies yet.",
     "status": {
       "draft": "Draft",
@@ -353,6 +438,7 @@
     "emailRequired": "Email and password are required",
     "centerIdentifier": "Centre email or phone number",
     "credentialsRequired": "Identifier and password are required",
+    "verificationRequired": "Verification is required",
     "invalidCredentials": "The email, phone number or password is incorrect",
     "rememberDevice": "Remember this device for 30 days",
     "rememberDeviceHelp": "Use only on a personal device. You can revoke the session from Security.",
@@ -865,7 +951,7 @@
   "legal": {
     "eyebrow": "Legal information",
     "back": "Back to GestTrain/OS",
-    "lastUpdated": "Last updated: 22 July 2026",
+    "lastUpdated": "Last updated: 3 August 2026",
     "draftTitle": "Draft document.",
     "draftDescription": "GestTrain/OS is under development. This text must be reviewed and completed with the real owner, service and commercial-policy details before publication or payment acceptance.",
     "footer": {
@@ -899,8 +985,12 @@
             "title": "5. Availability and liability",
             "body": "Continuous availability and error-free operation are not guaranteed during development. GestTrain/OS will apply reasonable measures to protect and maintain the service, without excluding liabilities that cannot legally be excluded."
           },
+          "identityAndData": {
+            "title": "6. Identity, identifiers and data",
+            "body": "GestTrain/OS separates the account's internal identity, public support identifier, security credentials and secrets, operational data, and data that may be subject to restricted retention. The internal identifier maintains technical relationships; the public alias only helps authorized support locate the account; and only authorized credentials and verification can authenticate a person. A public identifier alone is never proof of identity or access."
+          },
           "law": {
-            "title": "6. Applicable law",
+            "title": "7. Applicable law",
             "body": "The final version must be adapted to the owner's actual activity, location and legal status, as well as the applicable e-commerce, consumer and data-protection rules."
           }
         }
@@ -929,12 +1019,24 @@
             "title": "5. Cancellations and termination",
             "body": "Cancellation policies for classes, fees or subscriptions must be shown before a purchase or booking. The final version will explain deadlines, consequences, refunds and ways to cancel the service."
           },
+          "lifecycle": {
+            "title": "6. Lifecycle, inactivity and account closure",
+            "body": "The account owner can configure an inactivity preference, prepare selective data requests or request full closure. A closure request starts a reversible 30-day grace period and creates a technical job blocked for review; the current version does not execute automatic deletion or anonymization. Reactivation requires an authenticated action and relevant changes are recorded."
+          },
+          "representation": {
+            "title": "7. Continuity and limited representation",
+            "body": "The account and its identity are not transferred. The owner may prepare limited, revocable and scoped representation for hospitalization, incapacity or other contingencies. Future access depends on sufficient verification, applicable documentation and authorization; it never permits credential sharing, impersonation or automatic inheritance of account history. Requests concerning deceased persons will be handled under applicable law and valid instructions from the owner."
+          },
+          "retention": {
+            "title": "8. Deletion, anonymization and restricted retention",
+            "body": "Closing an account does not mean every category can be erased immediately. Profiles, preferences, sessions, authentication factors, future bookings and delegations are proposed for deletion or anonymization; billing, security, claims or hold records may be retained with restricted access where an applicable legal obligation or legal defence requires it. Final periods and grounds must be validated by category and jurisdiction. Internal policy review is not legal validation and never enables deletion."
+          },
           "changes": {
-            "title": "6. Changes to these terms",
+            "title": "9. Changes to these terms",
             "body": "The terms may be updated when features or laws change. Material changes must be communicated clearly and, where appropriate, require renewed acceptance."
           },
           "law": {
-            "title": "7. Law and dispute resolution",
+            "title": "10. Law and dispute resolution",
             "body": "Applicable law, competent courts and complaint mechanisms will be specified according to the owner's real location and activity, while always respecting mandatory consumer rights."
           }
         }
@@ -967,8 +1069,20 @@
             "title": "6. Service availability",
             "body": "Maintenance and interruptions may occur. Important bookings and changes must have suitable confirmation and recovery mechanisms before production use."
           },
+          "verification": {
+            "title": "7. Human verification and sensitive forms",
+            "body": "Access, registration and authenticated forms that modify data may require recent human verification. The page and the API enforce the same condition. Disabling, automating, improperly reusing or bypassing verification is prohibited. If the provider cannot load or validate the response, the protected operation is rejected."
+          },
+          "accountRecovery": {
+            "title": "8. Account recovery and security",
+            "body": "Recovery, suspected-compromise review, session revocation, public-alias rotation and second-factor flows require stronger controls. The support alias does not authenticate. Users must review devices, passkeys and recovery methods, and report anomalies without sharing passwords or codes."
+          },
+          "dataRequests": {
+            "title": "9. Data and account requests",
+            "body": "The owner may prepare a selective request for specific categories without closing the account, or start full closure. Before any future execution, GestTrain/OS must verify identity and authority, classify data, evaluate dependencies, retention and holds, report the outcome and preserve suitable traceability. The current interface is demonstrative and performs no destructive action."
+          },
           "suspension": {
-            "title": "7. Access suspension",
+            "title": "10. Access suspension",
             "body": "Access may be restricted because of security risks, fraud, serious breaches or legal requirements. Measures must be proportionate and provide information and review options where appropriate."
           }
         }
@@ -1157,6 +1271,12 @@
     "label": "Human verification",
     "help": "This check protects sign-in and registration from abusive automation.",
     "loadFailed": "Verification could not be loaded. Check your connection and try again."
+  },
+  "formVerification": {
+    "title": "Verification is required",
+    "description": "Verify that you are human before accessing this form. Authorization lasts 15 minutes and the API rejects unverified submissions.",
+    "checking": "Checking form verification…",
+    "error": "The form could not be authorized. Complete verification again."
   },
   "unauthorized": {
     "title": "Access denied",

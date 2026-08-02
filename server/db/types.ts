@@ -65,11 +65,41 @@ interface AccountDeletionRequest {
   completedAt: number | null;
 }
 
+interface AccountDeletionJob {
+  id: string;
+  requestId: string;
+  userId: string;
+  status: "planned" | "blocked_retention_review" | "cancelled" | "completed";
+  executionEnabled: 0 | 1;
+  createdAt: number;
+  updatedAt: number;
+  completedAt: number | null;
+}
+
 interface AccountDataDeletionDraft {
   userId: string;
   selectedCategories: string;
   intent: "selected_data" | "account_closure";
   updatedAt: number;
+}
+
+interface AccountRepresentative {
+  id: string;
+  ownerUserId: string;
+  representativeUserId: string;
+  scopes: string;
+  reason:
+    | "hospitalization"
+    | "temporary_incapacity"
+    | "permanent_incapacity"
+    | "death_contingency"
+    | "other";
+  status: "draft" | "pending_review" | "approved" | "revoked" | "expired";
+  startsAt: number;
+  expiresAt: number | null;
+  createdAt: number;
+  updatedAt: number;
+  revokedAt: number | null;
 }
 
 interface DataRetentionPolicy {
@@ -136,6 +166,7 @@ interface Session {
   revokedAt: number | null;
   userAgent: string;
   remembered: number;
+  formVerifiedAt: number;
 }
 
 interface MfaCredential {
@@ -247,7 +278,9 @@ export interface Database {
   emailVerificationChallenges: EmailVerificationChallenge;
   accountDeletionPreferences: AccountDeletionPreference;
   accountDeletionRequests: AccountDeletionRequest;
+  accountDeletionJobs: AccountDeletionJob;
   accountDataDeletionDrafts: AccountDataDeletionDraft;
+  accountRepresentatives: AccountRepresentative;
   dataRetentionPolicies: DataRetentionPolicy;
   dataRetentionRecords: DataRetentionRecord;
   gymClasses: GymClass;

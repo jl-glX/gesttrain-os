@@ -14,10 +14,69 @@ export const ACCOUNT_DATA_CATEGORIES = [
   "account_profile",
   "preferences",
   "bookings",
+  "sessions",
+  "authentication_factors",
+  "delegations",
   "billing_records",
   "security_events",
 ] as const;
 export type AccountDataCategory = (typeof ACCOUNT_DATA_CATEGORIES)[number];
+
+export const ACCOUNT_DATA_CLASSIFICATION: ReadonlyArray<{
+  dataCategory: AccountDataCategory;
+  defaultDisposition:
+    | "delete"
+    | "delete_or_anonymize"
+    | "cancel_future_anonymize_history"
+    | "revoke_and_delete"
+    | "retain_only_if_policy_applies";
+  retentionRequiresReviewedPolicy: boolean;
+}> = [
+  {
+    dataCategory: "account_profile",
+    defaultDisposition: "delete_or_anonymize",
+    retentionRequiresReviewedPolicy: false,
+  },
+  {
+    dataCategory: "preferences",
+    defaultDisposition: "delete",
+    retentionRequiresReviewedPolicy: false,
+  },
+  {
+    dataCategory: "bookings",
+    defaultDisposition: "cancel_future_anonymize_history",
+    retentionRequiresReviewedPolicy: false,
+  },
+  {
+    dataCategory: "sessions",
+    defaultDisposition: "revoke_and_delete",
+    retentionRequiresReviewedPolicy: false,
+  },
+  {
+    dataCategory: "authentication_factors",
+    defaultDisposition: "revoke_and_delete",
+    retentionRequiresReviewedPolicy: false,
+  },
+  {
+    dataCategory: "delegations",
+    defaultDisposition: "revoke_and_delete",
+    retentionRequiresReviewedPolicy: false,
+  },
+  {
+    dataCategory: "billing_records",
+    defaultDisposition: "retain_only_if_policy_applies",
+    retentionRequiresReviewedPolicy: true,
+  },
+  {
+    dataCategory: "security_events",
+    defaultDisposition: "retain_only_if_policy_applies",
+    retentionRequiresReviewedPolicy: true,
+  },
+] as const;
+
+class RetentionInputError extends Error {
+  readonly statusCode = 400;
+}
 
 function retentionId(prefix: "policy" | "retention"): string {
   return `${prefix}-${randomBytes(12).toString("hex")}`;
@@ -26,7 +85,7 @@ function retentionId(prefix: "policy" | "retention"): string {
 function requiredText(value: string, field: string, maxLength: number): string {
   const normalized = value.trim();
   if (!normalized || normalized.length > maxLength) {
-    throw new Error(`Invalid ${field}`);
+    throw new RetentionInputError(`Invalid ${field}`);
   }
   return normalized;
 }
@@ -48,7 +107,9 @@ export async function listRetentionOverview() {
   return {
     policies,
     records,
+    catalog: ACCOUNT_DATA_CLASSIFICATION,
     executionEnabled: false,
+    legalValidationProvided: false,
   };
 }
 
@@ -78,6 +139,14 @@ export async function getAccountDispositionPreview(userId: string) {
       ).length;
       return {
         dataCategory,
+        defaultDisposition:
+          ACCOUNT_DATA_CLASSIFICATION.find(
+            (category) => category.dataCategory === dataCategory,
+          )?.defaultDisposition ?? "delete_or_anonymize",
+        retentionRequiresReviewedPolicy:
+          ACCOUNT_DATA_CLASSIFICATION.find(
+            (category) => category.dataCategory === dataCategory,
+          )?.retentionRequiresReviewedPolicy ?? false,
         reviewState:
           policy?.status === "active"
             ? ("policy_review_required" as const)
@@ -105,18 +174,39 @@ export async function createDraftRetentionPolicy(
       retentionDays <= 0 ||
       retentionDays > 36500)
   ) {
-    throw new Error("Invalid retention duration");
+    throw new RetentionInputError("Invalid retention duration");
   }
+
+  const jurisdiction = requiredText(
+    input.jurisdiction,
+    "jurisdiction",
+    32,
+  ).toUpperCase();
+  const dataCategory = requiredText(
+    input.dataCategory,
+    "data category",
+    80,
+  ) as AccountDataCategory;
+  if (!ACCOUNT_DATA_CATEGORIES.includes(dataCategory)) {
+    throw new RetentionInputError("Unsupported data category");
+  }
+  const previousVersion = await db
+    .selectFrom("dataRetentionPolicies")
+    .select("version")
+    .where("jurisdiction", "=", jurisdiction)
+    .where("dataCategory", "=", dataCategory)
+    .orderBy("version", "desc")
+    .executeTakeFirst();
 
   const policy = {
     id: retentionId("policy"),
     name: requiredText(input.name, "policy name", 120),
-    jurisdiction: requiredText(input.jurisdiction, "jurisdiction", 32),
-    dataCategory: requiredText(input.dataCategory, "data category", 80),
+    jurisdiction,
+    dataCategory,
     retentionDays,
     legalBasisReference: (input.legalBasisReference ?? "").trim().slice(0, 255),
     status: "draft" as const,
-    version: 1,
+    version: (previousVersion?.version ?? 0) + 1,
     reviewedAt: null,
     createdAt: now,
     updatedAt: now,
@@ -128,6 +218,60 @@ export async function createDraftRetentionPolicy(
     jurisdiction: policy.jurisdiction,
   });
   return policy;
+}
+
+export async function reviewRetentionPolicy(
+  policyId: string,
+  input: { decision: "activate" | "retire"; reviewConfirmed: boolean },
+  actorUserId: string | null,
+) {
+  if (!input.reviewConfirmed) {
+    throw new RetentionInputError("Internal review confirmation is required");
+  }
+  const policy = await db
+    .selectFrom("dataRetentionPolicies")
+    .selectAll()
+    .where("id", "=", policyId)
+    .executeTakeFirst();
+  if (!policy) throw new RetentionInputError("Retention policy not found");
+  if (input.decision === "activate") {
+    if (!policy.retentionDays || !policy.legalBasisReference.trim()) {
+      throw new RetentionInputError(
+        "Duration and review reference are required before activation",
+      );
+    }
+    await db.transaction().execute(async (transaction) => {
+      await transaction
+        .updateTable("dataRetentionPolicies")
+        .set({ status: "retired", updatedAt: Date.now() })
+        .where("jurisdiction", "=", policy.jurisdiction)
+        .where("dataCategory", "=", policy.dataCategory)
+        .where("status", "=", "active")
+        .where("id", "!=", policy.id)
+        .execute();
+      await transaction
+        .updateTable("dataRetentionPolicies")
+        .set({
+          status: "active",
+          reviewedAt: Date.now(),
+          updatedAt: Date.now(),
+        })
+        .where("id", "=", policy.id)
+        .execute();
+    });
+  } else {
+    await db
+      .updateTable("dataRetentionPolicies")
+      .set({ status: "retired", reviewedAt: Date.now(), updatedAt: Date.now() })
+      .where("id", "=", policy.id)
+      .execute();
+  }
+  await recordSecurityEvent("retention_policy_reviewed", actorUserId, {
+    policyId,
+    decision: input.decision,
+    legalValidationProvided: false,
+  });
+  return listRetentionOverview();
 }
 
 export async function registerRetentionRecord(input: {

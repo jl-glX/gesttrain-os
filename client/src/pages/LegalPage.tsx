@@ -18,6 +18,7 @@ const sectionIds: Record<LegalPageKind, string[]> = {
     "intellectualProperty",
     "links",
     "liability",
+    "identityAndData",
     "law",
   ],
   terms: [
@@ -26,6 +27,9 @@ const sectionIds: Record<LegalPageKind, string[]> = {
     "bookings",
     "payments",
     "cancellations",
+    "lifecycle",
+    "representation",
+    "retention",
     "changes",
     "law",
   ],
@@ -36,6 +40,9 @@ const sectionIds: Record<LegalPageKind, string[]> = {
     "community",
     "health",
     "availability",
+    "verification",
+    "accountRecovery",
+    "dataRequests",
     "suspension",
   ],
 };

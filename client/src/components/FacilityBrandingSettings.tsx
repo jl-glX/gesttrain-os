@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Building2, ImagePlus, Save, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { VerifiedForm } from "./VerifiedForm";
 import { useFacilityProfile } from "../hooks/useFacilityProfile";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -62,7 +63,10 @@ export function FacilityBrandingSettings() {
   };
 
   return (
-    <form className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]" onSubmit={save}>
+    <VerifiedForm
+      className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]"
+      onSubmit={save}
+    >
       <section className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
         <p className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500">
           {t("facilityBranding.preview")}
@@ -201,6 +205,6 @@ export function FacilityBrandingSettings() {
           {saving ? t("facilityBranding.saving") : t("facilityBranding.save")}
         </Button>
       </section>
-    </form>
+    </VerifiedForm>
   );
 }
