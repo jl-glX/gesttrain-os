@@ -82,6 +82,7 @@
     "emailRequired": "E-Mail und Passwort sind erforderlich",
     "centerIdentifier": "E-Mail oder Telefonnummer des Studios",
     "credentialsRequired": "Kennung und Passwort sind erforderlich",
+    "invalidCredentials": "E-Mail-Adresse, Telefonnummer oder Passwort ist falsch",
     "rememberDevice": "Dieses Gerät 30 Tage speichern",
     "rememberDeviceHelp": "Nur auf einem persönlichen Gerät verwenden. Du kannst die Sitzung unter Sicherheit widerrufen.",
     "signInWithPasskey": "Mit Fingerabdruck oder Passkey anmelden",

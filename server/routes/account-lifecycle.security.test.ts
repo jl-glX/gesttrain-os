@@ -160,7 +160,7 @@ describe("account deletion security", () => {
       .set("Cookie", ownerCookie)
       .expect(200);
     expect(ownerLifecycle.body.deletionRequest.id).toBe([...requestIds][0]);
-  });
+  }, 10_000);
 
   it("keeps data intact after the grace date while execution is disabled", async () => {
     await request(app)

@@ -71,6 +71,18 @@ describe("API security baseline", () => {
     expect(fetchMetadata.body.code).toBe("UNTRUSTED_ORIGIN");
   });
 
+  it("returns a stable error code for invalid credentials", async () => {
+    const response = await request(app).post("/api/auth/login").send({
+      identifier: "missing-account@example.com",
+      password: "StrongPassword123",
+      accessPortal: "member",
+      captchaToken: "test-token",
+    });
+
+    expect(response.status).toBe(401);
+    expect(response.body.code).toBe("INVALID_CREDENTIALS");
+  });
+
   it("normalizes malformed JSON, oversized bodies, and unknown API routes", async () => {
     const malformed = await request(app)
       .post("/api/auth/login")

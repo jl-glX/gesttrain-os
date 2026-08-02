@@ -357,6 +357,7 @@
     "emailRequired": "El correo electrónico y la contraseña son obligatorios",
     "centerIdentifier": "Correo o teléfono del centro",
     "credentialsRequired": "El identificador y la contraseña son obligatorios",
+    "invalidCredentials": "El correo, teléfono o contraseña no son correctos",
     "rememberDevice": "Recordar este dispositivo durante 30 días",
     "rememberDeviceHelp": "Úsalo solo en un dispositivo personal. Podrás revocar la sesión desde Seguridad.",
     "signInWithPasskey": "Entrar con huella o clave de acceso",

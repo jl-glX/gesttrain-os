@@ -48,6 +48,8 @@ export function LoginPage() {
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaResetSignal, setCaptchaResetSignal] = useState(0);
   const { t } = useTranslation();
+  const displayedError =
+    error === "INVALID_CREDENTIALS" ? t("auth.invalidCredentials") : error;
   const demoAccount =
     accessPortal === "member"
       ? {
@@ -258,9 +260,11 @@ export function LoginPage() {
           }}
         />
       )}
-      {(validationError || error) && (
+      {(validationError || displayedError) && (
         <div className="mb-5 rounded-xl border border-red-200 bg-red-50 p-3.5">
-          <p className="text-sm text-red-600">{validationError || error}</p>
+          <p className="text-sm text-red-600">
+            {validationError || displayedError}
+          </p>
         </div>
       )}
 

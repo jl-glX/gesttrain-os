@@ -58,11 +58,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
         const data = (await response.json()) as {
           user?: AuthUser;
+          code?: string;
           error?: string;
           demoVerificationCode?: string;
           mfaRequired?: boolean;
         };
-        if (!response.ok) throw new Error(data.error ?? "Login failed");
+        if (!response.ok)
+          throw new Error(data.code ?? data.error ?? "LOGIN_FAILED");
         if (data.mfaRequired) return { mfaRequired: true };
         if (!data.user) throw new Error(data.error ?? "Login failed");
         setUser(data.user);

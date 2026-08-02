@@ -149,7 +149,10 @@ authRouter.post(
       setSessionCookie(res, result.sessionToken, result.rememberDevice);
       res.status(200).json({ user: result.user, mfaRequired: false });
     } catch {
-      res.status(401).json({ error: "Invalid email or password" });
+      res.status(401).json({
+        code: "INVALID_CREDENTIALS",
+        error: "Invalid email or password",
+      });
     }
   },
 );

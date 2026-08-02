@@ -7,6 +7,7 @@ const SCRIPT_URL =
   "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 const DEVELOPMENT_SITE_KEY = "1x00000000000000000000AA";
 const SUCCESS_VISIBILITY_MS = 10_000;
+const LOAD_TIMEOUT_MS = 10_000;
 
 declare global {
   interface Window {
@@ -41,12 +42,33 @@ function loadTurnstile(): Promise<void> {
   scriptPromise = new Promise((resolve, reject) => {
     const existing = document.getElementById(SCRIPT_ID) as HTMLScriptElement;
     const script = existing ?? document.createElement("script");
+    let settled = false;
+    const finish = (error?: Error) => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(loadTimeout);
+      if (error) {
+        scriptPromise = null;
+        reject(error);
+        return;
+      }
+      resolve();
+    };
+    const loadTimeout = window.setTimeout(
+      () => finish(new Error("Turnstile loading timed out")),
+      LOAD_TIMEOUT_MS,
+    );
     script.id = SCRIPT_ID;
     script.src = SCRIPT_URL;
     script.async = true;
     script.defer = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Turnstile could not be loaded"));
+    script.onload = () =>
+      finish(
+        window.turnstile
+          ? undefined
+          : new Error("Turnstile did not initialize"),
+      );
+    script.onerror = () => finish(new Error("Turnstile could not be loaded"));
     if (!existing) document.head.appendChild(script);
   });
   return scriptPromise;

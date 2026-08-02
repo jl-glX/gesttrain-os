@@ -353,6 +353,7 @@
     "emailRequired": "Email and password are required",
     "centerIdentifier": "Centre email or phone number",
     "credentialsRequired": "Identifier and password are required",
+    "invalidCredentials": "The email, phone number or password is incorrect",
     "rememberDevice": "Remember this device for 30 days",
     "rememberDeviceHelp": "Use only on a personal device. You can revoke the session from Security.",
     "signInWithPasskey": "Sign in with fingerprint or passkey",
