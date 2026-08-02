@@ -13,6 +13,7 @@ import {
   CURRENT_PRIVACY_VERSION,
   CURRENT_TERMS_VERSION,
 } from "../lib/legal-versions.js";
+import { completeAccountRecovery } from "./account-recovery.js";
 
 export { isStrongPassword } from "../lib/password-policy.js";
 
@@ -115,7 +116,7 @@ export async function createSession(
     })
     .execute();
 
-  await markMeaningfulAccountActivity(user.id, now);
+  await markMeaningfulAccountActivity(user.id, "login_success", now);
   const publicUser: AuthResult["user"] = {
     id: user.id,
     email: user.email,
@@ -276,6 +277,7 @@ export async function login(
     rememberDevice,
   );
   await recordSecurityEvent("login_succeeded", user.id);
+  await completeAccountRecovery(user.id, "login_success");
   return { mfaRequired: false, ...result };
 }
 
@@ -348,6 +350,7 @@ export async function completeMfaLogin(
   await recordSecurityEvent("mfa_succeeded", challenge.userId, {
     recoveryCode: verification.usedRecoveryCode,
   });
+  await completeAccountRecovery(challenge.userId, "mfa_verified");
   return result;
 }
 

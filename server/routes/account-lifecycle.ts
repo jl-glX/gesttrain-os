@@ -21,7 +21,10 @@ import {
   deletionReviewValidation,
   emptyAccountDeletionRequestValidation,
   inactivityPreferenceValidation,
+  scheduleAccountDeletionValidation,
 } from "../middleware/validation.js";
+import { authenticationLimiter } from "../middleware/security.js";
+import { verifyUserPassword } from "../services/auth.js";
 
 export const accountLifecycleRouter = express.Router();
 accountLifecycleRouter.use(authenticate);
@@ -71,14 +74,22 @@ accountLifecycleRouter.put(
 
 accountLifecycleRouter.post(
   "/deletion",
-  emptyAccountDeletionRequestValidation,
+  authenticationLimiter,
+  scheduleAccountDeletionValidation,
   async (
-    _req: express.Request,
+    req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
     try {
       const { userId } = getAuthenticatedUser(res);
+      if (!(await verifyUserPassword(userId, req.body.password))) {
+        res.status(401).json({
+          error: "Invalid security confirmation",
+          code: "SECURITY_CONFIRMATION_FAILED",
+        });
+        return;
+      }
       res.status(202).json(await scheduleAccountDeletion(userId, "manual"));
     } catch (error) {
       next(error);

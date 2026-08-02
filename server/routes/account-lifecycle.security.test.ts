@@ -27,6 +27,7 @@ describe("account deletion security", () => {
     );
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
+    vi.stubEnv("AUTH_RATE_LIMIT_MAX_REQUESTS", "100");
     vi.resetModules();
     database = await import("../db/client.js");
     const auth = await import("../services/auth.js");
@@ -121,13 +122,23 @@ describe("account deletion security", () => {
     ).toMatchObject({ count: 0 });
   });
 
+  it("requires a valid password before scheduling manual closure", async () => {
+    const response = await request(app)
+      .post("/api/account/lifecycle/deletion")
+      .set("Cookie", ownerCookie)
+      .send({ password: "NotTheOwnerPassword123" })
+      .expect(401);
+
+    expect(response.body.code).toBe("SECURITY_CONFIRMATION_FAILED");
+  });
+
   it("schedules concurrent requests once and isolates them by account", async () => {
     const responses = await Promise.all(
       Array.from({ length: 8 }, () =>
         request(app)
           .post("/api/account/lifecycle/deletion")
           .set("Cookie", ownerCookie)
-          .send({}),
+          .send({ password: "StrongPassword123" }),
       ),
     );
 
@@ -155,7 +166,7 @@ describe("account deletion security", () => {
     await request(app)
       .post("/api/account/lifecycle/deletion")
       .set("Cookie", ownerCookie)
-      .send({})
+      .send({ password: "StrongPassword123" })
       .expect(202);
     await database.db
       .updateTable("accountDeletionRequests")
@@ -188,7 +199,7 @@ describe("account deletion security", () => {
     await request(app)
       .post("/api/account/lifecycle/deletion")
       .set("Cookie", ownerCookie)
-      .send({})
+      .send({ password: "StrongPassword123" })
       .expect(202);
 
     for (let attempt = 0; attempt < 2; attempt += 1) {

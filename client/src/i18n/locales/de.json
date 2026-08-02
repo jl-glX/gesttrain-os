@@ -266,6 +266,23 @@
     "privacy": "Lediglich die Kennung und visuelle Details werden gespeichert. GestTrain/OS speichert hier niemals das Passwort oder die Sitzung."
   },
   "accountControl": {
+    "managerEyebrow": "Kontoverwaltung",
+    "managerTitle": "Allgemeiner Kontostatus",
+    "managerDescription": "Koordinierte Übersicht über Sicherheit, Wiederherstellung und Lebenszyklus. Zukünftige Funktionen bleiben von verfügbaren getrennt.",
+    "managerLoading": "Aktueller Kontostatus wird geprüft…",
+    "managerError": "Die Übersicht konnte nicht geladen werden. Die übrigen Kontooptionen bleiben verfügbar.",
+    "managerSecurity": "Sicherheit",
+    "managerSecuritySummary": "MFA: {{mfa}} · {{passkeys}} Passkeys · {{sessions}} aktive Sitzungen",
+    "managerMfaEnabled": "aktiviert",
+    "managerMfaDisabled": "deaktiviert",
+    "managerRecovery": "Wiederherstellung",
+    "managerRecoverySummary": "{{available}} Methoden verfügbar und {{planned}} für später vorbereitet.",
+    "managerLifecycle": "Lebenszyklus",
+    "managerDeletionPending": "Eine reversible Schliessung befindet sich in der Schonfrist.",
+    "managerInactivityEnabled": "Löschung bei Inaktivität ist auf {{months}} Monate eingestellt.",
+    "managerInactivityDisabled": "Automatische Löschung bei Inaktivität ist deaktiviert.",
+    "managerContinuity": "Kontinuität",
+    "managerContinuityPlanned": "Die Kontovollmacht ist nur eine Integrationsbasis und kann noch nicht ausgeführt werden.",
     "comingSoon": "Kommt bald",
     "open": "Offen",
     "personalSection": "Persönliches Konto",
@@ -384,6 +401,12 @@
     "cancelAccount": "Kontoschliessung abbrechen",
     "pendingUntil": "Das Konto soll am {{date}} geschlossen werden.",
     "accountScheduled": "Die vollständige Kontoschliessung wurde geplant.",
+    "impactBookings": "{{count}} Buchungen oder Wartelistenplätze sind bei der Schliessung betroffen.",
+    "impactSessions": "{{count}} aktive Sitzungen werden widerrufen.",
+    "impactDelegations": "{{count}} ausstehende oder aktive Berechtigungen und Delegationen werden beendet.",
+    "impactDownloads": "Der Export persönlicher Daten ist geplant, aber in dieser Version noch nicht verfügbar.",
+    "passwordConfirmation": "Passwort bestätigen",
+    "reauthenticationNotice": "Diese verstärkte Bestätigung autorisiert nur die reversible Planung der Schliessung. MFA und Passkey sind als zusätzliche Methoden vorbereitet.",
     "accountCancelled": "Die vollständige Kontoschliessung wurde abgebrochen."
   },
   "dataRetention": {
@@ -566,7 +589,7 @@
     "heapCapacity": "Reservierte Kapazität",
     "memory": "Speicher im Einsatz",
     "uptime": "Betriebszeit",
-    "activeTasks": "Aktive Aufgaben",
+    "enabledTasks": "Aktivierte Aufgaben",
     "residualChecksTitle": "Prüfung auf verbliebene Prozesse aktiv",
     "residualChecksSummary": "{{checks}} Prüfungen abgeschlossen · {{removed}} veraltete Laufzeitdatensätze entfernt",
     "lastResidualCheck": "Letzte Prüfung: {{date}}",
@@ -600,6 +623,10 @@
       "project-runtime-cleanup": {
         "name": "Projektlaufzeit bereinigen",
         "description": "Entfernt veraltete GestTrain/OS-Einträge und verhindert doppelte Entwicklungsinstanzen, ohne andere Prozesse anzutasten."
+      },
+      "deleted-account-residual-cleanup": {
+        "name": "Restbereinigung gelöschter Konten",
+        "description": "Entfernt technische Reste nicht mehr vorhandener Konten, ohne Schliessungen oder Inaktivitätsfristen zu bestimmen."
       },
       "source-hygiene-audit": {
         "name": "Quellcode-Hygieneprüfung",
@@ -1059,6 +1086,10 @@
     "securityNotice": "Das Öffnen eines Links oder dieser Seite reaktiviert kein Konto und stoppt keine Löschung. Eine erfolgreiche Prüfung ist erforderlich.",
     "returnToLogin": "Zur Anmeldung zurückkehren",
     "methods": {
+      "password": {
+        "title": "Passwort ändern",
+        "description": "Ermöglicht ein neues Passwort nach erfolgreicher Identitätsprüfung."
+      },
       "email": {
         "title": "Wiederherstellungs-E-Mail",
         "description": "Ermöglicht einen zeitlich begrenzten Link, sobald ein E-Mail-Dienst eingerichtet ist."

@@ -73,6 +73,23 @@
     "privacy": "Solo se guardan el identificador y los datos visuales. GestTrain/OS nunca guarda aquí la contraseña ni la sesión."
   },
   "accountControl": {
+    "managerEyebrow": "Gestor de cuentas",
+    "managerTitle": "Estado general de tu cuenta",
+    "managerDescription": "Resumen coordinado de seguridad, recuperación y ciclo de vida. Las funciones futuras aparecen separadas de las disponibles.",
+    "managerLoading": "Comprobando el estado actual de la cuenta…",
+    "managerError": "No se ha podido cargar el resumen. Las demás opciones de la cuenta siguen disponibles.",
+    "managerSecurity": "Seguridad",
+    "managerSecuritySummary": "MFA: {{mfa}} · {{passkeys}} passkeys · {{sessions}} sesiones activas",
+    "managerMfaEnabled": "activado",
+    "managerMfaDisabled": "desactivado",
+    "managerRecovery": "Recuperación",
+    "managerRecoverySummary": "{{available}} métodos disponibles y {{planned}} preparados para el futuro.",
+    "managerLifecycle": "Ciclo de vida",
+    "managerDeletionPending": "Existe un cierre reversible dentro del periodo de gracia.",
+    "managerInactivityEnabled": "Borrado por inactividad configurado a {{months}} meses.",
+    "managerInactivityDisabled": "El borrado automático por inactividad está desactivado.",
+    "managerContinuity": "Continuidad",
+    "managerContinuityPlanned": "La representación de cuenta es solo una base de integración y todavía no puede ejecutarse.",
     "eyebrow": "Área de control de la cuenta",
     "open": "Abrir",
     "comingSoon": "Próximamente",
@@ -191,6 +208,12 @@
     "cancelAccount": "Cancelar el cierre de la cuenta",
     "pendingUntil": "La cuenta está programada para cerrarse el {{date}}.",
     "accountScheduled": "El cierre completo se ha programado.",
+    "impactBookings": "{{count}} reservas o posiciones en espera se verán afectadas al ejecutar el cierre.",
+    "impactSessions": "{{count}} sesiones activas se revocarán.",
+    "impactDelegations": "{{count}} permisos o delegaciones pendientes o activas finalizarán.",
+    "impactDownloads": "La exportación de datos personales está prevista, pero todavía no está disponible en esta versión.",
+    "passwordConfirmation": "Confirma tu contraseña",
+    "reauthenticationNotice": "Esta confirmación reforzada autoriza únicamente la programación reversible del cierre. MFA y passkey quedan preparados como métodos adicionales.",
     "accountCancelled": "El cierre completo se ha cancelado."
   },
   "dataRetention": {
@@ -481,7 +504,7 @@
     "memory": "Memoria en uso",
     "heapCapacity": "Capacidad reservada",
     "uptime": "Tiempo activo",
-    "activeTasks": "Tareas activas",
+    "enabledTasks": "Tareas habilitadas",
     "residualChecksTitle": "Comprobación de procesos residuales activa",
     "residualChecksSummary": "{{checks}} comprobaciones completadas · {{removed}} registros residuales retirados",
     "lastResidualCheck": "Última comprobación: {{date}}",
@@ -515,6 +538,10 @@
       "project-runtime-cleanup": {
         "name": "Limpieza del entorno del proyecto",
         "description": "Retira registros residuales de GestTrain/OS y evita instancias de desarrollo duplicadas sin tocar otros procesos de Windows."
+      },
+      "deleted-account-residual-cleanup": {
+        "name": "Limpieza residual de cuentas borradas",
+        "description": "Retira restos técnicos cuya cuenta ya no existe, sin decidir cierres ni periodos de inactividad."
       },
       "source-hygiene-audit": {
         "name": "Auditoría de higiene del código",
@@ -1081,6 +1108,10 @@
     "securityNotice": "Abrir un enlace o visitar esta pantalla no reactiva una cuenta ni cancela un borrado. Será necesaria una verificación satisfactoria.",
     "returnToLogin": "Volver e iniciar sesión",
     "methods": {
+      "password": {
+        "title": "Cambio de contraseña",
+        "description": "Permitirá establecer una contraseña nueva después de completar una verificación de identidad válida."
+      },
       "email": {
         "title": "Correo de recuperación",
         "description": "Permitirá solicitar un enlace temporal cuando exista un proveedor de correo configurado."

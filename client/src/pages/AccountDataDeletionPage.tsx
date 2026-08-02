@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   CircleAlert,
   FileCheck2,
+  LockKeyhole,
   RotateCcw,
   Trash2,
 } from "lucide-react";
@@ -39,6 +40,13 @@ interface DeletionReview {
     updatedAt: number;
   } | null;
   legalRetentionNoticeRequired: true;
+  closureImpact: {
+    reservationsAffected: number;
+    activeSessions: number;
+    delegationGrantsAffected: number;
+    dataExportStatus: "planned";
+    executionEnabled: false;
+  };
 }
 
 async function reviewRequest(
@@ -64,6 +72,7 @@ export function AccountDataDeletionPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [password, setPassword] = useState("");
 
   const load = useCallback(async () => {
     const result = await reviewRequest();
@@ -121,8 +130,12 @@ export function AccountDataDeletionPage() {
         (category) => category.dataCategory,
       );
       await saveDraft("account_closure", allCategories);
-      await reviewRequest("/deletion", { method: "POST" });
+      await reviewRequest("/deletion", {
+        method: "POST",
+        body: JSON.stringify({ password }),
+      });
       await load();
+      setPassword("");
       setNotice(t("accountDataDeletion.accountScheduled"));
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
@@ -262,6 +275,29 @@ export function AccountDataDeletionPage() {
             })}
           </p>
 
+          {review && (
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200 p-4 text-sm text-slate-700">
+                {t("accountDataDeletion.impactBookings", {
+                  count: review.closureImpact.reservationsAffected,
+                })}
+              </div>
+              <div className="rounded-2xl border border-slate-200 p-4 text-sm text-slate-700">
+                {t("accountDataDeletion.impactSessions", {
+                  count: review.closureImpact.activeSessions,
+                })}
+              </div>
+              <div className="rounded-2xl border border-slate-200 p-4 text-sm text-slate-700">
+                {t("accountDataDeletion.impactDelegations", {
+                  count: review.closureImpact.delegationGrantsAffected,
+                })}
+              </div>
+              <div className="rounded-2xl border border-slate-200 p-4 text-sm text-slate-700">
+                {t("accountDataDeletion.impactDownloads")}
+              </div>
+            </div>
+          )}
+
           {review?.deletionRequest ? (
             <>
               <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
@@ -280,15 +316,33 @@ export function AccountDataDeletionPage() {
               </Button>
             </>
           ) : (
-            <Button
-              className="mt-5"
-              variant="destructive"
-              disabled={busy || !review}
-              onClick={() => void scheduleAccountClosure()}
-            >
-              <Trash2 size={17} />
-              {t("accountDataDeletion.deleteAccount")}
-            </Button>
+            <div className="mt-5 max-w-xl">
+              <label className="block text-sm font-semibold text-slate-800">
+                <span className="flex items-center gap-2">
+                  <LockKeyhole size={17} />
+                  {t("accountDataDeletion.passwordConfirmation")}
+                </span>
+                <input
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5"
+                />
+              </label>
+              <p className="mt-2 text-xs leading-5 text-slate-500">
+                {t("accountDataDeletion.reauthenticationNotice")}
+              </p>
+              <Button
+                className="mt-4"
+                variant="destructive"
+                disabled={busy || !review || password.length === 0}
+                onClick={() => void scheduleAccountClosure()}
+              >
+                <Trash2 size={17} />
+                {t("accountDataDeletion.deleteAccount")}
+              </Button>
+            </div>
           )}
         </Card>
       </div>

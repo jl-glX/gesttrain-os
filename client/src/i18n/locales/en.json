@@ -69,6 +69,23 @@
     "privacy": "Only the identifier and visual details are stored. GestTrain/OS never saves the password or session here."
   },
   "accountControl": {
+    "managerEyebrow": "Account manager",
+    "managerTitle": "Overall account status",
+    "managerDescription": "A coordinated summary of security, recovery and lifecycle. Future functions are kept separate from available ones.",
+    "managerLoading": "Checking the current account status…",
+    "managerError": "The summary could not be loaded. Other account options remain available.",
+    "managerSecurity": "Security",
+    "managerSecuritySummary": "MFA: {{mfa}} · {{passkeys}} passkeys · {{sessions}} active sessions",
+    "managerMfaEnabled": "enabled",
+    "managerMfaDisabled": "disabled",
+    "managerRecovery": "Recovery",
+    "managerRecoverySummary": "{{available}} methods available and {{planned}} prepared for the future.",
+    "managerLifecycle": "Lifecycle",
+    "managerDeletionPending": "A reversible closure is currently within its grace period.",
+    "managerInactivityEnabled": "Inactivity deletion is configured for {{months}} months.",
+    "managerInactivityDisabled": "Automatic inactivity deletion is disabled.",
+    "managerContinuity": "Continuity",
+    "managerContinuityPlanned": "Account representation is only an integration base and cannot yet be executed.",
     "eyebrow": "Account control area",
     "open": "Open",
     "comingSoon": "Coming soon",
@@ -187,6 +204,12 @@
     "cancelAccount": "Cancel account closure",
     "pendingUntil": "The account is scheduled to close on {{date}}.",
     "accountScheduled": "Full account closure was scheduled.",
+    "impactBookings": "{{count}} bookings or waitlist positions will be affected when closure is executed.",
+    "impactSessions": "{{count}} active sessions will be revoked.",
+    "impactDelegations": "{{count}} pending or active permissions and delegations will end.",
+    "impactDownloads": "Personal data export is planned but is not available in this version yet.",
+    "passwordConfirmation": "Confirm your password",
+    "reauthenticationNotice": "This reinforced confirmation only authorizes reversible closure scheduling. MFA and passkey are prepared as additional methods.",
     "accountCancelled": "Full account closure was cancelled."
   },
   "dataRetention": {
@@ -477,7 +500,7 @@
     "memory": "Memory in use",
     "heapCapacity": "Reserved capacity",
     "uptime": "Uptime",
-    "activeTasks": "Active tasks",
+    "enabledTasks": "Enabled tasks",
     "residualChecksTitle": "Residual process checks active",
     "residualChecksSummary": "{{checks}} checks completed · {{removed}} stale runtime records removed",
     "lastResidualCheck": "Last check: {{date}}",
@@ -511,6 +534,10 @@
       "project-runtime-cleanup": {
         "name": "Project runtime cleanup",
         "description": "Removes stale GestTrain/OS records and prevents duplicate development instances without touching other operating-system processes."
+      },
+      "deleted-account-residual-cleanup": {
+        "name": "Deleted account residual cleanup",
+        "description": "Removes technical remnants whose account no longer exists, without deciding closures or inactivity periods."
       },
       "source-hygiene-audit": {
         "name": "Source hygiene audit",
@@ -1071,6 +1098,10 @@
     "securityNotice": "Opening a link or visiting this screen does not reactivate an account or cancel deletion. Successful verification will be required.",
     "returnToLogin": "Return to sign in",
     "methods": {
+      "password": {
+        "title": "Password change",
+        "description": "Will allow a new password to be set after completing valid identity verification."
+      },
       "email": {
         "title": "Recovery email",
         "description": "Will request a temporary link when an email provider is configured."

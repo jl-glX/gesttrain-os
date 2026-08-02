@@ -20,6 +20,7 @@ import { facilityProfileRouter } from "./routes/facility-profile.js";
 import { accountProfileRouter } from "./routes/account-profile.js";
 import { accountIdentityRouter } from "./routes/account-identity.js";
 import { accountLifecycleRouter } from "./routes/account-lifecycle.js";
+import { accountManagerRouter } from "./routes/account-manager.js";
 import { dataRetentionRouter } from "./routes/data-retention.js";
 import { memberCommerceRouter } from "./routes/member-commerce.js";
 import { delegationsRouter } from "./routes/delegations.js";
@@ -37,6 +38,10 @@ import {
 } from "./services/resource-manager.js";
 import { getAllowedClientOrigins } from "./lib/request-origin.js";
 import { shouldSeedDemoData } from "./lib/demo-data-policy.js";
+import {
+  startAccountLifecycleScheduler,
+  stopAccountLifecycleScheduler,
+} from "./services/account-lifecycle-scheduler.js";
 
 dotenv.config();
 
@@ -91,6 +96,7 @@ app.use(express.urlencoded({ extended: false, limit: requestLimit }));
 // API routes
 app.use("/api/auth", authRouter);
 app.use("/api/account/lifecycle", accountLifecycleRouter);
+app.use("/api/account/manager", accountManagerRouter);
 app.use("/api/admin/data-retention", dataRetentionRouter);
 app.use("/api/classes", classesRouter);
 app.use("/api/bookings", bookingsRouter);
@@ -141,6 +147,7 @@ export async function startServer(port: string | number): Promise<Server> {
       await seedDatabase();
     }
     await startResourceManager();
+    await startAccountLifecycleScheduler();
 
     return await new Promise<Server>((resolve, reject) => {
       const server = app.listen(port, () => {
@@ -151,6 +158,7 @@ export async function startServer(port: string | number): Promise<Server> {
     });
   } catch (err) {
     console.error("Failed to start server:", err);
+    await stopAccountLifecycleScheduler();
     await stopResourceManager();
     throw err;
   }
@@ -159,6 +167,7 @@ export async function startServer(port: string | number): Promise<Server> {
 export function stopServer(server: Server): void {
   console.log("Shutting down gracefully...");
   void (async () => {
+    await stopAccountLifecycleScheduler();
     await stopResourceManager();
     server.close((error) => {
       closeDatabase();

@@ -3,6 +3,7 @@ import { createServer, type ViteDevServer } from "vite";
 import { closeDatabase } from "../server/db/client.js";
 import { startServer } from "../server/index.js";
 import { stopResourceManager } from "../server/services/resource-manager.js";
+import { stopAccountLifecycleScheduler } from "../server/services/account-lifecycle-scheduler.js";
 import {
   acquireDevelopmentLease,
   releaseDevelopmentLease,
@@ -65,6 +66,7 @@ async function shutdown(exitCode: number): Promise<void> {
   }
 
   const cleanupResults = await Promise.allSettled([
+    stopAccountLifecycleScheduler(),
     stopResourceManager(),
     releaseDevelopmentLease(),
   ]);

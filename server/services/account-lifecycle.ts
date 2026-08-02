@@ -6,6 +6,7 @@ import {
   type AccountDataCategory,
 } from "./data-retention.js";
 import { recordSecurityEvent } from "./security-events.js";
+import { getAccountContinuityBridge } from "./account-continuity.js";
 
 export const INACTIVITY_DELETION_OPTIONS = [6, 12, 18, 24, 36] as const;
 export type InactivityDeletionMonths =
@@ -13,12 +14,37 @@ export type InactivityDeletionMonths =
 
 const DELETION_GRACE_PERIOD_MS = 30 * 24 * 60 * 60 * 1000;
 
+export const MEANINGFUL_ACTIVITY_SOURCES = [
+  "login_success",
+  "booking_created",
+  "booking_cancelled",
+  "personal_account_action",
+  "authenticated_tool_use",
+  "user_initiated_payment",
+  "account_configuration_changed",
+  "account_recovery_completed",
+] as const;
+export type MeaningfulActivitySource =
+  (typeof MEANINGFUL_ACTIVITY_SOURCES)[number];
+
+function addUtcMonths(timestamp: number, months: number): number {
+  const date = new Date(timestamp);
+  const originalDay = date.getUTCDate();
+  date.setUTCDate(1);
+  date.setUTCMonth(date.getUTCMonth() + months);
+  const lastDay = new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0),
+  ).getUTCDate();
+  date.setUTCDate(Math.min(originalDay, lastDay));
+  return date.getTime();
+}
+
 function requestId(): string {
   return `deletion-${randomBytes(12).toString("hex")}`;
 }
 
 export async function getAccountLifecycle(userId: string) {
-  const [preference, request, dataDisposition] = await Promise.all([
+  const [preference, request, dataDisposition, user] = await Promise.all([
     db
       .selectFrom("accountDeletionPreferences")
       .selectAll()
@@ -31,15 +57,21 @@ export async function getAccountLifecycle(userId: string) {
       .where("status", "=", "scheduled")
       .executeTakeFirst(),
     getAccountDispositionPreview(userId),
+    db
+      .selectFrom("users")
+      .select("createdAt")
+      .where("id", "=", userId)
+      .executeTakeFirstOrThrow(),
   ]);
 
   return {
     inactivityMonths: preference?.inactivityMonths ?? null,
     lastMeaningfulActivityAt:
-      preference?.lastMeaningfulActivityAt ?? Date.now(),
+      preference?.lastMeaningfulActivityAt ?? user.createdAt,
     deletionRequest: request ?? null,
     gracePeriodDays: 30,
     dataDisposition,
+    continuityBridge: getAccountContinuityBridge(),
   };
 }
 
@@ -59,6 +91,7 @@ export async function updateInactivityDeletionPreference(
     .onConflict((conflict) =>
       conflict.column("userId").doUpdateSet({
         inactivityMonths,
+        lastMeaningfulActivityAt: now,
         updatedAt: now,
       }),
     )
@@ -71,8 +104,12 @@ export async function updateInactivityDeletionPreference(
 
 export async function markMeaningfulAccountActivity(
   userId: string,
+  source: MeaningfulActivitySource,
   occurredAt = Date.now(),
 ): Promise<void> {
+  if (!MEANINGFUL_ACTIVITY_SOURCES.includes(source)) {
+    throw new Error("Invalid meaningful account activity source");
+  }
   await db
     .insertInto("accountDeletionPreferences")
     .values({
@@ -90,9 +127,54 @@ export async function markMeaningfulAccountActivity(
     .execute();
 }
 
+export async function hasScheduledAccountDeletion(
+  userId: string,
+): Promise<boolean> {
+  const request = await db
+    .selectFrom("accountDeletionRequests")
+    .select("id")
+    .where("userId", "=", userId)
+    .where("status", "=", "scheduled")
+    .executeTakeFirst();
+  return Boolean(request);
+}
+
+export async function evaluateDueInactivityDeletions(
+  now = Date.now(),
+): Promise<{ evaluated: number; scheduled: number }> {
+  const preferences = await db
+    .selectFrom("accountDeletionPreferences")
+    .select(["userId", "inactivityMonths", "lastMeaningfulActivityAt"])
+    .where("inactivityMonths", "is not", null)
+    .execute();
+  let scheduled = 0;
+  for (const preference of preferences) {
+    if (
+      preference.inactivityMonths !== null &&
+      addUtcMonths(
+        preference.lastMeaningfulActivityAt,
+        preference.inactivityMonths,
+      ) <= now
+    ) {
+      const before = await db
+        .selectFrom("accountDeletionRequests")
+        .select("id")
+        .where("userId", "=", preference.userId)
+        .where("status", "=", "scheduled")
+        .executeTakeFirst();
+      if (!before) {
+        await scheduleAccountDeletion(preference.userId, "inactivity", now);
+        scheduled += 1;
+      }
+    }
+  }
+  return { evaluated: preferences.length, scheduled };
+}
+
 export async function scheduleAccountDeletion(
   userId: string,
   trigger: "manual" | "inactivity",
+  requestedAt = Date.now(),
 ) {
   const existing = await db
     .selectFrom("accountDeletionRequests")
@@ -102,7 +184,7 @@ export async function scheduleAccountDeletion(
     .executeTakeFirst();
   if (existing) return getAccountLifecycle(userId);
 
-  const now = Date.now();
+  const now = requestedAt;
   const result = await db
     .insertInto("accountDeletionRequests")
     .values({
@@ -125,7 +207,10 @@ export async function scheduleAccountDeletion(
   return getAccountLifecycle(userId);
 }
 
-export async function cancelScheduledAccountDeletion(userId: string) {
+export async function cancelScheduledAccountDeletion(
+  userId: string,
+  options: { recoveryEvent?: string } = {},
+) {
   const now = Date.now();
   const result = await db
     .updateTable("accountDeletionRequests")
@@ -135,20 +220,69 @@ export async function cancelScheduledAccountDeletion(userId: string) {
     .executeTakeFirst();
 
   if (Number(result.numUpdatedRows) > 0) {
-    await markMeaningfulAccountActivity(userId, now);
+    await markMeaningfulAccountActivity(
+      userId,
+      options.recoveryEvent
+        ? "account_recovery_completed"
+        : "personal_account_action",
+      now,
+    );
     await recordSecurityEvent("account_deletion_cancelled", userId);
   }
   return getAccountLifecycle(userId);
 }
 
 export async function getDataDeletionReview(userId: string) {
-  const [lifecycle, draft] = await Promise.all([
+  const now = Date.now();
+  const [
+    lifecycle,
+    draft,
+    affectedBookings,
+    activeSessionRows,
+    sessionSettings,
+    affectedDelegations,
+  ] = await Promise.all([
     getAccountLifecycle(userId),
     db
       .selectFrom("accountDataDeletionDrafts")
       .select(["selectedCategories", "intent", "updatedAt"])
       .where("userId", "=", userId)
       .executeTakeFirst(),
+    db
+      .selectFrom("bookings")
+      .select(({ fn }) => fn.countAll<number>().as("count"))
+      .where("userId", "=", userId)
+      .where("status", "!=", "cancelled")
+      .executeTakeFirstOrThrow(),
+    db
+      .selectFrom("sessions")
+      .select("lastSeenAt")
+      .where("userId", "=", userId)
+      .where("revokedAt", "is", null)
+      .where("expiresAt", ">", now)
+      .execute(),
+    db
+      .selectFrom("users")
+      .select("sessionIdleTimeoutMinutes")
+      .where("id", "=", userId)
+      .executeTakeFirstOrThrow(),
+    db
+      .selectFrom("delegationGrants")
+      .select(({ fn }) => fn.countAll<number>().as("count"))
+      .where((expression) =>
+        expression.or([
+          expression("ownerUserId", "=", userId),
+          expression("delegateUserId", "=", userId),
+        ]),
+      )
+      .where("revokedAt", "is", null)
+      .where((expression) =>
+        expression.or([
+          expression("expiresAt", "is", null),
+          expression("expiresAt", ">", now),
+        ]),
+      )
+      .executeTakeFirstOrThrow(),
   ]);
 
   let selectedCategories: AccountDataCategory[] = [];
@@ -177,6 +311,18 @@ export async function getDataDeletionReview(userId: string) {
         }
       : null,
     legalRetentionNoticeRequired: true,
+    closureImpact: {
+      reservationsAffected: Number(affectedBookings.count),
+      activeSessions: activeSessionRows.filter(
+        (session) =>
+          session.lastSeenAt +
+            sessionSettings.sessionIdleTimeoutMinutes * 60 * 1000 >
+          now,
+      ).length,
+      delegationGrantsAffected: Number(affectedDelegations.count),
+      dataExportStatus: "planned" as const,
+      executionEnabled: false as const,
+    },
   };
 }
 

@@ -7,6 +7,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 describe("resource manager API", () => {
   let directory: string;
   let database: typeof import("../db/client.js");
+  let resources: typeof import("../services/resource-manager.js");
   let app: typeof import("../index.js").app;
   let adminCookie: string;
   let memberCookie: string;
@@ -18,7 +19,7 @@ describe("resource manager API", () => {
     vi.resetModules();
 
     database = await import("../db/client.js");
-    const resources = await import("../services/resource-manager.js");
+    resources = await import("../services/resource-manager.js");
     const auth = await import("../services/auth.js");
     await database.initializeDatabase();
     await resources.startResourceManager();
@@ -68,7 +69,6 @@ describe("resource manager API", () => {
   });
 
   afterAll(async () => {
-    const resources = await import("../services/resource-manager.js");
     await resources.stopResourceManager();
     database.closeDatabase();
     vi.unstubAllEnvs();
@@ -87,6 +87,10 @@ describe("resource manager API", () => {
         expect.objectContaining({ id: "sqlite-query-planner" }),
         expect.objectContaining({ id: "booking-integrity-cleanup" }),
         expect.objectContaining({ id: "project-runtime-cleanup" }),
+        expect.objectContaining({
+          id: "deleted-account-residual-cleanup",
+          enabled: true,
+        }),
         expect.objectContaining({
           id: "source-hygiene-audit",
           enabled: false,
@@ -144,6 +148,23 @@ describe("resource manager API", () => {
     });
   });
 
+  it("keeps account lifecycle decisions outside resource cleanup", async () => {
+    const response = await request(app)
+      .post(
+        "/api/admin/resource-manager/tasks/deleted-account-residual-cleanup/run",
+      )
+      .set("Cookie", adminCookie)
+      .expect(200);
+
+    expect(response.body).toMatchObject({
+      id: "deleted-account-residual-cleanup",
+      lastResultCount: 0,
+    });
+    expect(response.body.lastSummary.includes("orphaned deleted-account")).toBe(
+      true,
+    );
+  });
+
   it("rejects resource controls for members", async () => {
     await request(app)
       .get("/api/admin/resource-manager")
@@ -173,5 +194,35 @@ describe("resource manager API", () => {
       enabled: true,
       state: "idle",
     });
+  });
+
+  it("protects critical tasks and reports unknown tasks clearly", async () => {
+    const critical = await request(app)
+      .patch("/api/admin/resource-manager/tasks/booking-integrity-cleanup")
+      .set("Cookie", adminCookie)
+      .send({ enabled: false })
+      .expect(409);
+    expect(critical.body.code).toBe("CRITICAL_TASK_REQUIRED");
+
+    const missing = await request(app)
+      .post("/api/admin/resource-manager/tasks/not-registered/run")
+      .set("Cookie", adminCookie)
+      .expect(404);
+    expect(missing.body.code).toBe("RESOURCE_TASK_NOT_FOUND");
+  });
+
+  it("stops and restarts once without leaving duplicate schedules", async () => {
+    await resources.stopResourceManager();
+    expect(resources.getResourceManagerStatus().started).toBe(false);
+
+    await Promise.all([
+      resources.startResourceManager(),
+      resources.startResourceManager(),
+    ]);
+    const status = resources.getResourceManagerStatus();
+    expect(status.started).toBe(true);
+    expect(
+      status.tasks.every((task) => !task.enabled || task.nextRunAt !== null),
+    ).toBe(true);
   });
 });

@@ -12,14 +12,15 @@ import { Button } from "../components/ui/button";
 import { useEffect, useState } from "react";
 
 type RecoveryMethod = {
-  id: "email" | "code" | "passkey" | "support";
+  id: "password" | "email" | "code" | "passkey" | "support";
   status: "available" | "planned";
   entryPoint: "/login" | null;
   requiresCompletedVerification: true;
-  canCancelPendingDeletion: false;
+  canCancelPendingDeletion: boolean;
 };
 
 const methodIcons = {
+  password: KeyRound,
   email: Mail,
   code: KeyRound,
   passkey: Fingerprint,

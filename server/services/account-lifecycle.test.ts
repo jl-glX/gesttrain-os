@@ -40,12 +40,52 @@ describe("account lifecycle", () => {
     expect(configured.inactivityMonths).toBe(12);
     expect(configured.dataDisposition.executionEnabled).toBe(false);
     expect(configured.dataDisposition.categories).toHaveLength(5);
+    expect(configured.continuityBridge).toMatchObject({
+      status: "planned",
+      executionEnabled: false,
+      identityTransferAllowed: false,
+    });
 
     const disabled = await lifecycle.updateInactivityDeletionPreference(
       userId,
       null,
     );
     expect(disabled.inactivityMonths).toBeNull();
+  });
+
+  it("starts one grace period after the user-defined inactivity threshold", async () => {
+    await lifecycle.updateInactivityDeletionPreference(userId, 6);
+    await database.db
+      .updateTable("accountDeletionPreferences")
+      .set({
+        lastMeaningfulActivityAt: Date.now() - 7 * 30 * 24 * 60 * 60 * 1000,
+      })
+      .where("userId", "=", userId)
+      .execute();
+
+    const result = await lifecycle.evaluateDueInactivityDeletions();
+    expect(result).toMatchObject({ evaluated: 1, scheduled: 1 });
+    expect(
+      (await lifecycle.getAccountLifecycle(userId)).deletionRequest,
+    ).toMatchObject({ trigger: "inactivity", status: "scheduled" });
+    await lifecycle.cancelScheduledAccountDeletion(userId);
+  });
+
+  it("uses calendar months instead of fixed thirty-day approximations", async () => {
+    await lifecycle.updateInactivityDeletionPreference(userId, 6);
+    await database.db
+      .updateTable("accountDeletionPreferences")
+      .set({ lastMeaningfulActivityAt: Date.UTC(2025, 7, 31) })
+      .where("userId", "=", userId)
+      .execute();
+
+    expect(
+      await lifecycle.evaluateDueInactivityDeletions(Date.UTC(2026, 1, 27)),
+    ).toMatchObject({ scheduled: 0 });
+    expect(
+      await lifecycle.evaluateDueInactivityDeletions(Date.UTC(2026, 1, 28)),
+    ).toMatchObject({ scheduled: 1 });
+    await lifecycle.cancelScheduledAccountDeletion(userId);
   });
 
   it("schedules one reversible request with a thirty-day grace period", async () => {
@@ -82,5 +122,38 @@ describe("account lifecycle", () => {
     await expect(
       lifecycle.saveDataDeletionReview(userId, [], "selected_data"),
     ).rejects.toThrow("Select at least one data category");
+  });
+
+  it("cancels pending deletion only after a completed recovery event", async () => {
+    const recovery = await import("./account-recovery.js");
+    await lifecycle.scheduleAccountDeletion(userId, "manual");
+
+    const completed = await recovery.completeAccountRecovery(
+      userId,
+      "password_reset_completed",
+    );
+
+    expect(completed.cancelledPendingDeletion).toBe(true);
+    expect(completed.lifecycle?.deletionRequest).toBeNull();
+  });
+
+  it("reports only genuinely active sessions and keeps data export disabled", async () => {
+    await database.db
+      .updateTable("users")
+      .set({ sessionIdleTimeoutMinutes: 15 })
+      .where("id", "=", userId)
+      .execute();
+    await database.db
+      .updateTable("sessions")
+      .set({ lastSeenAt: Date.now() - 16 * 60 * 1000 })
+      .where("userId", "=", userId)
+      .execute();
+
+    const review = await lifecycle.getDataDeletionReview(userId);
+    expect(review.closureImpact).toMatchObject({
+      activeSessions: 0,
+      dataExportStatus: "planned",
+      executionEnabled: false,
+    });
   });
 });

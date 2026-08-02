@@ -1,8 +1,12 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
   BarChart3,
   Bell,
+  CircleAlert,
+  CircleCheck,
+  LoaderCircle,
   CalendarDays,
   CreditCard,
   Download,
@@ -23,6 +27,31 @@ import { useAuth } from "../hooks/useAuth";
 import { ProfilePhotoSettings } from "../components/ProfilePhotoSettings";
 import { DelegationManager } from "../components/DelegationManager";
 import { AccountSupportIdentifier } from "../components/AccountSupportIdentifier";
+import { authFetch } from "../lib/api";
+
+interface AccountManagerOverview {
+  accountStatus: "pending_verification" | "active" | "security_review";
+  security: {
+    mfaEnabled: boolean;
+    passkeyCount: number;
+    activeSessionCount: number;
+    recoveryCodesRemaining: number;
+  };
+  lifecycle: {
+    inactivityMonths: number | null;
+    lastMeaningfulActivityAt: number;
+    deletionRequest: { graceEndsAt: number } | null;
+    deletionExecutionEnabled: false;
+  };
+  recovery: {
+    availableMethods: string[];
+    plannedMethods: string[];
+  };
+  continuity: {
+    status: "planned";
+    executionEnabled: false;
+  };
+}
 
 interface AccountShortcut {
   to: string;
@@ -68,6 +97,26 @@ function ShortcutCard({
 export function AccountControlPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const [overview, setOverview] = useState<AccountManagerOverview | null>(null);
+  const [overviewError, setOverviewError] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    authFetch("/api/account/manager")
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Account overview unavailable");
+        return (await response.json()) as AccountManagerOverview;
+      })
+      .then((result) => {
+        if (active) setOverview(result);
+      })
+      .catch(() => {
+        if (active) setOverviewError(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
   const personalLinks: AccountShortcut[] = [
     {
       to: "/account/security",
@@ -208,6 +257,85 @@ export function AccountControlPage() {
         </header>
 
         <AccountSupportIdentifier />
+
+        <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-start gap-3">
+            {overviewError ? (
+              <CircleAlert className="mt-1 shrink-0 text-amber-600" />
+            ) : overview ? (
+              <CircleCheck className="mt-1 shrink-0 text-emerald-600" />
+            ) : (
+              <LoaderCircle className="mt-1 shrink-0 animate-spin text-blue-600" />
+            )}
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[0.18em] text-blue-700">
+                {t("accountControl.managerEyebrow")}
+              </p>
+              <h2 className="mt-1 text-2xl font-black text-slate-950">
+                {t("accountControl.managerTitle")}
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                {overviewError
+                  ? t("accountControl.managerError")
+                  : overview
+                    ? t("accountControl.managerDescription")
+                    : t("accountControl.managerLoading")}
+              </p>
+            </div>
+          </div>
+
+          {overview && (
+            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-sm font-bold text-slate-950">
+                  {t("accountControl.managerSecurity")}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  {t("accountControl.managerSecuritySummary", {
+                    mfa: overview.security.mfaEnabled
+                      ? t("accountControl.managerMfaEnabled")
+                      : t("accountControl.managerMfaDisabled"),
+                    passkeys: overview.security.passkeyCount,
+                    sessions: overview.security.activeSessionCount,
+                  })}
+                </p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-sm font-bold text-slate-950">
+                  {t("accountControl.managerRecovery")}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  {t("accountControl.managerRecoverySummary", {
+                    available: overview.recovery.availableMethods.length,
+                    planned: overview.recovery.plannedMethods.length,
+                  })}
+                </p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-sm font-bold text-slate-950">
+                  {t("accountControl.managerLifecycle")}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  {overview.lifecycle.deletionRequest
+                    ? t("accountControl.managerDeletionPending")
+                    : overview.lifecycle.inactivityMonths
+                      ? t("accountControl.managerInactivityEnabled", {
+                          months: overview.lifecycle.inactivityMonths,
+                        })
+                      : t("accountControl.managerInactivityDisabled")}
+                </p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-sm font-bold text-slate-950">
+                  {t("accountControl.managerContinuity")}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  {t("accountControl.managerContinuityPlanned")}
+                </p>
+              </div>
+            </div>
+          )}
+        </section>
 
         <section className="mt-8">
           <p className="text-sm font-bold uppercase tracking-[0.18em] text-blue-700">

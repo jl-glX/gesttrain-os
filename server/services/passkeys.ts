@@ -18,6 +18,7 @@ import {
   type SessionMetadata,
 } from "./auth.js";
 import { recordSecurityEvent } from "./security-events.js";
+import { completeAccountRecovery } from "./account-recovery.js";
 
 const RP_NAME = "GestTrain/OS";
 
@@ -258,7 +259,13 @@ export async function finishPasskeyAuthentication(
     .execute();
   await consumeChallenge(token);
   await recordSecurityEvent("passkey_login_succeeded", user.id);
-  return createSession(user, metadata, challenge.rememberDevice === 1);
+  const session = await createSession(
+    user,
+    metadata,
+    challenge.rememberDevice === 1,
+  );
+  await completeAccountRecovery(user.id, "passkey_verified");
+  return session;
 }
 
 export async function removePasskeys(userId: string): Promise<void> {

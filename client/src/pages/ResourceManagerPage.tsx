@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Activity,
   Clock3,
@@ -77,24 +77,36 @@ export function ResourceManagerPage() {
   const [status, setStatus] = useState<ResourceManagerStatus | null>(null);
   const [error, setError] = useState("");
   const [busyTask, setBusyTask] = useState<string | null>(null);
+  const requestSequence = useRef(0);
 
   const loadStatus = useCallback(async () => {
+    const requestId = requestSequence.current + 1;
+    requestSequence.current = requestId;
     try {
       const response = await authFetch("/api/admin/resource-manager");
       if (!response.ok) throw new Error(t("resourceManager.loadError"));
-      setStatus((await response.json()) as ResourceManagerStatus);
-      setError("");
+      const result = (await response.json()) as ResourceManagerStatus;
+      if (requestSequence.current === requestId) {
+        setStatus(result);
+        setError("");
+      }
     } catch (loadError) {
-      setError(
-        loadError instanceof Error
-          ? loadError.message
-          : t("resourceManager.loadError"),
-      );
+      if (requestSequence.current === requestId) {
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : t("resourceManager.loadError"),
+        );
+      }
     }
   }, [t]);
 
   useEffect(() => {
     void loadStatus();
+    const interval = window.setInterval(() => {
+      if (document.visibilityState === "visible") void loadStatus();
+    }, 15_000);
+    return () => window.clearInterval(interval);
   }, [loadStatus]);
 
   const updateTask = async (task: ManagedTask, action: "toggle" | "run") => {
@@ -176,7 +188,7 @@ export function ResourceManagerPage() {
                 },
                 {
                   icon: Activity,
-                  label: t("resourceManager.activeTasks"),
+                  label: t("resourceManager.enabledTasks"),
                   value: String(
                     status.tasks.filter((task) => task.enabled).length,
                   ),
@@ -302,7 +314,9 @@ export function ResourceManagerPage() {
                       <div className="flex shrink-0 flex-wrap gap-2">
                         <Button
                           variant="outline"
-                          disabled={busyTask === task.id}
+                          disabled={
+                            busyTask === task.id || task.state === "running"
+                          }
                           onClick={() => void updateTask(task, "run")}
                         >
                           <Play size={16} />
@@ -310,7 +324,11 @@ export function ResourceManagerPage() {
                         </Button>
                         <Button
                           variant={task.enabled ? "destructive" : "default"}
-                          disabled={busyTask === task.id}
+                          disabled={
+                            busyTask === task.id ||
+                            task.state === "running" ||
+                            (task.priority === "critical" && task.enabled)
+                          }
                           onClick={() => void updateTask(task, "toggle")}
                         >
                           {task.enabled ? (

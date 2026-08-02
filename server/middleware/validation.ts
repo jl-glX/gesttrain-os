@@ -267,6 +267,14 @@ export const emptyAccountDeletionRequestValidation = validateRequest([
   query().custom(emptyObjectOrMissing),
 ]);
 
+export const scheduleAccountDeletionValidation = validateRequest([
+  strictBody(["password"]),
+  body("password")
+    .isString()
+    .isLength({ min: 1, max: 128 })
+    .custom(enforcePasswordHashLimit),
+]);
+
 export const retentionPolicyValidation = validateRequest([
   strictBody([
     "name",

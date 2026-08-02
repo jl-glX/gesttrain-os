@@ -71,6 +71,7 @@ export interface ManagedTaskStatus {
 
 const tasks = new Map<string, ManagedTaskRuntime>();
 let started = false;
+let startInProgress: Promise<void> | null = null;
 let runtimeCheckCount = 0;
 let staleRuntimeRecordsRemoved = 0;
 let lastRuntimeCheck: RuntimeCheckStatus | null = null;
@@ -130,12 +131,20 @@ function schedule(task: ManagedTaskRuntime): void {
   task.nextRunAt = Date.now() + task.definition.intervalMs;
   task.timer = setTimeout(() => {
     task.timer = null;
-    void runManagedTask(task.definition.id);
+    void runManagedTask(task.definition.id).catch((error: unknown) => {
+      console.error(
+        `Managed task ${task.definition.id} failed:`,
+        error instanceof Error ? error.message : "Unknown error",
+      );
+    });
   }, task.definition.intervalMs);
   task.timer.unref();
 }
 
 function registerTask(definition: ManagedTaskDefinition): void {
+  if (tasks.has(definition.id)) {
+    throw new Error(`Managed task already registered: ${definition.id}`);
+  }
   tasks.set(definition.id, {
     definition,
     enabled: definition.enabledByDefault,
@@ -204,6 +213,37 @@ registerTask({
 });
 
 registerTask({
+  id: "deleted-account-residual-cleanup",
+  name: "Deleted account residual cleanup",
+  description:
+    "Removes technical records whose account no longer exists; it does not decide when an account should be closed.",
+  intervalMs: 6 * 60 * 60 * 1000,
+  priority: "normal",
+  enabledByDefault: true,
+  run: async () => {
+    const tables = [
+      "sessions",
+      "authChallenges",
+      "webauthnChallenges",
+      "emailVerificationChallenges",
+    ] as const;
+    let count = 0;
+    for (const table of tables) {
+      const result = await sql`
+        DELETE FROM ${sql.table(table)}
+        WHERE userId IS NOT NULL
+          AND NOT EXISTS (SELECT 1 FROM users WHERE users.id = userId)
+      `.execute(db);
+      count += Number(result.numAffectedRows ?? 0);
+    }
+    return {
+      count,
+      summary: `${count} orphaned deleted-account record(s) removed.`,
+    };
+  },
+});
+
+registerTask({
   id: "booking-integrity-cleanup",
   name: "Booking integrity cleanup",
   description:
@@ -269,13 +309,27 @@ registerTask({
 
 export async function startResourceManager(): Promise<void> {
   if (started) return;
-  await checkResidualBackgroundProcesses("manager-start");
+  if (startInProgress) return startInProgress;
   started = true;
-  for (const task of tasks.values()) schedule(task);
+  const start = checkResidualBackgroundProcesses("manager-start")
+    .then(() => {
+      if (!started) return;
+      for (const task of tasks.values()) schedule(task);
+    })
+    .catch((error: unknown) => {
+      started = false;
+      throw error;
+    })
+    .finally(() => {
+      if (startInProgress === start) startInProgress = null;
+    });
+  startInProgress = start;
+  await start;
 }
 
 export async function stopResourceManager(): Promise<void> {
   started = false;
+  if (startInProgress) await startInProgress.catch(() => undefined);
   for (const task of tasks.values()) {
     if (task.timer) clearTimeout(task.timer);
     task.timer = null;
@@ -305,6 +359,10 @@ export async function runManagedTask(
   task.timer = null;
   task.nextRunAt = null;
   task.state = "running";
+  task.lastError = null;
+  task.lastResultCount = null;
+  task.lastSummary = null;
+  task.lastFindings = [];
   const startedAt = performance.now();
 
   const execution = (async () => {
@@ -331,7 +389,18 @@ export async function runManagedTask(
       task.state = "error";
       throw error;
     } finally {
-      await checkResidualBackgroundProcesses("task-finish", taskId);
+      try {
+        await checkResidualBackgroundProcesses("task-finish", taskId);
+      } catch (error) {
+        task.errorCount += 1;
+        const residualError = `Residual check failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`;
+        task.lastError = task.lastError
+          ? `${task.lastError}; ${residualError}`
+          : residualError;
+        task.state = "error";
+      }
       task.lastRunAt = Date.now();
       task.lastDurationMs = Math.round(performance.now() - startedAt);
       schedule(task);
@@ -354,6 +423,9 @@ export function setManagedTaskEnabled(
 ): ManagedTaskStatus {
   const task = tasks.get(taskId);
   if (!task) throw new Error("Managed task not found");
+  if (!enabled && task.definition.priority === "critical") {
+    throw new Error("Critical managed tasks cannot be paused");
+  }
 
   task.enabled = enabled;
   if (!enabled) {
