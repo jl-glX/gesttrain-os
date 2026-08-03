@@ -4,7 +4,7 @@ import { app } from "../index.js";
 
 describe("API security baseline", () => {
   it("sets defensive headers without exposing Express", async () => {
-    const response = await request(app).get("/api/health").expect(200);
+    const response = await request(app).get("/api/health/live").expect(200);
 
     expect(response.headers["x-powered-by"]).toBeUndefined();
     expect(response.headers["cache-control"]).toBe("no-store");
@@ -15,11 +15,11 @@ describe("API security baseline", () => {
 
   it("allows the configured development origin and withholds CORS from others", async () => {
     const allowed = await request(app)
-      .get("/api/health")
+      .get("/api/health/live")
       .set("Origin", "http://localhost:3000")
       .expect(200);
     const denied = await request(app)
-      .get("/api/health")
+      .get("/api/health/live")
       .set("Origin", "https://untrusted.example")
       .expect(200);
 
@@ -135,11 +135,11 @@ describe("API security baseline", () => {
     try {
       const { app: productionApp } = await import("../index.js");
       const allowed = await request(productionApp)
-        .get("/api/health")
+        .get("/api/health/live")
         .set("Origin", "https://gesttrain-os.example")
         .expect(200);
       const denied = await request(productionApp)
-        .get("/api/health")
+        .get("/api/health/live")
         .set("Origin", "https://untrusted.example")
         .expect(200);
 

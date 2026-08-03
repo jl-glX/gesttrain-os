@@ -6,7 +6,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: ["dist/**", "node_modules/**", "data/**"],
+    ignores: ["dist/**", ".azure-package/**", "node_modules/**", "data/**"],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
