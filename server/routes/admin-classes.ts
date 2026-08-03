@@ -5,9 +5,11 @@ import {
   createClass,
   updateClass,
   deleteClass,
+  saveClassBookingConfiguration,
 } from "../services/classes.js";
 import {
   createClassValidation,
+  bookingConfigurationValidation,
   updateClassValidation,
   validateId,
 } from "../middleware/validation.js";
@@ -118,6 +120,27 @@ adminClassesRouter.put(
       const message = error instanceof Error ? error.message : "Unknown error";
       console.error("Error updating class:", error);
       res.status(400).json({ error: message });
+    }
+  },
+);
+
+adminClassesRouter.put(
+  "/:id/booking-configuration",
+  bookingConfigurationValidation,
+  async (req: express.Request, res: express.Response) => {
+    try {
+      res.json(
+        await saveClassBookingConfiguration(req.params.id, {
+          configuration: req.body.configuration,
+          lifecycleState: req.body.lifecycleState,
+          seriesId: req.body.seriesId,
+        }),
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      res
+        .status(message === "Class not found" ? 404 : 400)
+        .json({ error: message });
     }
   },
 );

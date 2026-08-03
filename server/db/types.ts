@@ -139,6 +139,29 @@ interface GymClass {
   scheduledAt: number;
 }
 
+interface ClassBookingConfiguration {
+  classId: string;
+  configuration: string;
+  lifecycleState: "active" | "suspended" | "cancelled";
+  seriesId: string | null;
+  updatedAt: number;
+}
+
+export type BookingLifecycleStatus =
+  | "requested"
+  | "confirmed"
+  | "confirmation_pending"
+  | "uncertain"
+  | "waitlisted"
+  | "promoted"
+  | "cancelled_on_time"
+  | "cancelled_late"
+  | "attended"
+  | "absent"
+  | "excused";
+
+export type AttendanceIntention = "unanswered" | "yes" | "no" | "uncertain";
+
 interface Booking {
   id: string;
   classId: string;
@@ -146,6 +169,15 @@ interface Booking {
   status: "confirmed" | "cancelled" | "waitlist";
   createdAt: number;
   cancelledAt: number | null;
+}
+
+interface BookingLifecycle {
+  bookingId: string;
+  lifecycleStatus: BookingLifecycleStatus;
+  attendanceIntention: AttendanceIntention;
+  intentionUpdatedAt: number | null;
+  confirmedAt: number | null;
+  updatedAt: number;
 }
 
 interface WaitlistEntry {
@@ -273,10 +305,12 @@ export type CommercialFacilityType =
   | "custom";
 
 export type CommercialTrialStatus =
+  | "trial_created"
   | "trial_active"
   | "trial_paused_support"
   | "trial_conversion_review"
   | "trial_expired"
+  | "trial_converted"
   | "trial_closed";
 
 export type RealDataDeclaration = "undeclared" | "yes" | "no" | "assistance";
@@ -307,6 +341,29 @@ interface CommercialTrial {
   closedAt: number | null;
   createdAt: number;
   updatedAt: number;
+}
+
+interface CommercialRequest {
+  id: string;
+  trialId: string;
+  requesterUserId: string;
+  kind: "commercial_contact" | "support" | "problem";
+  status: Generated<"open" | "in_review" | "resolved" | "cancelled">;
+  name: string;
+  facilityName: string;
+  email: string;
+  phone: string | null;
+  subject: string;
+  message: string;
+  preferredChannel: "email" | "phone" | "whatsapp";
+  preferredTime: string;
+  contactConsent: number;
+  includeEnvironmentSummary: number;
+  environmentSummary: string | null;
+  problemCategory: string | null;
+  createdAt: number;
+  updatedAt: number;
+  resolvedAt: number | null;
 }
 
 interface CommercialTrialEvent {
@@ -346,7 +403,9 @@ export interface Database {
   dataRetentionPolicies: DataRetentionPolicy;
   dataRetentionRecords: DataRetentionRecord;
   gymClasses: GymClass;
+  classBookingConfigurations: ClassBookingConfiguration;
   bookings: Booking;
+  bookingLifecycles: BookingLifecycle;
   waitlistEntries: WaitlistEntry;
   sessions: Session;
   mfaCredentials: MfaCredential;
@@ -359,5 +418,6 @@ export interface Database {
   facilityProfiles: FacilityProfile;
   commercialTrials: CommercialTrial;
   commercialTrialEvents: CommercialTrialEvent;
+  commercialRequests: CommercialRequest;
   delegationGrants: DelegationGrant;
 }

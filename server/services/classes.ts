@@ -1,5 +1,10 @@
 import { db } from "../db/client.js";
 import { randomBytes } from "crypto";
+import {
+  defaultBookingConfiguration,
+  parseBookingConfiguration,
+  type BookingConfiguration,
+} from "../lib/booking-configuration.js";
 
 export interface ClassWithAvailability {
   id: string;
@@ -12,6 +17,57 @@ export interface ClassWithAvailability {
   bookedCount: number;
   availablePlaces: number;
   waitlistCount: number;
+  bookingConfiguration: BookingConfiguration;
+  lifecycleState: "active" | "suspended" | "cancelled";
+  seriesId: string | null;
+}
+
+export async function saveClassBookingConfiguration(
+  classId: string,
+  input: {
+    configuration: Partial<BookingConfiguration>;
+    lifecycleState?: "active" | "suspended" | "cancelled";
+    seriesId?: string | null;
+  },
+) {
+  const gymClass = await db
+    .selectFrom("gymClasses")
+    .select("id")
+    .where("id", "=", classId)
+    .executeTakeFirst();
+  if (!gymClass) throw new Error("Class not found");
+
+  const existing = await db
+    .selectFrom("classBookingConfigurations")
+    .selectAll()
+    .where("classId", "=", classId)
+    .executeTakeFirst();
+  const configuration = {
+    ...defaultBookingConfiguration,
+    ...parseBookingConfiguration(existing?.configuration),
+    ...input.configuration,
+  };
+  await db
+    .insertInto("classBookingConfigurations")
+    .values({
+      classId,
+      configuration: JSON.stringify(configuration),
+      lifecycleState:
+        input.lifecycleState ?? existing?.lifecycleState ?? "active",
+      seriesId: input.seriesId ?? existing?.seriesId ?? null,
+      updatedAt: Date.now(),
+    })
+    .onConflict((conflict) =>
+      conflict.column("classId").doUpdateSet({
+        configuration: JSON.stringify(configuration),
+        lifecycleState:
+          input.lifecycleState ?? existing?.lifecycleState ?? "active",
+        seriesId: input.seriesId ?? existing?.seriesId ?? null,
+        updatedAt: Date.now(),
+      }),
+    )
+    .execute();
+  return getClassWithAvailability(classId);
 }
 
 export async function getAllClasses(): Promise<ClassWithAvailability[]> {
@@ -58,12 +114,22 @@ export async function getClassWithAvailability(
     .where("classId", "=", classId)
     .where("promotedAt", "is", null)
     .executeTakeFirst();
+  const configuration = await db
+    .selectFrom("classBookingConfigurations")
+    .selectAll()
+    .where("classId", "=", classId)
+    .executeTakeFirst();
 
   return {
     ...gymClass,
     bookedCount,
     availablePlaces,
     waitlistCount: Number(waitlistCount?.count ?? 0),
+    bookingConfiguration: parseBookingConfiguration(
+      configuration?.configuration,
+    ),
+    lifecycleState: configuration?.lifecycleState ?? "active",
+    seriesId: configuration?.seriesId ?? null,
   };
 }
 

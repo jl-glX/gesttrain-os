@@ -16,6 +16,16 @@ describe("demo data policy", () => {
     ).toBe(false);
   });
 
+  it("does not seed demonstration data in staging", () => {
+    expect(
+      shouldSeedDemoData({
+        NODE_ENV: "production",
+        APP_ENV: "staging",
+        SEED_DEMO_DATA: "false",
+      }),
+    ).toBe(false);
+  });
+
   it("refuses to start with known demo credentials in production", () => {
     expect(() =>
       shouldSeedDemoData({

@@ -24,6 +24,18 @@ describe("production configuration", () => {
     ).toMatchObject({ webauthnRpId: "demo.gesttrain.example" });
   });
 
+  it("applies the same safeguards to staging", () => {
+    expect(
+      validateProductionConfiguration(
+        { ...validEnvironment, APP_ENV: "staging" },
+        "postgresql",
+      ),
+    ).toMatchObject({
+      deploymentProfile: "staging",
+      webauthnRpId: "demo.gesttrain.example",
+    });
+  });
+
   it("fails closed when configuration and active provider disagree", () => {
     expect(() =>
       validateProductionConfiguration(validEnvironment, "sqlite"),

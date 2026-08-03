@@ -218,6 +218,46 @@ describe("commercial foundation API", () => {
       .expect(409);
   });
 
+  it("creates voluntary commercial contact without sharing environment data by default", async () => {
+    const response = await request(app)
+      .post("/api/commercial/trial/contact")
+      .set("Cookie", adminCookie)
+      .send({
+        name: "Javier López",
+        facilityName: "Fitness Boreal",
+        email: "javier@example.com",
+        message: "Quiero conocer las opciones comerciales disponibles.",
+        preferredChannel: "email",
+        contactConsent: true,
+      })
+      .expect(201);
+
+    expect(response.body).toMatchObject({
+      kind: "commercial_contact",
+      status: "open",
+    });
+    const stored = await database.db
+      .selectFrom("commercialRequests")
+      .selectAll()
+      .where("id", "=", response.body.id)
+      .executeTakeFirstOrThrow();
+    expect(stored.environmentSummary).toBeNull();
+    expect(stored.includeEnvironmentSummary).toBe(0);
+
+    await request(app)
+      .post("/api/commercial/trial/contact")
+      .set("Cookie", adminCookie)
+      .send({
+        name: "Javier López",
+        facilityName: "Fitness Boreal",
+        email: "javier@example.com",
+        message: "Intento sin consentimiento válido.",
+        preferredChannel: "email",
+        contactConsent: false,
+      })
+      .expect(400);
+  });
+
   it("supports the three exact data decisions and only closes after no", async () => {
     await request(app)
       .post("/api/commercial/trial/close")

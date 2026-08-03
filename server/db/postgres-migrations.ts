@@ -361,6 +361,59 @@ ON CONFLICT ("id") DO NOTHING;
 
 const migrations: Migration[] = [
   { version: 1, name: "initial-production-schema", sql: postgresInitialSchema },
+  {
+    version: 2,
+    name: "commercial-workflow-and-booking-lifecycle",
+    sql: String.raw`
+CREATE TABLE IF NOT EXISTS "classBookingConfigurations" (
+  "classId" TEXT PRIMARY KEY REFERENCES "gymClasses" ("id") ON DELETE CASCADE,
+  "configuration" TEXT NOT NULL DEFAULT '{}',
+  "lifecycleState" TEXT NOT NULL DEFAULT 'active' CHECK ("lifecycleState" IN ('active', 'suspended', 'cancelled')),
+  "seriesId" TEXT,
+  "updatedAt" BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_classBookingConfigurations_series"
+  ON "classBookingConfigurations" ("seriesId");
+
+CREATE TABLE IF NOT EXISTS "bookingLifecycles" (
+  "bookingId" TEXT PRIMARY KEY REFERENCES "bookings" ("id") ON DELETE CASCADE,
+  "lifecycleStatus" TEXT NOT NULL,
+  "attendanceIntention" TEXT NOT NULL DEFAULT 'unanswered',
+  "intentionUpdatedAt" BIGINT,
+  "confirmedAt" BIGINT,
+  "updatedAt" BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_bookingLifecycles_status"
+  ON "bookingLifecycles" ("lifecycleStatus", "attendanceIntention");
+
+CREATE TABLE IF NOT EXISTS "commercialRequests" (
+  "id" TEXT PRIMARY KEY,
+  "trialId" TEXT NOT NULL REFERENCES "commercialTrials" ("id") ON DELETE CASCADE,
+  "requesterUserId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE RESTRICT,
+  "kind" TEXT NOT NULL CHECK ("kind" IN ('commercial_contact', 'support', 'problem')),
+  "status" TEXT NOT NULL DEFAULT 'open' CHECK ("status" IN ('open', 'in_review', 'resolved', 'cancelled')),
+  "name" TEXT NOT NULL,
+  "facilityName" TEXT NOT NULL,
+  "email" TEXT NOT NULL,
+  "phone" TEXT,
+  "subject" TEXT NOT NULL,
+  "message" TEXT NOT NULL,
+  "preferredChannel" TEXT NOT NULL CHECK ("preferredChannel" IN ('email', 'phone', 'whatsapp')),
+  "preferredTime" TEXT NOT NULL DEFAULT '',
+  "contactConsent" SMALLINT NOT NULL CHECK ("contactConsent" IN (0, 1)),
+  "includeEnvironmentSummary" SMALLINT NOT NULL DEFAULT 0 CHECK ("includeEnvironmentSummary" IN (0, 1)),
+  "environmentSummary" TEXT,
+  "problemCategory" TEXT,
+  "createdAt" BIGINT NOT NULL,
+  "updatedAt" BIGINT NOT NULL,
+  "resolvedAt" BIGINT
+);
+CREATE INDEX IF NOT EXISTS "idx_commercialRequests_trial"
+  ON "commercialRequests" ("trialId", "createdAt" DESC);
+CREATE INDEX IF NOT EXISTS "idx_commercialRequests_status"
+  ON "commercialRequests" ("status", "kind");
+`,
+  },
 ];
 
 async function ensureMigrationTable(client: PoolClient): Promise<void> {
@@ -403,4 +456,8 @@ export async function runPostgresMigrations(pool: Pool): Promise<void> {
 
 export function postgresMigrationVersions(): number[] {
   return migrations.map((migration) => migration.version);
+}
+
+export function postgresMigrationSql(): string[] {
+  return migrations.map((migration) => migration.sql);
 }

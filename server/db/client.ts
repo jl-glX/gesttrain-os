@@ -1,3 +1,4 @@
+import "dotenv/config";
 import fs from "fs";
 import path from "path";
 import { randomUUID } from "node:crypto";
@@ -450,6 +451,21 @@ export async function initializeDatabase() {
     `);
   }
 
+  if (!tableNames.includes("classBookingConfigurations")) {
+    sqliteDb.exec(`
+      CREATE TABLE classBookingConfigurations (
+        classId TEXT PRIMARY KEY,
+        configuration TEXT NOT NULL DEFAULT '{}',
+        lifecycleState TEXT NOT NULL DEFAULT 'active' CHECK(lifecycleState IN ('active', 'suspended', 'cancelled')),
+        seriesId TEXT,
+        updatedAt INTEGER NOT NULL,
+        FOREIGN KEY(classId) REFERENCES gymClasses(id) ON DELETE CASCADE
+      );
+      CREATE INDEX idx_classBookingConfigurations_series
+        ON classBookingConfigurations(seriesId);
+    `);
+  }
+
   if (!tableNames.includes("bookings")) {
     console.log("Creating bookings table...");
     sqliteDb.exec(`
@@ -481,6 +497,22 @@ export async function initializeDatabase() {
       CREATE UNIQUE INDEX IF NOT EXISTS idx_bookings_active_user_class
         ON bookings(classId, userId)
         WHERE status IN ('confirmed', 'waitlist');
+    `);
+  }
+
+  if (!tableNames.includes("bookingLifecycles")) {
+    sqliteDb.exec(`
+      CREATE TABLE bookingLifecycles (
+        bookingId TEXT PRIMARY KEY,
+        lifecycleStatus TEXT NOT NULL,
+        attendanceIntention TEXT NOT NULL DEFAULT 'unanswered',
+        intentionUpdatedAt INTEGER,
+        confirmedAt INTEGER,
+        updatedAt INTEGER NOT NULL,
+        FOREIGN KEY(bookingId) REFERENCES bookings(id) ON DELETE CASCADE
+      );
+      CREATE INDEX idx_bookingLifecycles_status
+        ON bookingLifecycles(lifecycleStatus, attendanceIntention);
     `);
   }
 
@@ -799,6 +831,39 @@ export async function initializeDatabase() {
         "ALTER TABLE commercialTrials ADD COLUMN conversionDraft TEXT NOT NULL DEFAULT '[]'",
       );
     }
+  }
+
+  if (!tableNames.includes("commercialRequests")) {
+    sqliteDb.exec(`
+      CREATE TABLE commercialRequests (
+        id TEXT PRIMARY KEY,
+        trialId TEXT NOT NULL,
+        requesterUserId TEXT NOT NULL,
+        kind TEXT NOT NULL CHECK(kind IN ('commercial_contact', 'support', 'problem')),
+        status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open', 'in_review', 'resolved', 'cancelled')),
+        name TEXT NOT NULL,
+        facilityName TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT,
+        subject TEXT NOT NULL,
+        message TEXT NOT NULL,
+        preferredChannel TEXT NOT NULL CHECK(preferredChannel IN ('email', 'phone', 'whatsapp')),
+        preferredTime TEXT NOT NULL DEFAULT '',
+        contactConsent INTEGER NOT NULL CHECK(contactConsent IN (0, 1)),
+        includeEnvironmentSummary INTEGER NOT NULL DEFAULT 0 CHECK(includeEnvironmentSummary IN (0, 1)),
+        environmentSummary TEXT,
+        problemCategory TEXT,
+        createdAt INTEGER NOT NULL,
+        updatedAt INTEGER NOT NULL,
+        resolvedAt INTEGER,
+        FOREIGN KEY(trialId) REFERENCES commercialTrials(id) ON DELETE CASCADE,
+        FOREIGN KEY(requesterUserId) REFERENCES users(id) ON DELETE RESTRICT
+      );
+      CREATE INDEX idx_commercialRequests_trial
+        ON commercialRequests(trialId, createdAt DESC);
+      CREATE INDEX idx_commercialRequests_status
+        ON commercialRequests(status, kind);
+    `);
   }
 
   if (!tableNames.includes("delegationGrants")) {

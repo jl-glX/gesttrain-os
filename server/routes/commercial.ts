@@ -14,6 +14,7 @@ import {
 import { requireRecentFormVerification } from "../middleware/form-verification.js";
 import {
   commercialConversionDraftValidation,
+  commercialRequestValidation,
   commercialTrialDataDeclarationValidation,
   createCommercialTrialValidation,
   emptyCommercialTrialActionValidation,
@@ -26,6 +27,7 @@ import {
   getCommercialConversionDraft,
   getCommercialTrialOverview,
   restoreCommercialTrialConfiguration,
+  requestCommercialContact,
   updateCommercialTrial,
   updateCommercialConversionDraft,
 } from "../services/commercial-trial.js";
@@ -70,6 +72,25 @@ commercialRouter.get("/trial", async (_req, res, next) => {
     next(error);
   }
 });
+
+commercialRouter.post(
+  "/trial/contact",
+  commercialRequestValidation,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      res
+        .status(201)
+        .json(
+          await requestCommercialContact(
+            getAuthenticatedUser(res).userId,
+            req.body,
+          ),
+        );
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 commercialRouter.post(
   "/trial",

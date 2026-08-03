@@ -1,13 +1,21 @@
+import {
+  isProductionLike,
+  resolveDeploymentProfile,
+} from "./deployment-profile.js";
+
 export interface DemoDataEnvironment {
   [key: string]: string | undefined;
   NODE_ENV?: string;
+  APP_ENV?: string;
   SEED_DEMO_DATA?: string;
 }
 
 export function shouldSeedDemoData(
   environment: DemoDataEnvironment = process.env,
 ): boolean {
-  const isProduction = environment.NODE_ENV === "production";
+  const isProduction = isProductionLike(
+    resolveDeploymentProfile(environment as NodeJS.ProcessEnv),
+  );
   const wasExplicitlyRequested = environment.SEED_DEMO_DATA === "true";
 
   if (isProduction && wasExplicitlyRequested) {

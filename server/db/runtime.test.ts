@@ -19,6 +19,34 @@ describe("database runtime selection", () => {
     ).toBe("postgresql");
   });
 
+  it("requires PostgreSQL in staging while keeping demo on SQLite", () => {
+    expect(
+      resolveDatabaseProvider({
+        NODE_ENV: "development",
+        APP_ENV: "demo",
+        DATABASE_PROVIDER: "sqlite",
+      }),
+    ).toBe("sqlite");
+    expect(() =>
+      resolveDatabaseProvider({
+        NODE_ENV: "production",
+        APP_ENV: "staging",
+        DATABASE_PROVIDER: "sqlite",
+      }),
+    ).toThrow(/not supported/i);
+  });
+
+  it("honours an explicit SQLite demo even if a stale URL is present", () => {
+    expect(
+      resolveDatabaseProvider({
+        NODE_ENV: "development",
+        APP_ENV: "demo",
+        DATABASE_PROVIDER: "sqlite",
+        DATABASE_URL: "postgresql://stale.invalid/old",
+      }),
+    ).toBe("sqlite");
+  });
+
   it("does not allow an explicit SQLite production deployment", () => {
     expect(() =>
       resolveDatabaseProvider({

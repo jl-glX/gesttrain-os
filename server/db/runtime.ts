@@ -1,3 +1,8 @@
+import {
+  isProductionLike,
+  resolveDeploymentProfile,
+} from "../lib/deployment-profile.js";
+
 export type DatabaseProvider = "sqlite" | "postgresql";
 
 function parsePositiveInteger(
@@ -14,10 +19,20 @@ export function resolveDatabaseProvider(
   environment: NodeJS.ProcessEnv = process.env,
 ): DatabaseProvider {
   const configured = environment.DATABASE_PROVIDER?.trim().toLowerCase();
+  const deploymentProfile = resolveDeploymentProfile(environment);
   if (configured && configured !== "sqlite" && configured !== "postgresql") {
     throw new Error(
       "DATABASE_PROVIDER must be either 'sqlite' or 'postgresql'",
     );
+  }
+
+  if (configured === "sqlite") {
+    if (isProductionLike(deploymentProfile)) {
+      throw new Error(
+        "SQLite is not supported in production. Configure PostgreSQL with DATABASE_URL.",
+      );
+    }
+    return "sqlite";
   }
 
   if (configured === "postgresql" || environment.DATABASE_URL) {
@@ -29,16 +44,7 @@ export function resolveDatabaseProvider(
     return "postgresql";
   }
 
-  if (configured === "sqlite") {
-    if (environment.NODE_ENV === "production") {
-      throw new Error(
-        "SQLite is not supported in production. Configure Azure Database for PostgreSQL with DATABASE_URL.",
-      );
-    }
-    return "sqlite";
-  }
-
-  if (environment.NODE_ENV === "production") {
+  if (isProductionLike(deploymentProfile)) {
     throw new Error(
       "Production requires DATABASE_URL for PostgreSQL; refusing to start with local SQLite storage.",
     );

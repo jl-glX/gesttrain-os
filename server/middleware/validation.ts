@@ -275,6 +275,43 @@ export const commercialConversionDraftValidation = validateRequest([
   body("decision").isIn(["pending", "keep", "discard"]),
 ]);
 
+const commercialRequestFields = [
+  "name",
+  "facilityName",
+  "email",
+  "phone",
+  "subject",
+  "message",
+  "preferredChannel",
+  "preferredTime",
+  "contactConsent",
+  "includeEnvironmentSummary",
+  "problemCategory",
+];
+
+export const commercialRequestValidation = validateRequest([
+  strictBody(commercialRequestFields),
+  body("name").isString().trim().isLength({ min: 2, max: 120 }),
+  body("facilityName").isString().trim().isLength({ min: 2, max: 160 }),
+  body("email").isEmail().normalizeEmail(),
+  body("phone")
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ min: 7, max: 30 }),
+  body("subject").optional().isString().trim().isLength({ max: 160 }),
+  body("message").isString().trim().isLength({ min: 10, max: 4_000 }),
+  body("preferredChannel").isIn(["email", "phone", "whatsapp"]),
+  body("preferredTime").optional().isString().trim().isLength({ max: 160 }),
+  body("contactConsent").isBoolean(),
+  body("includeEnvironmentSummary").optional().isBoolean(),
+  body("problemCategory")
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 80 }),
+]);
+
 export const mfaCodeValidation = validateRequest([
   strictBody(["code"]),
   body("code")
@@ -717,6 +754,59 @@ export const updateClassValidation = validateRequest([
     .isLength({ min: 1, max: 100 }),
   body("maxCapacity").optional().isInt({ min: 1, max: 10000 }).toInt(),
   body("scheduledAt").optional().isInt({ min: 1 }).toInt(),
+]);
+
+export const bookingConfigurationValidation = validateRequest([
+  param("id").isString().matches(ID_PATTERN),
+  strictBody(["configuration", "lifecycleState", "seriesId"]),
+  body("configuration").isObject(),
+  body("configuration").custom((value: Record<string, unknown>) => {
+    const allowed = new Set([
+      "activity",
+      "room",
+      "durationMinutes",
+      "level",
+      "visibility",
+      "material",
+      "bookingOpensAt",
+      "bookingClosesAt",
+      "waitlistEnabled",
+      "confirmationRequired",
+      "remindersEnabled",
+      "onTimeCancellationMinutes",
+      "lateCancellationMinutes",
+      "restrictions",
+      "priorities",
+      "exceptions",
+      "allowedRoles",
+      "allowedMemberships",
+    ]);
+    if (Object.keys(value).some((key) => !allowed.has(key))) {
+      throw new Error("Unknown booking configuration field");
+    }
+    return true;
+  }),
+  body("configuration.durationMinutes")
+    .optional()
+    .isInt({ min: 5, max: 1_440 }),
+  body("configuration.visibility")
+    .optional()
+    .isIn(["public", "members", "staff"]),
+  body("configuration.waitlistEnabled").optional().isBoolean(),
+  body("configuration.confirmationRequired").optional().isBoolean(),
+  body("configuration.remindersEnabled").optional().isBoolean(),
+  body("configuration.onTimeCancellationMinutes")
+    .optional()
+    .isInt({ min: 0, max: 43_200 }),
+  body("configuration.lateCancellationMinutes")
+    .optional()
+    .isInt({ min: 0, max: 43_200 }),
+  body("lifecycleState").optional().isIn(["active", "suspended", "cancelled"]),
+  body("seriesId")
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 120 }),
 ]);
 
 export const createUserValidation = validateRequest([

@@ -1,4 +1,11 @@
+import {
+  isProductionLike,
+  resolveDeploymentProfile,
+  type DeploymentProfile,
+} from "./deployment-profile.js";
+
 type ProductionConfiguration = {
+  deploymentProfile: DeploymentProfile;
   clientOrigin: URL;
   webauthnOrigin: URL;
   webauthnRpId: string;
@@ -25,7 +32,8 @@ export function validateProductionConfiguration(
   environment: NodeJS.ProcessEnv = process.env,
   activeDatabaseProvider?: "sqlite" | "postgresql",
 ): ProductionConfiguration | null {
-  if (environment.NODE_ENV !== "production") return null;
+  const deploymentProfile = resolveDeploymentProfile(environment);
+  if (!isProductionLike(deploymentProfile)) return null;
 
   const clientOrigin = secureOrigin(
     required(environment, "CLIENT_ORIGIN"),
@@ -43,7 +51,7 @@ export function validateProductionConfiguration(
 
   if (clientOrigin.origin !== webauthnOrigin.origin) {
     throw new Error(
-      "CLIENT_ORIGIN and WEBAUTHN_ORIGIN must match for the initial Azure deployment",
+      "CLIENT_ORIGIN and WEBAUTHN_ORIGIN must match for the initial deployment",
     );
   }
   if (
@@ -69,5 +77,5 @@ export function validateProductionConfiguration(
     );
   }
 
-  return { clientOrigin, webauthnOrigin, webauthnRpId };
+  return { deploymentProfile, clientOrigin, webauthnOrigin, webauthnRpId };
 }

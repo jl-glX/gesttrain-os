@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { parse } from "pgsql-ast-parser";
 import {
   postgresInitialSchema,
+  postgresMigrationSql,
   postgresMigrationVersions,
 } from "./postgres-migrations.js";
 
@@ -15,5 +16,8 @@ describe("PostgreSQL migrations", () => {
 
   it("contains syntactically valid PostgreSQL statements", () => {
     expect(() => parse(postgresInitialSchema)).not.toThrow();
+    for (const migration of postgresMigrationSql()) {
+      expect(() => parse(migration)).not.toThrow();
+    }
   });
 });

@@ -65,7 +65,7 @@ npm run security:password-resilience # synthetic bcrypt laboratory check
 - [Account lifecycle foundation](./docs/ACCOUNT-LIFECYCLE.md)
 - [Legal readiness checklist](./docs/LEGAL-READINESS.md)
 - [Commercial foundation audit](./docs/COMMERCIAL-FOUNDATION-AUDIT.md)
-- [Azure production readiness](./docs/AZURE-PRODUCTION-READINESS.md)
+- [Self-hosted production readiness](./docs/SELF-HOSTED-PRODUCTION.md)
 
 ## Demo data
 
@@ -73,8 +73,9 @@ Development mode seeds demonstration accounts and classes. Demo credentials are 
 
 ## Known limitations
 
-- PostgreSQL migrations are prepared but still require validation against a
-  real Azure staging database before the shared client is switched from SQLite.
+- PostgreSQL migrations are prepared but still require validation against an
+  authorized self-hosted staging database before the shared client is switched
+  from SQLite.
 - Commercial trials still use a single shared centre and remain disabled by
   default in production until tenant isolation is implemented.
 - Password recovery, email verification and optional two-factor authentication are pending.

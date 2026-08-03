@@ -48,6 +48,20 @@ type ConversionDraftItem = {
   decision: ConversionDecision;
 };
 
+export type CommercialRequestInput = {
+  name: string;
+  facilityName: string;
+  email: string;
+  phone?: string | null;
+  subject?: string;
+  message: string;
+  preferredChannel: "email" | "phone" | "whatsapp";
+  preferredTime?: string;
+  contactConsent: boolean;
+  includeEnvironmentSummary?: boolean;
+  problemCategory?: string | null;
+};
+
 function createConversionDraft(): ConversionDraftItem[] {
   return conversionCategories.map((category) => ({
     category,
@@ -122,10 +136,70 @@ async function count(
   return Number(row.count);
 }
 
+async function createEnvironmentSummary() {
+  const [users, classes, bookings, waitlist, billingRecords] =
+    await Promise.all([
+      count("users"),
+      count("gymClasses"),
+      count("bookings"),
+      count("waitlistEntries"),
+      count("billingRecords"),
+    ]);
+  return { users, classes, bookings, waitlist, billingRecords };
+}
+
+async function insertCommercialRequest(
+  actorUserId: string,
+  kind: "commercial_contact" | "support" | "problem",
+  input: CommercialRequestInput,
+) {
+  const trial = await expireIfNeeded();
+  if (!trial) throw domainError("Commercial trial not found", 404);
+  if (!input.contactConsent)
+    throw domainError("Contact consent is required", 400);
+
+  const id = `commercial-request-${randomUUID()}`;
+  const now = Date.now();
+  const environmentSummary = input.includeEnvironmentSummary
+    ? JSON.stringify(await createEnvironmentSummary())
+    : null;
+  await db
+    .insertInto("commercialRequests")
+    .values({
+      id,
+      trialId: trial.id,
+      requesterUserId: actorUserId,
+      kind,
+      status: "open",
+      name: input.name,
+      facilityName: input.facilityName,
+      email: input.email,
+      phone: input.phone ?? null,
+      subject: input.subject ?? "",
+      message: input.message,
+      preferredChannel: input.preferredChannel,
+      preferredTime: input.preferredTime ?? "",
+      contactConsent: 1,
+      includeEnvironmentSummary: input.includeEnvironmentSummary ? 1 : 0,
+      environmentSummary,
+      problemCategory: input.problemCategory ?? null,
+      createdAt: now,
+      updatedAt: now,
+      resolvedAt: null,
+    })
+    .execute();
+  await recordEvent(trial.id, actorUserId, `${kind}_requested`, {
+    requestId: id,
+    preferredChannel: input.preferredChannel,
+    environmentSummaryShared: Boolean(environmentSummary),
+  });
+  return { id, kind, status: "open" as const };
+}
+
 export async function getCommercialTrialOverview() {
   const trial = await expireIfNeeded();
   if (!trial) return null;
-  const [users, classes, bookings, waitlist, billingRecords, events] =
+  const [users, classes, bookings, waitlist, billingRecords, events, requests] =
     await Promise.all([
       count("users"),
       count("gymClasses"),
@@ -135,6 +209,21 @@ export async function getCommercialTrialOverview() {
       db
         .selectFrom("commercialTrialEvents")
         .select(["id", "type", "metadata", "createdAt"])
+        .where("trialId", "=", trial.id)
+        .orderBy("createdAt", "desc")
+        .limit(12)
+        .execute(),
+      db
+        .selectFrom("commercialRequests")
+        .select([
+          "id",
+          "kind",
+          "status",
+          "preferredChannel",
+          "problemCategory",
+          "createdAt",
+          "resolvedAt",
+        ])
         .where("trialId", "=", trial.id)
         .orderBy("createdAt", "desc")
         .limit(12)
@@ -154,12 +243,21 @@ export async function getCommercialTrialOverview() {
         "security",
       ],
       restorationScope: "commercial_configuration_only" as const,
+      operationsLocked: trial.status === "trial_paused_support",
     },
     events: events.map((event) => ({
       ...event,
       metadata: JSON.parse(event.metadata) as Record<string, unknown>,
     })),
+    requests,
   };
+}
+
+export async function requestCommercialContact(
+  actorUserId: string,
+  input: CommercialRequestInput,
+) {
+  return insertCommercialRequest(actorUserId, "commercial_contact", input);
 }
 
 export async function createCommercialTrial(

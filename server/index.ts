@@ -51,15 +51,16 @@ import {
   stopAccountLifecycleScheduler,
 } from "./services/account-lifecycle-scheduler.js";
 import { validateProductionConfiguration } from "./lib/production-config.js";
+import { parseServerPort } from "./lib/server-endpoint.js";
 
 dotenv.config();
 
 export const app = express();
 
 app.disable("x-powered-by");
-// Azure App Service terminates TLS at its front end. Trust exactly that first
-// proxy hop in production so secure cookies and client IP rate limits work,
-// without accepting arbitrary forwarded headers during local development.
+// The self-hosted reverse proxy terminates TLS. Trust exactly that first proxy
+// hop in production so secure cookies and client IP rate limits work, without
+// accepting arbitrary forwarded headers during local development.
 app.set("trust proxy", process.env.NODE_ENV === "production" ? 1 : false);
 
 const clientOrigins = getAllowedClientOrigins();
@@ -163,8 +164,12 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 // Export a function to start the server
-export async function startServer(port: string | number): Promise<Server> {
+export async function startServer(
+  port: string | number,
+  host = process.env.HOST ?? "127.0.0.1",
+): Promise<Server> {
   try {
+    const resolvedPort = parseServerPort(port);
     validateProductionConfiguration(process.env, databaseProvider);
     // Initialize database
     await initializeDatabase();
@@ -175,8 +180,8 @@ export async function startServer(port: string | number): Promise<Server> {
     await startAccountLifecycleScheduler();
 
     return await new Promise<Server>((resolve, reject) => {
-      const server = app.listen(port, () => {
-        console.log(`API Server running on port ${port}`);
+      const server = app.listen(resolvedPort, host, () => {
+        console.log(`API Server running at http://${host}:${resolvedPort}`);
         resolve(server);
       });
       server.once("error", reject);
