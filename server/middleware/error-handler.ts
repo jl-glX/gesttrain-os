@@ -43,7 +43,9 @@ export function errorHandler(
       ? statusCode
       : 500;
 
-  console.error("Unhandled request error:", error);
+  if (safeStatusCode >= 500) {
+    console.error("Unhandled request error:", error);
+  }
   res.status(safeStatusCode).json({
     error: safeStatusCode < 500 ? error.message : "Internal server error",
     code: safeStatusCode < 500 ? "REQUEST_ERROR" : "INTERNAL_ERROR",

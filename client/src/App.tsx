@@ -127,6 +127,14 @@ const DataRetentionPage = lazyPage(
   () => import("./pages/DataRetentionPage"),
   "DataRetentionPage",
 );
+const CommercialPage = lazyPage(
+  () => import("./pages/CommercialPage"),
+  "CommercialPage",
+);
+const CommercialTrialPage = lazyPage(
+  () => import("./pages/CommercialTrialPage"),
+  "CommercialTrialPage",
+);
 
 type UserRole = "member" | "trainer" | "admin";
 
@@ -336,6 +344,14 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/commercial-trial"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <CommercialTrialPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/feedback" element={<FeedbackPage />} />
           <Route
             path="/trainer-dashboard"
@@ -378,6 +394,7 @@ function AppContent() {
             }
           />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/commercial" element={<CommercialPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/recover-account" element={<RecoverAccountPage />} />
           <Route

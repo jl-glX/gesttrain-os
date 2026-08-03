@@ -10,6 +10,7 @@ import {
   Shield,
   Building2,
   ShoppingBag,
+  Sparkles,
   Timer,
   X,
 } from "lucide-react";
@@ -185,15 +186,28 @@ export function Navigation() {
             )}
 
             {user?.role === "admin" && (
-              <Link
-                to="/admin-dashboard"
-                className={`${navLinkClass} ${
-                  isActive("/admin-dashboard") ? activeClass : inactiveClass
-                }`}
-              >
-                <Shield size={20} />
-                <span>{t("nav.admin")}</span>
-              </Link>
+              <>
+                <Link
+                  to="/admin/commercial-trial"
+                  className={`${navLinkClass} ${
+                    isActive("/admin/commercial-trial")
+                      ? activeClass
+                      : inactiveClass
+                  }`}
+                >
+                  <Sparkles size={20} />
+                  <span>{t("nav.commercialTrial")}</span>
+                </Link>
+                <Link
+                  to="/admin-dashboard"
+                  className={`${navLinkClass} ${
+                    isActive("/admin-dashboard") ? activeClass : inactiveClass
+                  }`}
+                >
+                  <Shield size={20} />
+                  <span>{t("nav.admin")}</span>
+                </Link>
+              </>
             )}
 
             <Link

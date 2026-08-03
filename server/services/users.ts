@@ -188,6 +188,16 @@ async function deleteUserInTransaction(
     .where("userId", "=", id)
     .execute();
 
+  await transaction
+    .deleteFrom("commercialTrialEvents")
+    .where("actorUserId", "=", id)
+    .execute();
+
+  await transaction
+    .deleteFrom("commercialTrials")
+    .where("ownerUserId", "=", id)
+    .execute();
+
   await transaction.deleteFrom("users").where("id", "=", id).execute();
 }
 

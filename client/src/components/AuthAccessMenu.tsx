@@ -95,6 +95,15 @@ export function AuthAccessMenu({
           </button>
 
           <div className="my-2 border-t border-slate-100" />
+          <Link
+            role="menuitem"
+            to="/commercial"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-600 transition hover:bg-slate-50 hover:text-slate-950"
+          >
+            <ShieldCheck size={17} />
+            {t("commercial.public.menuLink")}
+          </Link>
           {[
             ["/legal-notice", t("legal.footer.notice")],
             ["/terms-and-conditions", t("legal.footer.terms")],

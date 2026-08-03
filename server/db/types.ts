@@ -256,6 +256,68 @@ interface FacilityProfile {
   updatedAt: number;
 }
 
+export type CommercialFacilityType =
+  | "traditional_gym"
+  | "crossfit"
+  | "hyrox"
+  | "functional_training"
+  | "personal_training"
+  | "powerlifting"
+  | "strongman"
+  | "bodybuilding"
+  | "martial_arts"
+  | "yoga"
+  | "pilates"
+  | "indoor_cycling"
+  | "multidisciplinary"
+  | "custom";
+
+export type CommercialTrialStatus =
+  | "trial_active"
+  | "trial_paused_support"
+  | "trial_conversion_review"
+  | "trial_expired"
+  | "trial_closed";
+
+export type RealDataDeclaration = "undeclared" | "yes" | "no" | "assistance";
+
+interface CommercialTrial {
+  id: string;
+  ownerUserId: string;
+  facilityName: string;
+  facilityType: CommercialFacilityType;
+  approximateMembers: number | null;
+  trainerCount: number | null;
+  spaceCount: number | null;
+  usualCapacity: number | null;
+  classTypes: string;
+  scheduleNotes: string;
+  locale: "es" | "en" | "de" | "de-CH";
+  currency: string;
+  usesBookings: number;
+  usesWaitlist: number;
+  templateKey: string;
+  status: CommercialTrialStatus;
+  subdomain: string;
+  realDataDeclaration: RealDataDeclaration;
+  conversionDraft: string;
+  startedAt: number;
+  expiresAt: number;
+  pausedAt: number | null;
+  closedAt: number | null;
+  createdAt: number;
+  updatedAt: number;
+}
+
+interface CommercialTrialEvent {
+  id: string;
+  trialId: string;
+  actorUserId: string;
+  type: string;
+  metadata: string;
+  createdAt: number;
+}
+
 interface DelegationGrant {
   id: string;
   ownerUserId: string;
@@ -295,5 +357,7 @@ export interface Database {
   feedback: Feedback;
   billingRecords: BillingRecord;
   facilityProfiles: FacilityProfile;
+  commercialTrials: CommercialTrial;
+  commercialTrialEvents: CommercialTrialEvent;
   delegationGrants: DelegationGrant;
 }

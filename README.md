@@ -17,12 +17,14 @@ GestTrain/OS is a modular gym-management application for classes, bookings, wait
 - Security headers, restricted CORS, request limits, rate limiting and input validation.
 - Public support IDs, reversible account-closure scheduling and draft-only
   retention policies for demonstration.
+- Product-first commercial foundation with an editable 31-day trial and a
+  non-destructive data-classification draft.
 
 ## Technology
 
 - React 19, TypeScript 6, Vite 8 and Tailwind CSS 4.
 - Node.js 24 LTS, Express 5 and Kysely.
-- SQLite for local development.
+- SQLite for local development and PostgreSQL as the production target.
 - Vitest, ESLint and Prettier.
 
 ## Start locally
@@ -62,6 +64,8 @@ npm run security:password-resilience # synthetic bcrypt laboratory check
 - [Local black/gray/white-box assessment](./docs/SECURITY-ASSESSMENT-EXTREME-2026-08-01.md)
 - [Account lifecycle foundation](./docs/ACCOUNT-LIFECYCLE.md)
 - [Legal readiness checklist](./docs/LEGAL-READINESS.md)
+- [Commercial foundation audit](./docs/COMMERCIAL-FOUNDATION-AUDIT.md)
+- [Azure production readiness](./docs/AZURE-PRODUCTION-READINESS.md)
 
 ## Demo data
 
@@ -69,7 +73,10 @@ Development mode seeds demonstration accounts and classes. Demo credentials are 
 
 ## Known limitations
 
-- SQLite is intended for local development; production storage and migrations are not yet defined.
+- PostgreSQL migrations are prepared but still require validation against a
+  real Azure staging database before the shared client is switched from SQLite.
+- Commercial trials still use a single shared centre and remain disabled by
+  default in production until tenant isolation is implemented.
 - Password recovery, email verification and optional two-factor authentication are pending.
 - Payments, subscriptions and refunds are not implemented.
 - Legal pages are drafts and still require real contact, tax and business information plus professional review.

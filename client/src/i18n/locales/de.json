@@ -51,6 +51,7 @@
     "paymentsAndOrders": "Meine Zahlungen und Bestellungen",
     "timer": "Timer",
     "billing": "Abrechnung",
+    "commercialTrial": "Testumgebung",
     "dashboard": "Übersicht",
     "admin": "Verwaltung",
     "analytics": "Analysen",
@@ -1277,6 +1278,136 @@
     "fetchUsers": "Benutzer konnten nicht abgerufen werden",
     "fetchTrainerClasses": "Trainerklassen konnten nicht abgerufen werden",
     "bookClass": "Kursbuchung fehlgeschlagen"
+  },
+  "commercial": {
+    "public": {
+      "eyebrow": "Erst erkunden, dann entscheiden",
+      "title": "Ein System, das sich an den tatsächlichen Betrieb deines Zentrums anpasst",
+      "description": "GestTrain/OS ohne automatische Verkaufsgespräche oder versteckte Verpflichtungen konfigurieren und testen.",
+      "explore": "Konto erstellen",
+      "openEnvironment": "Testumgebung öffnen",
+      "returnHome": "Zur Anwendung zurückkehren",
+      "signIn": "Anmelden",
+      "menuLink": "GestTrain/OS kennenlernen",
+      "cards": {
+        "modular": {
+          "title": "Modular",
+          "description": "Nur die Funktionen aktivieren, die dein Zentrum benötigt."
+        },
+        "editable": {
+          "title": "Bearbeitbar",
+          "description": "Mit einer Vorlage starten und Begriffe, Kapazitäten, Aktivitäten und Regeln ändern."
+        },
+        "respectful": {
+          "title": "Ohne Druck",
+          "description": "Du entscheidest, wann du Hilfe oder ein Verkaufsgespräch möchtest."
+        }
+      }
+    },
+    "trial": {
+      "eyebrow": "Kommerzielle Einrichtung",
+      "createTitle": "Testumgebung erstellen",
+      "editTitle": "Testumgebung bearbeiten",
+      "description": "Eine Vorlage als Ausgangspunkt verwenden. Optionale Angaben können später ergänzt oder geändert werden.",
+      "centreData": "Zentrumsdaten",
+      "requestFailed": "Der Vorgang konnte nicht abgeschlossen werden",
+      "provisionalAddress": "Vorläufige Adresse",
+      "create": "Umgebung erstellen",
+      "save": "Änderungen speichern",
+      "duration": {
+        "label": "Feste 31-Tage-Testphase",
+        "remaining_one": "Noch {{count}} Tag",
+        "remaining_other": "Noch {{count}} Tage",
+        "transparent": "Hinweise sind für die Tage 1, 14, 24, 28 und 31 vorgesehen. Keine automatische Verlängerung, künstlichen Rabatte oder Sperren am letzten Tag."
+      },
+      "dataReview": {
+        "title": "Wurden echte Daten eingegeben?",
+        "description": "Diese Antwort bestimmt den nächsten Schritt. Wenn du den Inhalt zuerst prüfen musst, fordere Unterstützung an.",
+        "yes": "Ja",
+        "no": "Nein",
+        "assistance": "Ich brauche Hilfe",
+        "close": "Testumgebung schliessen",
+        "states": {
+          "yes": "Die Umgebung wird vor jeder Konvertierung zur Prüfung und Klassifizierung pausiert. Nichts wird automatisch konvertiert.",
+          "no": "Die Umgebung enthält laut Angabe nur fiktive Daten und kann geschlossen werden.",
+          "assistance": "Die Umgebung wird für eine unterstützte Prüfung pausiert. Es erfolgt keine automatische Kontaktaufnahme."
+        }
+      },
+      "conversionDraft": {
+        "title": "Klassifizierungsentwurf",
+        "description": "Herkunft und geplante Entscheidung je Kategorie prüfen. Dieses Inventar führt keine Konvertierung aus.",
+        "origin": "Herkunft",
+        "decision": "Entscheidung",
+        "limit": "Grundlage für Punkt 8: Das Speichern migriert, löscht, anonymisiert oder konvertiert keine Datensätze.",
+        "origins": {
+          "demo_seed": "Von der Demo erzeugt",
+          "user_created": "Vom Benutzer erstellt",
+          "imported": "Importiert",
+          "converted": "Für Produktion validiert"
+        },
+        "decisions": {
+          "pending": "Ausstehend",
+          "keep": "Behalten",
+          "discard": "Verwerfen"
+        },
+        "categories": {
+          "facility_configuration": "Zentrumskonfiguration",
+          "classes": "Kurse",
+          "schedules": "Zeitpläne",
+          "real_members": "Echte Mitglieder",
+          "fictional_members": "Fiktive Mitglieder",
+          "real_trainers": "Echte Trainer",
+          "simulated_invoices": "Simulierte Rechnungen",
+          "legitimate_invoices": "Legitime Rechnungen",
+          "booking_rules": "Buchungsregeln",
+          "artificial_statistics": "Künstliche Statistiken"
+        }
+      },
+      "environment": {
+        "title": "Lokale Testumgebung",
+        "sharedNotice": "Verfügbare Module und Demodaten erkunden. Diese Phase nutzt noch die lokale gemeinsame Projektdatenbank und ist keine isolierte Produktionsinstanz.",
+        "restore": "Vorlage wiederherstellen",
+        "restoreLimit": "Nur die kommerzielle Vorlagenkonfiguration wird zurückgesetzt. Benutzer, Buchungen und Rechnungen werden nicht gelöscht.",
+        "counts": {
+          "users": "Benutzer",
+          "classes": "Kurse",
+          "bookings": "Buchungen",
+          "waitlist": "Warteliste",
+          "billingRecords": "Abrechnungen"
+        }
+      },
+      "fields": {
+        "name": "Name des Zentrums",
+        "type": "Art des Zentrums",
+        "approximateMembers": "Ungefähre Mitgliederzahl",
+        "trainerCount": "Anzahl Trainer",
+        "spaceCount": "Räume oder Bereiche",
+        "usualCapacity": "Übliche Kapazität",
+        "classTypes": "Aktivitäten oder Kurse",
+        "classTypesHelp": "Durch Kommas getrennt",
+        "currency": "Währung",
+        "language": "Sprache",
+        "schedule": "Beschreibung des Zeitplans",
+        "usesBookings": "Nutzt Buchungen",
+        "usesWaitlist": "Nutzt Warteliste"
+      }
+    },
+    "facilityTypes": {
+      "traditional_gym": "Klassisches Fitnessstudio",
+      "crossfit": "CrossFit",
+      "hyrox": "HYROX",
+      "functional_training": "Funktionelles Training",
+      "personal_training": "Personal Training",
+      "powerlifting": "Powerlifting",
+      "strongman": "Strongman",
+      "bodybuilding": "Bodybuilding",
+      "martial_arts": "Kampfsport",
+      "yoga": "Yoga",
+      "pilates": "Pilates",
+      "indoor_cycling": "Indoor Cycling",
+      "multidisciplinary": "Multidisziplinäres Zentrum",
+      "custom": "Benutzerdefiniert"
+    }
   },
   "captcha": {
     "start": "Bestätigen, dass ich ein Mensch bin",

@@ -24,6 +24,12 @@ export const db = new Kysely<DatabaseSchema>({
   log: process.env.NODE_ENV === "development" ? ["query", "error"] : ["error"],
 });
 
+export const databaseProvider = "sqlite" as const;
+
+export async function checkDatabaseConnection(): Promise<void> {
+  await db.selectFrom("facilityProfiles").select("id").limit(1).execute();
+}
+
 function reconcileDuplicateBookings(): number {
   return sqliteDb
     .prepare(
@@ -723,6 +729,76 @@ export async function initializeDatabase() {
         updatedAt INTEGER NOT NULL
       );
     `);
+  }
+
+  if (!tableNames.includes("commercialTrials")) {
+    console.log("Creating commercialTrials tables...");
+    sqliteDb.exec(`
+      CREATE TABLE commercialTrials (
+        id TEXT PRIMARY KEY,
+        ownerUserId TEXT NOT NULL,
+        facilityName TEXT NOT NULL,
+        facilityType TEXT NOT NULL CHECK(facilityType IN (
+          'traditional_gym', 'crossfit', 'hyrox', 'functional_training',
+          'personal_training', 'powerlifting', 'strongman', 'bodybuilding',
+          'martial_arts', 'yoga', 'pilates', 'indoor_cycling',
+          'multidisciplinary', 'custom'
+        )),
+        approximateMembers INTEGER,
+        trainerCount INTEGER,
+        spaceCount INTEGER,
+        usualCapacity INTEGER,
+        classTypes TEXT NOT NULL DEFAULT '[]',
+        scheduleNotes TEXT NOT NULL DEFAULT '',
+        locale TEXT NOT NULL CHECK(locale IN ('es', 'en', 'de', 'de-CH')),
+        currency TEXT NOT NULL,
+        usesBookings INTEGER NOT NULL DEFAULT 1 CHECK(usesBookings IN (0, 1)),
+        usesWaitlist INTEGER NOT NULL DEFAULT 1 CHECK(usesWaitlist IN (0, 1)),
+        templateKey TEXT NOT NULL,
+        status TEXT NOT NULL CHECK(status IN (
+          'trial_active', 'trial_paused_support', 'trial_conversion_review',
+          'trial_expired', 'trial_closed'
+        )),
+        subdomain TEXT NOT NULL,
+        realDataDeclaration TEXT NOT NULL DEFAULT 'undeclared' CHECK(realDataDeclaration IN (
+          'undeclared', 'yes', 'no', 'assistance'
+        )),
+        conversionDraft TEXT NOT NULL DEFAULT '[]',
+        startedAt INTEGER NOT NULL,
+        expiresAt INTEGER NOT NULL,
+        pausedAt INTEGER,
+        closedAt INTEGER,
+        createdAt INTEGER NOT NULL,
+        updatedAt INTEGER NOT NULL,
+        FOREIGN KEY(ownerUserId) REFERENCES users(id) ON DELETE RESTRICT
+      );
+      CREATE INDEX idx_commercialTrials_status ON commercialTrials(status);
+      CREATE INDEX idx_commercialTrials_expiry ON commercialTrials(expiresAt);
+
+      CREATE TABLE commercialTrialEvents (
+        id TEXT PRIMARY KEY,
+        trialId TEXT NOT NULL,
+        actorUserId TEXT NOT NULL,
+        type TEXT NOT NULL,
+        metadata TEXT NOT NULL DEFAULT '{}',
+        createdAt INTEGER NOT NULL,
+        FOREIGN KEY(trialId) REFERENCES commercialTrials(id) ON DELETE CASCADE,
+        FOREIGN KEY(actorUserId) REFERENCES users(id) ON DELETE RESTRICT
+      );
+      CREATE INDEX idx_commercialTrialEvents_trial
+        ON commercialTrialEvents(trialId, createdAt DESC);
+    `);
+  } else {
+    const commercialColumns = sqliteDb
+      .prepare("PRAGMA table_info(commercialTrials)")
+      .all() as Array<{ name: string }>;
+    if (
+      !commercialColumns.some((column) => column.name === "conversionDraft")
+    ) {
+      sqliteDb.exec(
+        "ALTER TABLE commercialTrials ADD COLUMN conversionDraft TEXT NOT NULL DEFAULT '[]'",
+      );
+    }
   }
 
   if (!tableNames.includes("delegationGrants")) {

@@ -51,6 +51,7 @@
     "paymentsAndOrders": "Mis pagos y pedidos",
     "timer": "Temporizador",
     "billing": "Facturación",
+    "commercialTrial": "Entorno comercial",
     "dashboard": "Panel",
     "admin": "Administración",
     "analytics": "Analítica",
@@ -1273,6 +1274,136 @@
         "title": "Recuperación asistida",
         "description": "Queda reservada para un futuro procedimiento de soporte con comprobación de identidad."
       }
+    }
+  },
+  "commercial": {
+    "public": {
+      "eyebrow": "Explora antes de decidir",
+      "title": "Un sistema adaptable para la forma real de trabajar de tu centro",
+      "description": "Configura y prueba GestTrain/OS sin llamadas comerciales automáticas ni compromisos ocultos. El producto se explica funcionando.",
+      "explore": "Crear una cuenta",
+      "openEnvironment": "Abrir entorno comercial",
+      "returnHome": "Volver a la aplicación",
+      "signIn": "Iniciar sesión",
+      "menuLink": "Conocer GestTrain/OS",
+      "cards": {
+        "modular": {
+          "title": "Modular",
+          "description": "Activa y adapta solo las capacidades que necesita tu centro."
+        },
+        "editable": {
+          "title": "Editable",
+          "description": "Parte de una plantilla y cambia vocabulario, aforos, actividades y reglas."
+        },
+        "respectful": {
+          "title": "Sin presión",
+          "description": "Tú decides cuándo necesitas ayuda o una conversación comercial."
+        }
+      }
+    },
+    "trial": {
+      "eyebrow": "Configuración comercial",
+      "createTitle": "Crea tu entorno de prueba",
+      "editTitle": "Edita tu entorno de prueba",
+      "description": "Usa una plantilla como punto de partida. Todos los datos opcionales se pueden completar o cambiar más tarde.",
+      "centreData": "Datos del centro",
+      "requestFailed": "No se ha podido completar la operación",
+      "provisionalAddress": "Dirección provisional",
+      "create": "Crear entorno",
+      "save": "Guardar cambios",
+      "duration": {
+        "label": "Prueba fija de 31 días",
+        "remaining_one": "Queda {{count}} día",
+        "remaining_other": "Quedan {{count}} días",
+        "transparent": "Recibirás avisos informativos en los días 1, 14, 24, 28 y 31. No hay renovación automática, descuentos ficticios ni bloqueo artificial de funciones el último día."
+      },
+      "dataReview": {
+        "title": "¿Has introducido datos reales?",
+        "description": "Esta respuesta determina el siguiente paso. No existe una opción ambigua: si necesitas revisar el contenido antes de decidir, solicita ayuda.",
+        "yes": "Sí",
+        "no": "No",
+        "assistance": "Necesito ayuda",
+        "close": "Cerrar entorno de prueba",
+        "states": {
+          "yes": "El entorno queda pausado para revisar y clasificar los datos antes de cualquier conversión. Nada se convierte automáticamente.",
+          "no": "Has indicado que el entorno solo contiene datos ficticios. Ya puedes cerrarlo cuando quieras.",
+          "assistance": "El entorno queda pausado a la espera de una revisión asistida. Esta base no inicia llamadas ni contactos automáticos."
+        }
+      },
+      "conversionDraft": {
+        "title": "Borrador de clasificación",
+        "description": "Revisa el origen y la decisión prevista para cada categoría. Este inventario es editable y no ejecuta ninguna conversión.",
+        "origin": "Origen",
+        "decision": "Decisión",
+        "limit": "Base del punto 8: guardar estas decisiones no migra, borra, anonimiza ni convierte registros.",
+        "origins": {
+          "demo_seed": "Generado por la demo",
+          "user_created": "Creado por el usuario",
+          "imported": "Importado",
+          "converted": "Validado para producción"
+        },
+        "decisions": {
+          "pending": "Pendiente",
+          "keep": "Conservar",
+          "discard": "Descartar"
+        },
+        "categories": {
+          "facility_configuration": "Configuración del centro",
+          "classes": "Clases",
+          "schedules": "Horarios",
+          "real_members": "Socios reales",
+          "fictional_members": "Socios ficticios",
+          "real_trainers": "Entrenadores reales",
+          "simulated_invoices": "Facturas simuladas",
+          "legitimate_invoices": "Facturas legítimas",
+          "booking_rules": "Reglas de reserva",
+          "artificial_statistics": "Estadísticas artificiales"
+        }
+      },
+      "environment": {
+        "title": "Entorno local de prueba",
+        "sharedNotice": "Puedes explorar los módulos y los datos de demostración existentes. Esta fase todavía comparte la base local del proyecto y no representa una instancia aislada para producción.",
+        "restore": "Restaurar plantilla",
+        "restoreLimit": "La restauración solo restablece la configuración comercial de la plantilla. No borra usuarios, reservas ni facturas del entorno compartido.",
+        "counts": {
+          "users": "Usuarios",
+          "classes": "Clases",
+          "bookings": "Reservas",
+          "waitlist": "En espera",
+          "billingRecords": "Registros de cobro"
+        }
+      },
+      "fields": {
+        "name": "Nombre del centro",
+        "type": "Tipo de centro",
+        "approximateMembers": "Socios aproximados",
+        "trainerCount": "Número de entrenadores",
+        "spaceCount": "Salas o zonas",
+        "usualCapacity": "Aforo habitual",
+        "classTypes": "Actividades o clases",
+        "classTypesHelp": "Separadas por comas",
+        "currency": "Moneda",
+        "language": "Idioma",
+        "schedule": "Descripción del horario",
+        "usesBookings": "Utiliza reservas",
+        "usesWaitlist": "Utiliza lista de espera"
+      }
+    },
+    "facilityTypes": {
+      "traditional_gym": "Gimnasio tradicional",
+      "crossfit": "CrossFit",
+      "hyrox": "HYROX",
+      "functional_training": "Entrenamiento funcional",
+      "personal_training": "Entrenamiento personal",
+      "powerlifting": "Powerlifting",
+      "strongman": "Strongman",
+      "bodybuilding": "Culturismo",
+      "martial_arts": "Artes marciales",
+      "yoga": "Yoga",
+      "pilates": "Pilates",
+      "indoor_cycling": "Ciclo indoor",
+      "multidisciplinary": "Centro multidisciplinar",
+      "custom": "Personalizado"
     }
   },
   "captcha": {

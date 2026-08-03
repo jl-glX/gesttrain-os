@@ -1,0 +1,328 @@
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import request from "supertest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+
+describe("commercial foundation API", () => {
+  let directory: string;
+  let database: typeof import("../db/client.js");
+  let app: typeof import("../index.js").app;
+  let adminCookie: string;
+  let memberCookie: string;
+
+  beforeAll(async () => {
+    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-commercial-"));
+    vi.stubEnv("DATA_DIRECTORY", directory);
+    vi.stubEnv("NODE_ENV", "test");
+    vi.resetModules();
+    database = await import("../db/client.js");
+    const auth = await import("../services/auth.js");
+    await database.initializeDatabase();
+    await database.db
+      .insertInto("users")
+      .values([
+        {
+          id: "commercial-admin",
+          email: "commercial-admin@example.com",
+          phone: null,
+          name: "Commercial Admin",
+          avatarDataUrl: "",
+          password: await auth.hashPassword("CommercialAdmin123"),
+          role: "admin",
+          sessionIdleTimeoutMinutes: 10_080,
+          createdAt: Date.now(),
+        },
+        {
+          id: "commercial-member",
+          email: "commercial-member@example.com",
+          phone: null,
+          name: "Commercial Member",
+          avatarDataUrl: "",
+          password: await auth.hashPassword("CommercialMember123"),
+          role: "member",
+          sessionIdleTimeoutMinutes: 10_080,
+          createdAt: Date.now(),
+        },
+      ])
+      .execute();
+    app = (await import("../index.js")).app;
+    const login = async (
+      identifier: string,
+      accessPortal: "member" | "staff",
+    ) =>
+      (
+        await request(app)
+          .post("/api/auth/login")
+          .send({
+            identifier,
+            password:
+              accessPortal === "staff"
+                ? "CommercialAdmin123"
+                : "CommercialMember123",
+            accessPortal,
+            rememberDevice: false,
+          })
+      ).headers["set-cookie"][0];
+    adminCookie = await login("commercial-admin@example.com", "staff");
+    memberCookie = await login("commercial-member@example.com", "member");
+  });
+
+  afterAll(async () => {
+    database.closeDatabase();
+    vi.unstubAllEnvs();
+    await rm(directory, { recursive: true, force: true });
+  });
+
+  it("publishes the modular vision and the product-first commercial policy", async () => {
+    const response = await request(app).get("/api/commercial").expect(200);
+
+    expect(response.body).toMatchObject({
+      productName: "GestTrain/OS",
+      principle: "Producto primero, conversación después.",
+      trialDays: 31,
+      contactPolicy: {
+        automaticContact: false,
+        unsolicitedCalls: false,
+        userInitiatedOnly: true,
+      },
+    });
+    expect(response.body.facilityTypes).toHaveLength(14);
+    expect(response.body.modules).toContain("attendance_uncertainty");
+    expect(response.body.commitments).toContain("self_service_exploration");
+    expect(response.body.developmentOrder[0]).toMatchObject({
+      priority: 1,
+      area: "bookings",
+    });
+    expect(response.body.currentCommercialScope).toEqual({
+      implementedThroughPoint: 7,
+      point8FoundationAvailable: true,
+      conversionExecutionAvailable: false,
+      isolatedTenantProvisioningAvailable: false,
+    });
+    expect(response.body.trialPolicy).toEqual({
+      durationDays: 31,
+      reminderDays: [1, 14, 24, 28, 31],
+      automaticRenewal: false,
+      automaticSalesContact: false,
+      artificialDiscounts: false,
+      lastDayFeatureLock: false,
+    });
+  });
+
+  it("restricts trial configuration to administrators", async () => {
+    await request(app).get("/api/commercial/trial").expect(401);
+    await request(app)
+      .get("/api/commercial/trial")
+      .set("Cookie", memberCookie)
+      .expect(403);
+  });
+
+  it("keeps trial provisioning opt-in in production", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("COMMERCIAL_TRIALS_ENABLED", "false");
+    await request(app)
+      .get("/api/commercial/trial")
+      .expect(503)
+      .expect(({ body }) => {
+        expect(body.code).toBe("COMMERCIAL_TRIALS_DISABLED");
+      });
+    vi.stubEnv("NODE_ENV", "test");
+  });
+
+  it("creates an editable centre from a template and preserves optional data", async () => {
+    const created = await request(app)
+      .post("/api/commercial/trial")
+      .set("Cookie", adminCookie)
+      .send({
+        facilityName: "Fitness Boreal",
+        facilityType: "crossfit",
+        trainerCount: 4,
+        classTypes: ["WOD", "Movilidad"],
+        locale: "es",
+        currency: "eur",
+        usesBookings: true,
+      })
+      .expect(201);
+
+    expect(created.body.trial).toMatchObject({
+      facilityName: "Fitness Boreal",
+      facilityType: "crossfit",
+      trainerCount: 4,
+      usualCapacity: 14,
+      classTypes: ["WOD", "Movilidad"],
+      currency: "EUR",
+      usesBookings: true,
+      status: "trial_active",
+    });
+    expect(created.body.trial.subdomain).toBe("fitness-boreal-demo");
+    expect(created.body.trial.expiresAt - created.body.trial.startedAt).toBe(
+      31 * 24 * 60 * 60 * 1000,
+    );
+    expect(created.body.trial.notice).toMatchObject({
+      milestone: 1,
+      remainingDays: 31,
+    });
+    expect(created.body.trial).not.toHaveProperty("conversionDraft");
+
+    const updated = await request(app)
+      .patch("/api/commercial/trial")
+      .set("Cookie", adminCookie)
+      .send({ usualCapacity: 18, scheduleNotes: "Horario provisional" })
+      .expect(200);
+    expect(updated.body.trial).toMatchObject({
+      usualCapacity: 18,
+      scheduleNotes: "Horario provisional",
+    });
+
+    expect(updated.body.environment).toMatchObject({
+      isolation: "shared_local_demo",
+      restorationScope: "commercial_configuration_only",
+    });
+    expect(updated.body.environment.modules).toContain("bookings");
+
+    const restored = await request(app)
+      .post("/api/commercial/trial/restore-configuration")
+      .set("Cookie", adminCookie)
+      .send({})
+      .expect(200);
+    expect(restored.body.trial).toMatchObject({
+      usualCapacity: 14,
+      classTypes: ["WOD", "Open Box"],
+      scheduleNotes: "",
+    });
+    expect(restored.body.events[0]).toMatchObject({
+      type: "commercial_configuration_restored",
+      metadata: { scope: "commercial_configuration_only" },
+    });
+
+    const facility = await database.db
+      .selectFrom("facilityProfiles")
+      .selectAll()
+      .where("id", "=", "primary")
+      .executeTakeFirstOrThrow();
+    expect(facility.name).toBe("Fitness Boreal");
+  });
+
+  it("rejects unknown fields and duplicate trial creation", async () => {
+    await request(app)
+      .patch("/api/commercial/trial")
+      .set("Cookie", adminCookie)
+      .send({ secretSalesFlag: true })
+      .expect(400);
+
+    await request(app)
+      .post("/api/commercial/trial")
+      .set("Cookie", adminCookie)
+      .send({ facilityName: "Otro centro", facilityType: "yoga" })
+      .expect(409);
+  });
+
+  it("supports the three exact data decisions and only closes after no", async () => {
+    await request(app)
+      .post("/api/commercial/trial/close")
+      .set("Cookie", adminCookie)
+      .send({})
+      .expect(409);
+
+    await request(app)
+      .post("/api/commercial/trial/real-data-declaration")
+      .set("Cookie", adminCookie)
+      .send({ decision: "uncertain" })
+      .expect(400);
+
+    await request(app)
+      .get("/api/commercial/trial/conversion-draft")
+      .set("Cookie", adminCookie)
+      .expect(409);
+
+    const withRealData = await request(app)
+      .post("/api/commercial/trial/real-data-declaration")
+      .set("Cookie", adminCookie)
+      .send({ decision: "yes" })
+      .expect(200);
+    expect(withRealData.body.trial).toMatchObject({
+      status: "trial_conversion_review",
+      realDataDeclaration: "yes",
+    });
+
+    const draft = await request(app)
+      .get("/api/commercial/trial/conversion-draft")
+      .set("Cookie", adminCookie)
+      .expect(200);
+    expect(draft.body).toMatchObject({
+      mode: "classification_only",
+      conversionExecuted: false,
+    });
+    expect(draft.body.items).toHaveLength(10);
+
+    const classified = await request(app)
+      .patch("/api/commercial/trial/conversion-draft")
+      .set("Cookie", adminCookie)
+      .send({
+        category: "classes",
+        origin: "user_created",
+        decision: "keep",
+      })
+      .expect(200);
+    expect(classified.body.items).toContainEqual({
+      category: "classes",
+      origin: "user_created",
+      decision: "keep",
+    });
+    expect(classified.body.conversionExecuted).toBe(false);
+
+    await database.db
+      .updateTable("commercialTrials")
+      .set({
+        status: "trial_active",
+        realDataDeclaration: "undeclared",
+        pausedAt: null,
+      })
+      .where("id", "=", "primary")
+      .execute();
+    const assistance = await request(app)
+      .post("/api/commercial/trial/real-data-declaration")
+      .set("Cookie", adminCookie)
+      .send({ decision: "assistance" })
+      .expect(200);
+    expect(assistance.body.trial).toMatchObject({
+      status: "trial_paused_support",
+      realDataDeclaration: "assistance",
+    });
+
+    await database.db
+      .updateTable("commercialTrials")
+      .set({
+        status: "trial_active",
+        realDataDeclaration: "undeclared",
+        pausedAt: null,
+      })
+      .where("id", "=", "primary")
+      .execute();
+    const withoutRealData = await request(app)
+      .post("/api/commercial/trial/real-data-declaration")
+      .set("Cookie", adminCookie)
+      .send({ decision: "no" })
+      .expect(200);
+    expect(withoutRealData.body.trial.realDataDeclaration).toBe("no");
+
+    const closed = await request(app)
+      .post("/api/commercial/trial/close")
+      .set("Cookie", adminCookie)
+      .send({})
+      .expect(200);
+    expect(closed.body.trial.status).toBe("trial_closed");
+  });
+
+  it("does not leave commercial records blocking administrator deletion", async () => {
+    const users = await import("../services/users.js");
+    await expect(users.deleteUser("commercial-admin")).resolves.toBeUndefined();
+    expect(
+      await database.db
+        .selectFrom("commercialTrials")
+        .select("id")
+        .executeTakeFirst(),
+    ).toBeUndefined();
+  });
+});

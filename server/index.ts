@@ -5,7 +5,12 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import { pathToFileURL } from "node:url";
 import { setupStaticServing } from "./static-serve.js";
-import { initializeDatabase, closeDatabase } from "./db/client.js";
+import {
+  checkDatabaseConnection,
+  closeDatabase,
+  databaseProvider,
+  initializeDatabase,
+} from "./db/client.js";
 import { seedDatabase } from "./db/seed.js";
 import { authRouter } from "./routes/auth.js";
 import { classesRouter } from "./routes/classes.js";
@@ -28,6 +33,7 @@ import { delegationsRouter } from "./routes/delegations.js";
 import { downloadsRouter } from "./routes/downloads.js";
 import { resourceManagerRouter } from "./routes/resource-manager.js";
 import { securityManagerRouter } from "./routes/security-manager.js";
+import { commercialRouter } from "./routes/commercial.js";
 import {
   apiLimiter,
   apiSecurityHeaders,
@@ -44,13 +50,17 @@ import {
   startAccountLifecycleScheduler,
   stopAccountLifecycleScheduler,
 } from "./services/account-lifecycle-scheduler.js";
+import { validateProductionConfiguration } from "./lib/production-config.js";
 
 dotenv.config();
 
 export const app = express();
 
 app.disable("x-powered-by");
-app.set("trust proxy", false);
+// Azure App Service terminates TLS at its front end. Trust exactly that first
+// proxy hop in production so secure cookies and client IP rate limits work,
+// without accepting arbitrary forwarded headers during local development.
+app.set("trust proxy", process.env.NODE_ENV === "production" ? 1 : false);
 
 const clientOrigins = getAllowedClientOrigins();
 app.use(
@@ -114,6 +124,7 @@ app.use("/api/account/delegations", delegationsRouter);
 app.use("/api/downloads", downloadsRouter);
 app.use("/api/admin/resource-manager", resourceManagerRouter);
 app.use("/api/admin/security-manager", securityManagerRouter);
+app.use("/api/commercial", commercialRouter);
 
 if (process.env.NODE_ENV !== "production") {
   app.get("/", (_req, res) => {
@@ -127,8 +138,17 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // Health check endpoint
-app.get("/api/health", (req: express.Request, res: express.Response) => {
+app.get("/api/health/live", (_req, res) => {
   res.json({ status: "ok" });
+});
+
+app.get("/api/health", async (_req, res) => {
+  try {
+    await checkDatabaseConnection();
+    res.json({ status: "ready", database: databaseProvider });
+  } catch {
+    res.status(503).json({ status: "not_ready" });
+  }
 });
 
 app.use("/api", notFoundHandler);
@@ -145,6 +165,7 @@ app.use(errorHandler);
 // Export a function to start the server
 export async function startServer(port: string | number): Promise<Server> {
   try {
+    validateProductionConfiguration(process.env, databaseProvider);
     // Initialize database
     await initializeDatabase();
     if (shouldSeedDemoData()) {
@@ -161,7 +182,6 @@ export async function startServer(port: string | number): Promise<Server> {
       server.once("error", reject);
     });
   } catch (err) {
-    console.error("Failed to start server:", err);
     await stopAccountLifecycleScheduler();
     await stopResourceManager();
     throw err;
@@ -192,7 +212,8 @@ if (
       process.once("SIGINT", () => stopServer(server));
       process.once("SIGTERM", () => stopServer(server));
     })
-    .catch(() => {
+    .catch((error: unknown) => {
+      console.error("Failed to start server:", error);
       closeDatabase();
       process.exit(1);
     });

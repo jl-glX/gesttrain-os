@@ -13,6 +13,22 @@ import {
 
 const ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
 const roles = ["member", "trainer", "admin"];
+const commercialFacilityTypes = [
+  "traditional_gym",
+  "crossfit",
+  "hyrox",
+  "functional_training",
+  "personal_training",
+  "powerlifting",
+  "strongman",
+  "bodybuilding",
+  "martial_arts",
+  "yoga",
+  "pilates",
+  "indoor_cycling",
+  "multidisciplinary",
+  "custom",
+];
 
 const enforcePasswordHashLimit = (value: string): boolean => {
   if (!isPasswordWithinHashLimit(value)) {
@@ -165,6 +181,98 @@ export const loginValidation = validateRequest([
     .custom(enforcePasswordHashLimit),
   body("accessPortal").isIn(["member", "staff"]),
   body("rememberDevice").optional().isBoolean(),
+]);
+
+const commercialTrialFields = [
+  "facilityName",
+  "facilityType",
+  "approximateMembers",
+  "trainerCount",
+  "spaceCount",
+  "usualCapacity",
+  "classTypes",
+  "scheduleNotes",
+  "locale",
+  "currency",
+  "usesBookings",
+  "usesWaitlist",
+];
+
+const optionalCommercialTrialFields = () => [
+  body("approximateMembers")
+    .optional({ nullable: true })
+    .isInt({ min: 0, max: 1_000_000 }),
+  body("trainerCount")
+    .optional({ nullable: true })
+    .isInt({ min: 0, max: 100_000 }),
+  body("spaceCount")
+    .optional({ nullable: true })
+    .isInt({ min: 0, max: 10_000 }),
+  body("usualCapacity")
+    .optional({ nullable: true })
+    .isInt({ min: 1, max: 100_000 }),
+  body("classTypes").optional().isArray({ max: 20 }),
+  body("classTypes.*")
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ min: 1, max: 80 }),
+  body("scheduleNotes").optional().isString().trim().isLength({ max: 2_000 }),
+  body("locale").optional().isIn(["es", "en", "de", "de-CH"]),
+  body("currency")
+    .optional()
+    .isString()
+    .trim()
+    .toUpperCase()
+    .matches(/^[A-Z]{3}$/),
+  body("usesBookings").optional().isBoolean(),
+  body("usesWaitlist").optional().isBoolean(),
+];
+
+export const createCommercialTrialValidation = validateRequest([
+  strictBody(commercialTrialFields),
+  body("facilityName").isString().trim().isLength({ min: 2, max: 120 }),
+  body("facilityType").isIn(commercialFacilityTypes),
+  ...optionalCommercialTrialFields(),
+]);
+
+export const updateCommercialTrialValidation = validateRequest([
+  strictBody(commercialTrialFields, true),
+  body("facilityName")
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ min: 2, max: 120 }),
+  body("facilityType").optional().isIn(commercialFacilityTypes),
+  ...optionalCommercialTrialFields(),
+]);
+
+export const emptyCommercialTrialActionValidation = validateRequest([
+  body().custom(emptyObjectOrMissing),
+  query().custom(emptyObjectOrMissing),
+]);
+
+export const commercialTrialDataDeclarationValidation = validateRequest([
+  strictBody(["decision"]),
+  body("decision").isIn(["yes", "no", "assistance"]),
+]);
+
+export const commercialConversionDraftValidation = validateRequest([
+  strictBody(["category", "origin", "decision"]),
+  body("category").isIn([
+    "facility_configuration",
+    "classes",
+    "schedules",
+    "real_members",
+    "fictional_members",
+    "real_trainers",
+    "simulated_invoices",
+    "legitimate_invoices",
+    "booking_rules",
+    "artificial_statistics",
+  ]),
+  body("origin").isIn(["demo_seed", "user_created", "imported", "converted"]),
+  body("decision").isIn(["pending", "keep", "discard"]),
 ]);
 
 export const mfaCodeValidation = validateRequest([
