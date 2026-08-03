@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { MessageSquareHeart, Send } from "lucide-react";
+import { ArrowLeft, MessageSquareHeart, Send } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { authFetch } from "../lib/api";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
@@ -131,6 +132,14 @@ export function FeedbackPage() {
               </Button>
             </form>
           )}
+          <div className="mt-6 border-t border-slate-200 pt-6">
+            <Button asChild variant="outline" className="w-full sm:w-auto">
+              <Link to="/login">
+                <ArrowLeft />
+                {t("feedback.returnToLogin")}
+              </Link>
+            </Button>
+          </div>
         </Card>
       </main>
       <LegalFooter variant="light" />

@@ -1223,7 +1223,8 @@
     "submit": "Enviar comentario",
     "sending": "Enviando...",
     "sent": "Gracias. Hemos recibido tu comentario.",
-    "error": "No se ha podido enviar. Inténtalo de nuevo."
+    "error": "No se ha podido enviar. Inténtalo de nuevo.",
+    "returnToLogin": "Volver al inicio de sesión"
   },
   "errors": {
     "fetchClasses": "No se han podido cargar las clases",

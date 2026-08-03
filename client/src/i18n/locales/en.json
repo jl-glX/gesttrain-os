@@ -1213,7 +1213,8 @@
     "submit": "Send feedback",
     "sending": "Sending...",
     "sent": "Thank you. We received your feedback.",
-    "error": "We could not send it. Please try again."
+    "error": "We could not send it. Please try again.",
+    "returnToLogin": "Back to sign in"
   },
   "errors": {
     "fetchClasses": "Failed to fetch classes",
