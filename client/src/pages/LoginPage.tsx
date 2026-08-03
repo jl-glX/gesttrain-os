@@ -472,11 +472,7 @@ export function LoginPage() {
             </div>
           )}
         </form>
-      ) : (
-        <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-          {t("auth.verificationRequired")}
-        </p>
-      )}
+      ) : null}
 
       {accessPortal === "member" && (
         <div className="mt-6 space-y-2 text-center">

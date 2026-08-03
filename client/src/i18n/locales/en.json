@@ -1274,7 +1274,7 @@
   },
   "formVerification": {
     "title": "Verification is required",
-    "description": "Verify that you are human before accessing this form. Authorization lasts 15 minutes and the API rejects unverified submissions.",
+    "description": "Verify that you are human before accessing this form. Authorization remains valid for this session and the API rejects unverified submissions.",
     "checking": "Checking form verification…",
     "error": "The form could not be authorized. Complete verification again."
   },

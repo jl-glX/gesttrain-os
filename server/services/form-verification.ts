@@ -1,8 +1,6 @@
 import { db } from "../db/client.js";
 import { recordSecurityEvent } from "./security-events.js";
 
-export const FORM_VERIFICATION_DURATION_MS = 15 * 60 * 1000;
-
 export async function getFormVerificationStatus(sessionId: string) {
   const session = await db
     .selectFrom("sessions")
@@ -10,9 +8,7 @@ export async function getFormVerificationStatus(sessionId: string) {
     .where("id", "=", sessionId)
     .executeTakeFirst();
   const now = Date.now();
-  const validUntil = session?.formVerifiedAt
-    ? session.formVerifiedAt + FORM_VERIFICATION_DURATION_MS
-    : 0;
+  const validUntil = session?.formVerifiedAt ? session.expiresAt : 0;
   return {
     verified: Boolean(
       session &&
@@ -21,7 +17,7 @@ export async function getFormVerificationStatus(sessionId: string) {
       validUntil > now,
     ),
     validUntil,
-    durationMinutes: FORM_VERIFICATION_DURATION_MS / 60_000,
+    scope: "authenticated_session" as const,
   };
 }
 
@@ -46,7 +42,7 @@ export async function markFormSessionVerified(
     throw error;
   }
   await recordSecurityEvent("form_verification_succeeded", userId, {
-    durationMinutes: FORM_VERIFICATION_DURATION_MS / 60_000,
+    scope: "authenticated_session",
   });
   return getFormVerificationStatus(sessionId);
 }

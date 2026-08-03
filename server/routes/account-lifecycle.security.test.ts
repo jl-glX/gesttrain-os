@@ -65,6 +65,16 @@ describe("account deletion security", () => {
     });
     ownerCookie = ownerLogin.headers["set-cookie"][0];
     otherCookie = otherLogin.headers["set-cookie"][0];
+    await request(app)
+      .post("/api/auth/form-verification")
+      .set("Cookie", ownerCookie)
+      .send({ captchaToken: "test-token" })
+      .expect(200);
+    await request(app)
+      .post("/api/auth/form-verification")
+      .set("Cookie", otherCookie)
+      .send({ captchaToken: "test-token" })
+      .expect(200);
   });
 
   beforeEach(async () => {
@@ -88,6 +98,28 @@ describe("account deletion security", () => {
       .put("/api/account/lifecycle/deletion-review")
       .send({ selectedCategories: ["bookings"], intent: "selected_data" })
       .expect(401);
+  });
+
+  it("requires recent human verification for lifecycle mutations", async () => {
+    await database.db
+      .updateTable("sessions")
+      .set({ formVerifiedAt: 0 })
+      .where("userId", "=", ownerId)
+      .execute();
+
+    const response = await request(app)
+      .put("/api/account/lifecycle/inactivity")
+      .set("Cookie", ownerCookie)
+      .send({ inactivityMonths: 12 })
+      .expect(428);
+
+    expect(response.body.code).toBe("FORM_VERIFICATION_REQUIRED");
+
+    await request(app)
+      .post("/api/auth/form-verification")
+      .set("Cookie", ownerCookie)
+      .send({ captchaToken: "test-token" })
+      .expect(200);
   });
 
   it("rejects attempts to inject another account or unknown categories", async () => {

@@ -36,6 +36,11 @@ describe("account lifecycle API", () => {
       rememberDevice: false,
     });
     cookie = login.headers["set-cookie"][0];
+    await request(app)
+      .post("/api/auth/form-verification")
+      .set("Cookie", cookie)
+      .send({ captchaToken: "test-token" })
+      .expect(200);
   });
 
   afterAll(async () => {

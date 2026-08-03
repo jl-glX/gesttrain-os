@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { authFetch } from "../lib/api";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
+import { VerifiedForm } from "../components/VerifiedForm";
 
 interface AccountLifecycle {
   currentState: string;
@@ -117,44 +118,54 @@ export function AccountLifecyclePage() {
           </div>
         )}
 
-        <Card className="mt-8 p-6">
-          <CalendarClock className="text-blue-700" />
-          <h2 className="mt-4 text-xl font-black text-slate-950">
-            {t("accountLifecycle.inactivityTitle")}
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-            {t("accountLifecycle.inactivityDescription")}
-          </p>
-          <label className="mt-5 block max-w-xl text-sm font-semibold text-slate-800">
-            {t("accountLifecycle.periodLabel")}
-            <select
-              value={selectedPeriod}
-              onChange={(event) => setSelectedPeriod(event.target.value)}
-              className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5"
-            >
-              <option value="disabled">{t("accountLifecycle.disabled")}</option>
-              {inactivityOptions.map((months) => (
-                <option key={months} value={months}>
-                  {t("accountLifecycle.months", { count: months })}
-                </option>
-              ))}
-            </select>
-          </label>
-          <Button
-            className="mt-4"
-            disabled={busy || !lifecycle}
-            onClick={() => void savePreference()}
-          >
-            {t("common.save")}
-          </Button>
-          {lifecycle && (
-            <p className="mt-4 text-xs leading-5 text-slate-500">
-              {t("accountLifecycle.lastActivity", {
-                date: formatDate(lifecycle.lastMeaningfulActivityAt),
-              })}
+        <VerifiedForm
+          className="mt-8"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void savePreference();
+          }}
+        >
+          <Card className="p-6">
+            <CalendarClock className="text-blue-700" />
+            <h2 className="mt-4 text-xl font-black text-slate-950">
+              {t("accountLifecycle.inactivityTitle")}
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+              {t("accountLifecycle.inactivityDescription")}
             </p>
-          )}
-        </Card>
+            <label className="mt-5 block max-w-xl text-sm font-semibold text-slate-800">
+              {t("accountLifecycle.periodLabel")}
+              <select
+                value={selectedPeriod}
+                onChange={(event) => setSelectedPeriod(event.target.value)}
+                className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5"
+              >
+                <option value="disabled">
+                  {t("accountLifecycle.disabled")}
+                </option>
+                {inactivityOptions.map((months) => (
+                  <option key={months} value={months}>
+                    {t("accountLifecycle.months", { count: months })}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <Button
+              type="submit"
+              className="mt-4"
+              disabled={busy || !lifecycle}
+            >
+              {t("common.save")}
+            </Button>
+            {lifecycle && (
+              <p className="mt-4 text-xs leading-5 text-slate-500">
+                {t("accountLifecycle.lastActivity", {
+                  date: formatDate(lifecycle.lastMeaningfulActivityAt),
+                })}
+              </p>
+            )}
+          </Card>
+        </VerifiedForm>
 
         <div className="mt-6 flex justify-center">
           <Button

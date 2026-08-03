@@ -1287,7 +1287,7 @@
   },
   "formVerification": {
     "title": "Die Verifizierung ist erforderlich",
-    "description": "Bestätigen Sie vor dem Zugriff auf dieses Formular, dass Sie ein Mensch sind. Die Freigabe gilt 15 Minuten; die API lehnt ungeprüfte Übermittlungen ab.",
+    "description": "Bestätigen Sie vor dem Zugriff auf dieses Formular, dass Sie ein Mensch sind. Die Freigabe gilt für diese Sitzung; die API lehnt ungeprüfte Übermittlungen ab.",
     "checking": "Formularverifizierung wird geprüft…",
     "error": "Das Formular konnte nicht freigegeben werden. Wiederholen Sie die Verifizierung."
   },

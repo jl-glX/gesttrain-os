@@ -124,7 +124,7 @@ describe("account continuity API", () => {
     expect(response.body.representations[0].status).toBe("revoked");
   });
 
-  it("rejects a form submission after verification expires and accepts it after a new CAPTCHA", async () => {
+  it("rejects a form submission without session verification and accepts it after a new CAPTCHA", async () => {
     await database.db
       .updateTable("sessions")
       .set({ formVerifiedAt: 0 })

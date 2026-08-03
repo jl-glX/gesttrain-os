@@ -25,9 +25,11 @@ import {
 } from "../middleware/validation.js";
 import { authenticationLimiter } from "../middleware/security.js";
 import { verifyUserPassword } from "../services/auth.js";
+import { requireRecentFormVerification } from "../middleware/form-verification.js";
 
 export const accountLifecycleRouter = express.Router();
 accountLifecycleRouter.use(authenticate);
+accountLifecycleRouter.use(requireRecentFormVerification);
 
 accountLifecycleRouter.get("/", async (_req, res, next) => {
   try {

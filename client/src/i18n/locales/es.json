@@ -1284,7 +1284,7 @@
   },
   "formVerification": {
     "title": "La verificación es obligatoria",
-    "description": "Verifica que eres una persona antes de acceder a este formulario. La autorización dura 15 minutos y la API rechazará cualquier envío no verificado.",
+    "description": "Verifica que eres una persona antes de acceder a este formulario. La autorización se mantiene durante esta sesión y la API rechazará cualquier envío no verificado.",
     "checking": "Comprobando la verificación del formulario…",
     "error": "No se ha podido autorizar el formulario. Repite la verificación."
   },

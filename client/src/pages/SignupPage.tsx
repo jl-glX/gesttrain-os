@@ -344,11 +344,7 @@ export function SignupPage() {
             </>
           )}
         </form>
-      ) : (
-        <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-          {t("auth.verificationRequired")}
-        </p>
-      )}
+      ) : null}
 
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-600">
