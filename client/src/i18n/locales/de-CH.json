@@ -53,7 +53,7 @@
     "paymentsAndOrders": "Meine Zahlungen und Bestellungen",
     "timer": "Timer",
     "billing": "Abrechnung",
-    "commercialTrial": "Testumgebung",
+    "commercialTrial": "Zentrum einrichten",
     "dashboard": "Übersicht",
     "admin": "Verwaltung",
     "analytics": "Analysen",
@@ -1382,7 +1382,7 @@
       "title": "Ein System, das sich an den tatsächlichen Betrieb deines Zentrums anpasst",
       "description": "Umbravia Forge ohne automatische Verkaufsgespräche oder versteckte Verpflichtungen konfigurieren und testen.",
       "explore": "Konto erstellen",
-      "openEnvironment": "Testumgebung öffnen",
+      "openEnvironment": "Zentrum einrichten",
       "returnHome": "Zur Anwendung zurückkehren",
       "signIn": "Anmelden",
       "menuLink": "Umbravia Forge kennenlernen",
@@ -1402,14 +1402,14 @@
       }
     },
     "trial": {
-      "eyebrow": "Kommerzielle Einrichtung",
-      "createTitle": "Testumgebung erstellen",
-      "editTitle": "Testumgebung bearbeiten",
+      "eyebrow": "Zentrum einrichten",
+      "createTitle": "Testzentrum einrichten",
+      "editTitle": "Zentrum einrichten",
       "description": "Eine Vorlage als Ausgangspunkt verwenden. Optionale Angaben können später ergänzt oder geändert werden.",
       "centreData": "Zentrumsdaten",
       "requestFailed": "Der Vorgang konnte nicht abgeschlossen werden",
       "provisionalAddress": "Vorläufige Adresse",
-      "create": "Umgebung erstellen",
+      "create": "Konfiguration speichern",
       "save": "Änderungen speichern",
       "duration": {
         "label": "Feste 31-Tage-Testphase",
@@ -1423,11 +1423,11 @@
         "yes": "Ja",
         "no": "Nein",
         "assistance": "Ich brauche Hilfe",
-        "close": "Testumgebung schliessen",
+        "close": "Testphase beenden",
         "states": {
-          "yes": "Die Umgebung wird vor jeder Konvertierung zur Prüfung und Klassifizierung pausiert. Nichts wird automatisch konvertiert.",
-          "no": "Die Umgebung enthält laut Angabe nur fiktive Daten und kann geschlossen werden.",
-          "assistance": "Die Umgebung wird für eine unterstützte Prüfung pausiert. Es erfolgt keine automatische Kontaktaufnahme."
+          "yes": "Die Testphase wird vor jeder Konvertierung zur Prüfung und Klassifizierung pausiert. Nichts wird automatisch konvertiert.",
+          "no": "Die Testphase enthält laut Angabe nur fiktive Daten und kann beendet werden.",
+          "assistance": "Die Testphase wird für eine unterstützte Prüfung pausiert. Es erfolgt keine automatische Kontaktaufnahme."
         }
       },
       "conversionDraft": {
@@ -1461,7 +1461,7 @@
         }
       },
       "environment": {
-        "title": "Lokale Testumgebung",
+        "title": "Demodaten des Zentrums",
         "sharedNotice": "Verfügbare Module und Demodaten erkunden. Diese Phase nutzt noch die lokale gemeinsame Projektdatenbank und ist keine isolierte Produktionsinstanz.",
         "restore": "Vorlage wiederherstellen",
         "restoreLimit": "Nur die kommerzielle Vorlagenkonfiguration wird zurückgesetzt. Benutzer, Buchungen und Rechnungen werden nicht gelöscht.",

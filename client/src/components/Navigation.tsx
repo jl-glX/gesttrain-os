@@ -11,7 +11,6 @@ import {
   Shield,
   Building2,
   ShoppingBag,
-  Sparkles,
   Timer,
   X,
 } from "lucide-react";
@@ -211,7 +210,7 @@ export function Navigation() {
                       : inactiveClass
                   }`}
                 >
-                  <Sparkles size={20} />
+                  <Building2 size={20} />
                   <span>{t("nav.commercialTrial")}</span>
                 </Link>
                 <Link

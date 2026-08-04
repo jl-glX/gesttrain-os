@@ -49,7 +49,7 @@
     "paymentsAndOrders": "My payments and orders",
     "timer": "Timer",
     "billing": "Billing",
-    "commercialTrial": "Commercial trial",
+    "commercialTrial": "Centre setup",
     "dashboard": "Dashboard",
     "admin": "Admin",
     "analytics": "Analytics",
@@ -1369,7 +1369,7 @@
       "title": "A system that adapts to how your centre really works",
       "description": "Configure and test Umbravia Forge without automatic sales calls or hidden commitments. The product explains itself by working.",
       "explore": "Create an account",
-      "openEnvironment": "Open commercial environment",
+      "openEnvironment": "Configure centre",
       "returnHome": "Return to the application",
       "signIn": "Sign in",
       "menuLink": "Discover Umbravia Forge",
@@ -1389,14 +1389,14 @@
       }
     },
     "trial": {
-      "eyebrow": "Commercial setup",
-      "createTitle": "Create your trial environment",
-      "editTitle": "Edit your trial environment",
+      "eyebrow": "Centre setup",
+      "createTitle": "Configure your trial centre",
+      "editTitle": "Centre setup",
       "description": "Use a template as a starting point. Every optional detail can be completed or changed later.",
       "centreData": "Centre details",
       "requestFailed": "The operation could not be completed",
       "provisionalAddress": "Provisional address",
-      "create": "Create environment",
+      "create": "Save setup",
       "save": "Save changes",
       "duration": {
         "label": "Fixed 31-day trial",
@@ -1410,11 +1410,11 @@
         "yes": "Yes",
         "no": "No",
         "assistance": "I need assistance",
-        "close": "Close trial environment",
+        "close": "End trial",
         "states": {
-          "yes": "The environment is paused to review and classify data before any conversion. Nothing is converted automatically.",
-          "no": "You indicated that the environment contains only fictional data. You may now close it.",
-          "assistance": "The environment is paused for assisted review. This foundation starts no automatic calls or contact."
+          "yes": "The trial is paused to review and classify data before any conversion. Nothing is converted automatically.",
+          "no": "You indicated that the trial contains only fictional data. You may now end it.",
+          "assistance": "The trial is paused for assisted review. This foundation starts no automatic calls or contact."
         }
       },
       "conversionDraft": {
@@ -1448,10 +1448,10 @@
         }
       },
       "environment": {
-        "title": "Local trial environment",
+        "title": "Centre demo data",
         "sharedNotice": "Explore the available modules and demo data. This stage still shares the project's local database and is not an isolated production instance.",
         "restore": "Restore template",
-        "restoreLimit": "Restoration only resets the commercial template configuration. It does not delete users, bookings or invoices from the shared environment.",
+        "restoreLimit": "Restoration only resets the template configuration. It does not delete users, bookings or invoices from the shared application.",
         "counts": {
           "users": "Users",
           "classes": "Classes",
