@@ -34,6 +34,8 @@ import { downloadsRouter } from "./routes/downloads.js";
 import { resourceManagerRouter } from "./routes/resource-manager.js";
 import { securityManagerRouter } from "./routes/security-manager.js";
 import { commercialRouter } from "./routes/commercial.js";
+import { communityRouter } from "./routes/community.js";
+import { moderationRouter } from "./routes/moderation.js";
 import {
   apiLimiter,
   apiSecurityHeaders,
@@ -126,6 +128,8 @@ app.use("/api/downloads", downloadsRouter);
 app.use("/api/admin/resource-manager", resourceManagerRouter);
 app.use("/api/admin/security-manager", securityManagerRouter);
 app.use("/api/commercial", commercialRouter);
+app.use("/api/community", communityRouter);
+app.use("/api/moderation", moderationRouter);
 
 if (process.env.NODE_ENV !== "production") {
   app.get("/", (_req, res) => {

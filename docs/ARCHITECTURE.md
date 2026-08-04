@@ -54,6 +54,19 @@ Known demo classes are localized at display time. User-created names and descrip
 - Invoice details, archived records and custom billing cycles belong to Umbravia Forge's financial domain. The visible interface does not expose App-ProTrack as a product name.
 - Facility profile settings store the centre name, logo and accent colour separately from Umbravia Forge's product identity. Logo updates are admin-only and accept PNG, JPEG or WebP images up to 512 KB.
 - The current installation has one `primary` facility profile. Before operating as a true multi-tenant SaaS, users, classes, bookings and billing records must all be scoped by facility and tested for cross-tenant isolation.
+
+## Community, identity and moderation
+
+The community domain is split into social profiles, bilateral contacts,
+scoped channels, messages, facility links, parental controls and moderation
+cases. These modules communicate through stable account and message IDs while
+keeping billing, credentials and private account data outside community
+queries. Class-channel authorization is derived from bookings, the waitlist,
+the assigned trainer or the administrator role.
+
+The operational scope and consciously deferred decisions are recorded in
+`docs/COMMERCIAL-POINTS-22-38.md`.
+
 - The interface keeps three visual identities separate: the fixed Umbravia Forge product logo, the active facility logo and the signed-in user's profile photo. Profile photos can only be updated by their account owner and use the same safe image restrictions as facility logos.
 - Continue adapting suitable App-ProTrack concepts instead of duplicating a second finance domain.
 - Keep Umbravia Forge functional when optional integrations are unavailable.

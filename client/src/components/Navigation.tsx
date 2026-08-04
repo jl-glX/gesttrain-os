@@ -6,6 +6,7 @@ import {
   CalendarDays,
   CreditCard,
   Home,
+  MessageCircle,
   Settings,
   Shield,
   Building2,
@@ -131,6 +132,16 @@ export function Navigation() {
             >
               <CalendarDays size={20} />
               <span>{t("nav.classes")}</span>
+            </Link>
+
+            <Link
+              to="/community"
+              className={`${navLinkClass} ${
+                isActive("/community") ? activeClass : inactiveClass
+              }`}
+            >
+              <MessageCircle size={20} />
+              <span>{t("nav.community")}</span>
             </Link>
 
             {user?.role === "admin" ? (

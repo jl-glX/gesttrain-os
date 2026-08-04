@@ -6,6 +6,7 @@ import Database from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
 import type { Database as DatabaseSchema } from "./types.js";
 import { generateSupportId } from "../lib/support-id.js";
+import { initializeCommunitySchema } from "./community-schema.js";
 
 const dataDirectory =
   process.env.DATA_DIRECTORY ?? path.join(process.cwd(), "data");
@@ -1033,6 +1034,8 @@ export async function initializeDatabase() {
       );
     }
   }
+
+  initializeCommunitySchema(sqliteDb);
 
   sqliteDb
     .prepare(

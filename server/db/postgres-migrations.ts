@@ -502,6 +502,145 @@ CREATE INDEX IF NOT EXISTS "idx_waitlistEntries_class_expiry"
   ON "waitlistEntries" ("classId", "promotionExpiresAt");
 `,
   },
+  {
+    version: 5,
+    name: "community-identity-parental-moderation",
+    sql: String.raw`
+CREATE TABLE IF NOT EXISTS "socialProfiles" (
+  "userId" TEXT PRIMARY KEY REFERENCES "users" ("id") ON DELETE CASCADE,
+  "username" TEXT NOT NULL UNIQUE,
+  "bio" TEXT NOT NULL DEFAULT '',
+  "displayRealName" SMALLINT NOT NULL DEFAULT 0 CHECK ("displayRealName" IN (0, 1)),
+  "birthDate" TEXT,
+  "privacy" TEXT NOT NULL DEFAULT '{}',
+  "createdAt" BIGINT NOT NULL,
+  "updatedAt" BIGINT NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_socialProfiles_username_lower"
+  ON "socialProfiles" (LOWER("username"));
+
+CREATE TABLE IF NOT EXISTS "internalContacts" (
+  "id" TEXT PRIMARY KEY,
+  "requesterUserId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE,
+  "recipientUserId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE,
+  "status" TEXT NOT NULL,
+  "createdAt" BIGINT NOT NULL,
+  "updatedAt" BIGINT NOT NULL,
+  CHECK ("requesterUserId" <> "recipientUserId")
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_internalContacts_pair"
+  ON "internalContacts" (LEAST("requesterUserId", "recipientUserId"), GREATEST("requesterUserId", "recipientUserId"));
+CREATE INDEX IF NOT EXISTS "idx_internalContacts_user_status"
+  ON "internalContacts" ("requesterUserId", "recipientUserId", "status");
+
+CREATE TABLE IF NOT EXISTS "communityChannels" (
+  "id" TEXT PRIMARY KEY,
+  "scope" TEXT NOT NULL CHECK ("scope" IN ('facility','class','community')),
+  "scopeId" TEXT NOT NULL,
+  "name" TEXT NOT NULL,
+  "status" TEXT NOT NULL,
+  "createdBy" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE RESTRICT,
+  "createdAt" BIGINT NOT NULL,
+  "updatedAt" BIGINT NOT NULL,
+  UNIQUE ("scope", "scopeId", "name")
+);
+
+CREATE TABLE IF NOT EXISTS "communityMessages" (
+  "id" TEXT PRIMARY KEY,
+  "channelId" TEXT NOT NULL REFERENCES "communityChannels" ("id") ON DELETE CASCADE,
+  "authorUserId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE,
+  "parentId" TEXT REFERENCES "communityMessages" ("id") ON DELETE SET NULL,
+  "body" TEXT NOT NULL CHECK (length("body") BETWEEN 1 AND 4000),
+  "kind" TEXT NOT NULL CHECK ("kind" IN ('public','private_justification')),
+  "pinned" SMALLINT NOT NULL DEFAULT 0 CHECK ("pinned" IN (0, 1)),
+  "status" TEXT NOT NULL DEFAULT 'active' CHECK ("status" IN ('active','reported','removed')),
+  "createdAt" BIGINT NOT NULL,
+  "updatedAt" BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_communityMessages_channel"
+  ON "communityMessages" ("channelId", "createdAt" DESC);
+
+CREATE TABLE IF NOT EXISTS "communityMembers" (
+  "channelId" TEXT NOT NULL REFERENCES "communityChannels" ("id") ON DELETE CASCADE,
+  "userId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE,
+  "role" TEXT NOT NULL CHECK ("role" IN ('owner','member')),
+  "createdAt" BIGINT NOT NULL,
+  PRIMARY KEY ("channelId", "userId")
+);
+CREATE INDEX IF NOT EXISTS "idx_communityMembers_user"
+  ON "communityMembers" ("userId", "channelId");
+
+CREATE TABLE IF NOT EXISTS "facilityLinks" (
+  "id" TEXT PRIMARY KEY,
+  "sourceFacilityId" TEXT NOT NULL,
+  "targetFacilityName" TEXT NOT NULL,
+  "reason" TEXT NOT NULL DEFAULT '',
+  "mode" TEXT NOT NULL CHECK ("mode" IN ('temporary','permanent')),
+  "sharedSpaces" TEXT NOT NULL DEFAULT '[]',
+  "status" TEXT NOT NULL CHECK ("status" IN ('facility_link_requested','facility_link_accepted','facility_link_rejected','facility_link_active','facility_link_suspended','facility_link_expired','facility_link_terminated')),
+  "expiresAt" BIGINT,
+  "createdBy" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE RESTRICT,
+  "createdAt" BIGINT NOT NULL,
+  "updatedAt" BIGINT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "parentalControls" (
+  "id" TEXT PRIMARY KEY,
+  "childUserId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE,
+  "guardianUserId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE,
+  "settings" TEXT NOT NULL DEFAULT '{}',
+  "status" TEXT NOT NULL CHECK ("status" IN ('parental_control_inactive','parental_control_pending','parental_control_active','parental_control_under_review','parental_control_transitioning','parental_control_ended')),
+  "createdAt" BIGINT NOT NULL,
+  "updatedAt" BIGINT NOT NULL,
+  UNIQUE ("childUserId", "guardianUserId")
+);
+
+CREATE TABLE IF NOT EXISTS "moderationCases" (
+  "id" TEXT PRIMARY KEY,
+  "reporterUserId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE RESTRICT,
+  "subjectUserId" TEXT REFERENCES "users" ("id") ON DELETE SET NULL,
+  "messageId" TEXT REFERENCES "communityMessages" ("id") ON DELETE SET NULL,
+  "facilityId" TEXT NOT NULL DEFAULT 'primary',
+  "category" TEXT NOT NULL,
+  "description" TEXT NOT NULL,
+  "evidence" TEXT NOT NULL DEFAULT '[]',
+  "urgency" TEXT NOT NULL CHECK ("urgency" IN ('normal','high','critical')),
+  "status" TEXT NOT NULL CHECK ("status" IN ('open','in_review','resolved','rejected','appeal_open')),
+  "resolution" TEXT NOT NULL DEFAULT '',
+  "createdAt" BIGINT NOT NULL,
+  "updatedAt" BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_moderationCases_status"
+  ON "moderationCases" ("status", "urgency", "createdAt" DESC);
+
+CREATE TABLE IF NOT EXISTS "moderationActions" (
+  "id" TEXT PRIMARY KEY,
+  "caseId" TEXT NOT NULL REFERENCES "moderationCases" ("id") ON DELETE CASCADE,
+  "actorUserId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE RESTRICT,
+  "subjectUserId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE,
+  "state" TEXT NOT NULL CHECK ("state" IN ('unrestricted','muted','removed_from_chat','temporarily_blocked','blocked_by_facility','under_central_review','appeal_open','platform_suspended')),
+  "reason" TEXT NOT NULL,
+  "durationMinutes" INTEGER,
+  "createdAt" BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_moderationActions_subject"
+  ON "moderationActions" ("subjectUserId", "createdAt" DESC);
+
+CREATE TABLE IF NOT EXISTS "moderationAppeals" (
+  "id" TEXT PRIMARY KEY,
+  "caseId" TEXT NOT NULL REFERENCES "moderationCases" ("id") ON DELETE CASCADE,
+  "appellantUserId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE RESTRICT,
+  "context" TEXT NOT NULL,
+  "evidence" TEXT NOT NULL DEFAULT '[]',
+  "status" TEXT NOT NULL CHECK ("status" IN ('open','accepted','rejected')),
+  "resolution" TEXT NOT NULL DEFAULT '',
+  "createdAt" BIGINT NOT NULL,
+  "updatedAt" BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_moderationAppeals_case"
+  ON "moderationAppeals" ("caseId", "status", "createdAt" DESC);
+`,
+  },
 ];
 
 async function ensureMigrationTable(client: PoolClient): Promise<void> {

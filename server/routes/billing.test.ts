@@ -240,4 +240,40 @@ describe("billing API", () => {
       .expect(200);
     expect(search.body).toEqual([]);
   });
+
+  it("rejects malformed administrative filters instead of broadening queries", async () => {
+    await request(app)
+      .get("/api/billing?status=unknown")
+      .set("Cookie", adminCookie)
+      .expect(400);
+    await request(app)
+      .get("/api/billing?from=not-a-date")
+      .set("Cookie", adminCookie)
+      .expect(400);
+    await request(app)
+      .get("/api/billing?from=200&to=100")
+      .set("Cookie", adminCookie)
+      .expect(400);
+    await request(app)
+      .get("/api/billing?currency=EURO")
+      .set("Cookie", adminCookie)
+      .expect(400);
+    await request(app)
+      .get("/api/billing?concept=%25_")
+      .set("Cookie", adminCookie)
+      .expect(400);
+  });
+
+  it("summarises active billing documents without mixing currencies", async () => {
+    const summary = await request(app)
+      .get("/api/billing/summary")
+      .set("Cookie", adminCookie)
+      .expect(200);
+    expect(summary.body.documentCount).toBeGreaterThan(0);
+    expect(summary.body.currencies).toEqual(
+      expect.objectContaining({
+        EUR: expect.objectContaining({ documents: expect.any(Number) }),
+      }),
+    );
+  });
 });

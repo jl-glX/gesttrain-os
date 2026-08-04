@@ -335,6 +335,60 @@ export async function seedDatabase() {
       }
     }
 
+    const socialUsers = [
+      {
+        userId: ADMIN_USER.id,
+        username: "admin_umbravia",
+        bio: "Administración del centro",
+      },
+      ...TRAINERS.map((trainer) => ({
+        userId: trainer.id,
+        username: `coach_${trainer.id.split("-")[1]}`,
+        bio: "Entrenador verificado",
+      })),
+      ...DEMO_USERS.map((member) => ({
+        userId: `user-${member.email.split("@")[0]}`,
+        username: member.email.split("@")[0],
+        bio: "Socio de Umbravia Forge",
+      })),
+    ];
+    for (const social of socialUsers) {
+      await db
+        .insertInto("socialProfiles")
+        .values({
+          ...social,
+          displayRealName: 0,
+          birthDate: null,
+          privacy: JSON.stringify({
+            bio: "facility",
+            realName: "private",
+            birthYear: "private",
+          }),
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        })
+        .onConflict((oc) => oc.column("userId").doNothing())
+        .execute();
+    }
+    for (const channel of [
+      { id: "channel-general", name: "General" },
+      { id: "channel-announcements", name: "Avisos" },
+    ]) {
+      await db
+        .insertInto("communityChannels")
+        .values({
+          ...channel,
+          scope: "facility",
+          scopeId: "primary",
+          status: "community_active",
+          createdBy: ADMIN_USER.id,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        })
+        .onConflict((oc) => oc.column("id").doNothing())
+        .execute();
+    }
+
     console.log("Database seeded successfully");
   } catch (error) {
     console.error("Error seeding database:", error);

@@ -5,6 +5,7 @@ export default defineConfig({
     environment: "node",
     include: ["server/**/*.test.ts"],
     fileParallelism: false,
+    maxWorkers: 1,
     sequence: {
       concurrent: false,
     },

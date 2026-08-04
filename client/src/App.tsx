@@ -139,6 +139,14 @@ const SessionContentPage = lazyPage(
   () => import("./pages/SessionContentPage"),
   "SessionContentPage",
 );
+const CommunityPage = lazyPage(
+  () => import("./pages/CommunityPage"),
+  "CommunityPage",
+);
+const ModerationPage = lazyPage(
+  () => import("./pages/ModerationPage"),
+  "ModerationPage",
+);
 
 type UserRole = "member" | "trainer" | "admin";
 
@@ -257,6 +265,22 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <SessionContentPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/community"
+            element={
+              <ProtectedRoute>
+                <CommunityPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/moderation"
+            element={
+              <ProtectedRoute>
+                <ModerationPage />
               </ProtectedRoute>
             }
           />

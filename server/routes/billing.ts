@@ -43,6 +43,7 @@ billingRouter.get("/members", async (req, res, next) => {
           .onRef("accountSupportIdentifiers.userId", "=", "users.id")
           .on("accountSupportIdentifiers.status", "=", "active"),
       )
+      .leftJoin("socialProfiles", "socialProfiles.userId", "users.id")
       .select([
         "users.id",
         "users.name",
@@ -57,6 +58,7 @@ billingRouter.get("/members", async (req, res, next) => {
           sql<boolean>`LOWER(${eb.ref("users.email")}) LIKE ${pattern} ESCAPE '\\'`,
           sql<boolean>`LOWER(COALESCE(${eb.ref("users.phone")}, '')) LIKE ${pattern} ESCAPE '\\'`,
           sql<boolean>`LOWER(COALESCE(${eb.ref("accountSupportIdentifiers.publicId")}, '')) LIKE ${pattern} ESCAPE '\\'`,
+          sql<boolean>`LOWER(COALESCE(${eb.ref("socialProfiles.username")}, '')) LIKE ${pattern} ESCAPE '\\'`,
           sql<boolean>`LOWER(${eb.ref("users.id")}) LIKE ${pattern} ESCAPE '\\'`,
         ]),
       )
@@ -69,15 +71,83 @@ billingRouter.get("/members", async (req, res, next) => {
   }
 });
 
-billingRouter.get("/", async (_req, res, next) => {
+billingRouter.get("/summary", async (_req, res, next) => {
   try {
-    res.json(
-      await db
-        .selectFrom("billingRecords")
-        .selectAll()
-        .orderBy("updatedAt", "desc")
-        .execute(),
-    );
+    const records = await db
+      .selectFrom("billingRecords")
+      .selectAll()
+      .where("archivedAt", "is", null)
+      .execute();
+    const currencies: Record<
+      string,
+      {
+        total: number;
+        paid: number;
+        pending: number;
+        unpaid: number;
+        documents: number;
+      }
+    > = {};
+    for (const record of records) {
+      const bucket = currencies[record.currency] ?? {
+        total: 0,
+        paid: 0,
+        pending: 0,
+        unpaid: 0,
+        documents: 0,
+      };
+      bucket.total += record.amountCents;
+      bucket[record.status] += record.amountCents;
+      bucket.documents += 1;
+      currencies[record.currency] = bucket;
+    }
+    res.json({
+      currencies,
+      documentCount: records.length,
+      concepts: new Set(records.map((record) => record.concept)).size,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+billingRouter.get("/", async (req, res, next) => {
+  try {
+    let query = db.selectFrom("billingRecords").selectAll();
+    const status = String(req.query.status ?? "");
+    if (status && !(["paid", "unpaid", "pending"] as string[]).includes(status))
+      return res
+        .status(400)
+        .json({ error: "Billing status filter is invalid" });
+    if (status)
+      query = query.where(
+        "status",
+        "=",
+        status as "paid" | "unpaid" | "pending",
+      );
+    if (req.query.userId)
+      query = query.where("userId", "=", String(req.query.userId));
+    const currency = String(req.query.currency ?? "").toUpperCase();
+    if (currency && !/^[A-Z]{3}$/.test(currency))
+      return res.status(400).json({ error: "Currency filter is invalid" });
+    if (currency) query = query.where("currency", "=", currency);
+    const from = req.query.from == null ? null : Number(req.query.from);
+    const to = req.query.to == null ? null : Number(req.query.to);
+    if (
+      (from != null && (!Number.isSafeInteger(from) || from < 0)) ||
+      (to != null && (!Number.isSafeInteger(to) || to < 0)) ||
+      (from != null && to != null && from > to)
+    )
+      return res.status(400).json({ error: "Billing date range is invalid" });
+    if (from != null) query = query.where("createdAt", ">=", from);
+    if (to != null) query = query.where("createdAt", "<=", to);
+    const concept = String(req.query.concept ?? "")
+      .trim()
+      .replace(/[%_]/g, "");
+    if (req.query.concept != null && !concept)
+      return res.status(400).json({ error: "Concept filter is invalid" });
+    if (concept) query = query.where("concept", "like", `%${concept}%`);
+    res.json(await query.orderBy("updatedAt", "desc").execute());
   } catch (error) {
     next(error);
   }

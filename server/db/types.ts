@@ -358,6 +358,150 @@ interface BillingRecord {
   updatedAt: number;
 }
 
+interface SocialProfile {
+  userId: string;
+  username: string;
+  bio: string;
+  displayRealName: number;
+  birthDate: string | null;
+  privacy: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+interface InternalContact {
+  id: string;
+  requesterUserId: string;
+  recipientUserId: string;
+  status:
+    | "contact_requested"
+    | "contact_accepted"
+    | "contact_rejected"
+    | "contact_blocked"
+    | "contact_removed";
+  createdAt: number;
+  updatedAt: number;
+}
+
+interface CommunityChannel {
+  id: string;
+  scope: "facility" | "class" | "community";
+  scopeId: string;
+  name: string;
+  status:
+    | "community_active"
+    | "community_read_only"
+    | "community_suspended"
+    | "community_closed";
+  createdBy: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+interface CommunityMessage {
+  id: string;
+  channelId: string;
+  authorUserId: string;
+  parentId: string | null;
+  body: string;
+  kind: "public" | "private_justification";
+  pinned: number;
+  status: "active" | "reported" | "removed";
+  createdAt: number;
+  updatedAt: number;
+}
+
+interface CommunityMember {
+  channelId: string;
+  userId: string;
+  role: "owner" | "member";
+  createdAt: number;
+}
+
+interface FacilityLink {
+  id: string;
+  sourceFacilityId: string;
+  targetFacilityName: string;
+  reason: string;
+  mode: "temporary" | "permanent";
+  sharedSpaces: string;
+  status:
+    | "facility_link_requested"
+    | "facility_link_accepted"
+    | "facility_link_rejected"
+    | "facility_link_active"
+    | "facility_link_suspended"
+    | "facility_link_expired"
+    | "facility_link_terminated";
+  expiresAt: number | null;
+  createdBy: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+interface ParentalControl {
+  id: string;
+  childUserId: string;
+  guardianUserId: string;
+  settings: string;
+  status:
+    | "parental_control_inactive"
+    | "parental_control_pending"
+    | "parental_control_active"
+    | "parental_control_under_review"
+    | "parental_control_transitioning"
+    | "parental_control_ended";
+  createdAt: number;
+  updatedAt: number;
+}
+
+interface ModerationCase {
+  id: string;
+  reporterUserId: string;
+  subjectUserId: string | null;
+  messageId: string | null;
+  facilityId: string;
+  category: string;
+  description: string;
+  evidence: string;
+  urgency: "normal" | "high" | "critical";
+  status: "open" | "in_review" | "resolved" | "rejected" | "appeal_open";
+  resolution: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+interface ModerationAction {
+  id: string;
+  caseId: string;
+  actorUserId: string;
+  subjectUserId: string;
+  state:
+    | "unrestricted"
+    | "muted"
+    | "removed_from_chat"
+    | "temporarily_blocked"
+    | "blocked_by_facility"
+    | "under_central_review"
+    | "appeal_open"
+    | "platform_suspended";
+  reason: string;
+  durationMinutes: number | null;
+  createdAt: number;
+}
+
+interface ModerationAppeal {
+  id: string;
+  caseId: string;
+  appellantUserId: string;
+  context: string;
+  evidence: string;
+  status: "open" | "accepted" | "rejected";
+  resolution: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
 interface FacilityProfile {
   id: string;
   name: string;
@@ -497,6 +641,16 @@ export interface Database {
   securityEvents: SecurityEvent;
   feedback: Feedback;
   billingRecords: BillingRecord;
+  socialProfiles: SocialProfile;
+  internalContacts: InternalContact;
+  communityChannels: CommunityChannel;
+  communityMessages: CommunityMessage;
+  communityMembers: CommunityMember;
+  facilityLinks: FacilityLink;
+  parentalControls: ParentalControl;
+  moderationCases: ModerationCase;
+  moderationActions: ModerationAction;
+  moderationAppeals: ModerationAppeal;
   facilityProfiles: FacilityProfile;
   commercialTrials: CommercialTrial;
   commercialTrialEvents: CommercialTrialEvent;
