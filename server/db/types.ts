@@ -154,7 +154,9 @@ export type BookingLifecycleStatus =
   | "uncertain"
   | "waitlisted"
   | "promoted"
+  | "promotion_expired"
   | "cancelled_on_time"
+  | "cancelled_neutral"
   | "cancelled_late"
   | "attended"
   | "absent"
@@ -177,6 +179,8 @@ interface BookingLifecycle {
   attendanceIntention: AttendanceIntention;
   intentionUpdatedAt: number | null;
   confirmedAt: number | null;
+  lastReminderAt: number | null;
+  reminderCount: number;
   updatedAt: number;
 }
 
@@ -187,6 +191,80 @@ interface WaitlistEntry {
   position: number;
   createdAt: number;
   promotedAt: number | null;
+  promotionExpiresAt: number | null;
+}
+
+export type BookingReputationEventType =
+  | "attended"
+  | "confirmed_attended"
+  | "cancelled_on_time"
+  | "cancelled_neutral"
+  | "cancelled_late"
+  | "absent"
+  | "excused"
+  | "uncertain"
+  | "penalty_cleared"
+  | "manual_adjustment";
+
+interface BookingReputation {
+  userId: string;
+  score: number;
+  penaltyUntil: number | null;
+  updatedAt: number;
+}
+
+interface BookingReputationEvent {
+  id: string;
+  userId: string;
+  bookingId: string | null;
+  type: BookingReputationEventType;
+  pointsDelta: number;
+  reason: string;
+  createdAt: number;
+}
+
+export type SessionBlockType =
+  | "warmup"
+  | "mobility"
+  | "strength"
+  | "technique"
+  | "conditioning"
+  | "main"
+  | "cooldown"
+  | "custom";
+
+export interface SessionContentBlock {
+  id: string;
+  type: SessionBlockType;
+  title: string;
+  instructions: string;
+  exercises: string[];
+  sets: string;
+  repetitions: string;
+  duration: string;
+  rest: string;
+  percentage: string;
+  load: string;
+  material: string[];
+  adaptations: string;
+  mediaUrls: string[];
+  notes: string;
+}
+
+interface ClassSessionContent {
+  classId: string;
+  terminology: string;
+  blocks: string;
+  commentsEnabled: number;
+  updatedAt: number;
+}
+
+interface SessionContentProgress {
+  classId: string;
+  userId: string;
+  completedBlockIds: string;
+  notes: string;
+  updatedAt: number;
 }
 
 interface Session {
@@ -407,6 +485,10 @@ export interface Database {
   bookings: Booking;
   bookingLifecycles: BookingLifecycle;
   waitlistEntries: WaitlistEntry;
+  bookingReputations: BookingReputation;
+  bookingReputationEvents: BookingReputationEvent;
+  classSessionContents: ClassSessionContent;
+  sessionContentProgress: SessionContentProgress;
   sessions: Session;
   mfaCredentials: MfaCredential;
   authChallenges: AuthChallenge;

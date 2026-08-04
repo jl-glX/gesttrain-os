@@ -8,6 +8,8 @@ interface Attendee {
   name: string;
   email: string;
   status: "confirmed";
+  lifecycleStatus: string | null;
+  attendanceIntention: "unanswered" | "yes" | "no" | "uncertain" | null;
 }
 
 interface WaitlistEntry {
@@ -63,12 +65,17 @@ export function useClassAttendees(classId: string) {
             name: string;
             email: string;
             status: "confirmed";
+            lifecycleStatus: string | null;
+            attendanceIntention:
+              "unanswered" | "yes" | "no" | "uncertain" | null;
           }) => ({
             id: a.id,
             userId: a.userId,
             name: a.name,
             email: a.email,
             status: a.status,
+            lifecycleStatus: a.lifecycleStatus,
+            attendanceIntention: a.attendanceIntention,
           }),
         ),
         waitlist: waitlist.map(

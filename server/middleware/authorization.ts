@@ -182,3 +182,39 @@ export function requireTrainerClassOrRole(
     }
   };
 }
+
+export function requireTrainerBookingOrRole(
+  bookingParamName: string,
+  ...roles: UserRole[]
+) {
+  return async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const auth = getAuthenticatedUser(res);
+      if (roles.includes(auth.role)) {
+        next();
+        return;
+      }
+      if (auth.role !== "trainer") {
+        forbidden(res);
+        return;
+      }
+      const booking = await db
+        .selectFrom("bookings")
+        .innerJoin("gymClasses", "bookings.classId", "gymClasses.id")
+        .select("gymClasses.trainerId")
+        .where("bookings.id", "=", req.params[bookingParamName])
+        .executeTakeFirst();
+      if (!booking || booking.trainerId !== auth.userId) {
+        forbidden(res);
+        return;
+      }
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+}

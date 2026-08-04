@@ -620,7 +620,19 @@ const updateBillingFields = [...billingFields, "archivedAt"];
 export const createBillingRecordValidation = validateRequest([
   strictBody(billingFields),
   body("userId").optional({ nullable: true }).isString().matches(ID_PATTERN),
-  body("customerName").isString().trim().isLength({ min: 1, max: 120 }),
+  body("customerName")
+    .custom((value, { req }) => {
+      if (req.body.userId) return true;
+      return (
+        typeof value === "string" &&
+        value.trim().length >= 1 &&
+        value.trim().length <= 120
+      );
+    })
+    .withMessage("Customer name is required when no member is selected")
+    .customSanitizer((value) =>
+      typeof value === "string" ? value.trim() : value,
+    ),
   body("customerEmail")
     .optional({ values: "falsy" })
     .isEmail()
@@ -712,6 +724,27 @@ export const bookingCancellationValidation = validateRequest([
   body("userId").isString().matches(ID_PATTERN),
 ]);
 
+export const bookingIntentionValidation = validateRequest([
+  param("bookingId").isString().matches(ID_PATTERN),
+  strictBody(["userId", "intention"]),
+  body("userId").isString().matches(ID_PATTERN),
+  body("intention").isIn(["yes", "no", "uncertain"]),
+]);
+
+export const bookingAttendanceValidation = validateRequest([
+  param("bookingId").isString().matches(ID_PATTERN),
+  strictBody(["status"]),
+  body("status").isIn(["attended", "absent", "excused"]),
+]);
+
+export const reputationAdjustmentValidation = validateRequest([
+  param("userId").isString().matches(ID_PATTERN),
+  strictBody(["pointsDelta", "reason", "clearPenalty"]),
+  body("pointsDelta").isInt({ min: -100, max: 100 }).toInt(),
+  body("reason").isString().trim().isLength({ min: 5, max: 300 }),
+  body("clearPenalty").optional().isBoolean(),
+]);
+
 const classFields = [
   strictBody([
     "name",
@@ -773,6 +806,7 @@ export const bookingConfigurationValidation = validateRequest([
       "waitlistEnabled",
       "confirmationRequired",
       "remindersEnabled",
+      "promotionConfirmationMinutes",
       "onTimeCancellationMinutes",
       "lateCancellationMinutes",
       "restrictions",
@@ -795,6 +829,9 @@ export const bookingConfigurationValidation = validateRequest([
   body("configuration.waitlistEnabled").optional().isBoolean(),
   body("configuration.confirmationRequired").optional().isBoolean(),
   body("configuration.remindersEnabled").optional().isBoolean(),
+  body("configuration.promotionConfirmationMinutes")
+    .optional()
+    .isInt({ min: 1, max: 1_440 }),
   body("configuration.onTimeCancellationMinutes")
     .optional()
     .isInt({ min: 0, max: 43_200 }),
@@ -807,6 +844,83 @@ export const bookingConfigurationValidation = validateRequest([
     .isString()
     .trim()
     .isLength({ max: 120 }),
+]);
+
+const sessionBlockFields = [
+  "id",
+  "type",
+  "title",
+  "instructions",
+  "exercises",
+  "sets",
+  "repetitions",
+  "duration",
+  "rest",
+  "percentage",
+  "load",
+  "material",
+  "adaptations",
+  "mediaUrls",
+  "notes",
+];
+
+export const sessionContentValidation = validateRequest([
+  param("id").isString().matches(ID_PATTERN),
+  strictBody(["terminology", "blocks", "commentsEnabled"]),
+  body("terminology").isString().trim().isLength({ min: 1, max: 80 }),
+  body("blocks").isArray({ max: 30 }),
+  body("blocks").custom((blocks: Array<{ id?: unknown }>) => {
+    if (!Array.isArray(blocks)) return true;
+    const ids = blocks.map((block) => block?.id);
+    if (new Set(ids).size !== ids.length) {
+      throw new Error("Session block identifiers must be unique");
+    }
+    return true;
+  }),
+  body("blocks.*").custom((block: Record<string, unknown>) => {
+    if (!block || typeof block !== "object")
+      throw new Error("Invalid session block");
+    if (Object.keys(block).some((key) => !sessionBlockFields.includes(key))) {
+      throw new Error("Unknown session block field");
+    }
+    return true;
+  }),
+  body("blocks.*.id").isString().matches(ID_PATTERN),
+  body("blocks.*.type").isIn([
+    "warmup",
+    "mobility",
+    "strength",
+    "technique",
+    "conditioning",
+    "main",
+    "cooldown",
+    "custom",
+  ]),
+  body("blocks.*.title").isString().trim().isLength({ min: 1, max: 120 }),
+  body("blocks.*.instructions").isString().trim().isLength({ max: 3000 }),
+  body("blocks.*.exercises").isArray({ max: 50 }),
+  body("blocks.*.exercises.*").isString().trim().isLength({ max: 160 }),
+  body("blocks.*.material").isArray({ max: 30 }),
+  body("blocks.*.material.*").isString().trim().isLength({ max: 120 }),
+  body("blocks.*.mediaUrls").isArray({ max: 10 }),
+  body("blocks.*.mediaUrls.*").isURL({ protocols: ["http", "https"] }),
+  body("blocks.*.sets").isString().trim().isLength({ max: 80 }),
+  body("blocks.*.repetitions").isString().trim().isLength({ max: 80 }),
+  body("blocks.*.duration").isString().trim().isLength({ max: 80 }),
+  body("blocks.*.rest").isString().trim().isLength({ max: 80 }),
+  body("blocks.*.percentage").isString().trim().isLength({ max: 80 }),
+  body("blocks.*.load").isString().trim().isLength({ max: 80 }),
+  body("blocks.*.adaptations").isString().trim().isLength({ max: 1000 }),
+  body("blocks.*.notes").isString().trim().isLength({ max: 1000 }),
+  body("commentsEnabled").isBoolean(),
+]);
+
+export const sessionProgressValidation = validateRequest([
+  param("id").isString().matches(ID_PATTERN),
+  strictBody(["completedBlockIds", "notes"]),
+  body("completedBlockIds").isArray({ max: 30 }),
+  body("completedBlockIds.*").isString().matches(ID_PATTERN),
+  body("notes").isString().trim().isLength({ max: 4000 }),
 ]);
 
 export const createUserValidation = validateRequest([

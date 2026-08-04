@@ -126,13 +126,19 @@ describe("delegations API", () => {
 
     const booking = await database.db
       .selectFrom("bookings")
-      .select(["userId", "status"])
+      .select(["id", "userId", "status"])
       .where("classId", "=", "delegated-class")
       .executeTakeFirstOrThrow();
-    expect(booking).toEqual({
+    expect(booking).toMatchObject({
       userId: "delegation-owner",
       status: "confirmed",
     });
+
+    await request(app)
+      .put(`/api/bookings/${booking.id}/intention`)
+      .set("Cookie", delegateCookie)
+      .send({ userId: "delegation-owner", intention: "yes" })
+      .expect(403);
   });
 
   it("stops delegated actions immediately after the owner revokes access", async () => {

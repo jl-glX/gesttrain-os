@@ -47,6 +47,22 @@ export async function saveClassBookingConfiguration(
     ...parseBookingConfiguration(existing?.configuration),
     ...input.configuration,
   };
+  if (
+    configuration.lateCancellationMinutes >
+    configuration.onTimeCancellationMinutes
+  ) {
+    throw new Error(
+      "The late cancellation window cannot exceed the on-time cancellation window",
+    );
+  }
+  if (
+    configuration.lateCancellationMinutes >
+    configuration.onTimeCancellationMinutes
+  ) {
+    throw new Error(
+      "The late cancellation window cannot exceed the on-time cancellation window",
+    );
+  }
   await db
     .insertInto("classBookingConfigurations")
     .values({

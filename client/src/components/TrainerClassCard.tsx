@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { formatDate, formatTime } from "../lib/dateUtils";
 import { useTranslation } from "react-i18next";
 import { localizeClass } from "../lib/classLocalization";
+import { Link } from "react-router-dom";
 
 interface TrainerClassCardProps {
   id: string;
@@ -17,6 +18,7 @@ interface TrainerClassCardProps {
 }
 
 export function TrainerClassCard({
+  id,
   name,
   scheduledAt,
   maxCapacity,
@@ -101,6 +103,15 @@ export function TrainerClassCard({
             </p>
           </div>
         )}
+
+        <Button asChild className="mt-4 w-full" variant="outline" size="sm">
+          <Link
+            to={`/classes/${id}/session-content`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            {t("classes.sessionContent")}
+          </Link>
+        </Button>
 
         <Button
           onClick={onClick}

@@ -508,13 +508,57 @@ export async function initializeDatabase() {
         attendanceIntention TEXT NOT NULL DEFAULT 'unanswered',
         intentionUpdatedAt INTEGER,
         confirmedAt INTEGER,
+        lastReminderAt INTEGER,
+        reminderCount INTEGER NOT NULL DEFAULT 0,
         updatedAt INTEGER NOT NULL,
         FOREIGN KEY(bookingId) REFERENCES bookings(id) ON DELETE CASCADE
       );
       CREATE INDEX idx_bookingLifecycles_status
         ON bookingLifecycles(lifecycleStatus, attendanceIntention);
     `);
+  } else {
+    const lifecycleColumns = sqliteDb
+      .prepare("PRAGMA table_info(bookingLifecycles)")
+      .all() as Array<{ name: string }>;
+    const lifecycleColumnNames = lifecycleColumns.map((column) => column.name);
+    if (!lifecycleColumnNames.includes("lastReminderAt")) {
+      sqliteDb.exec(
+        "ALTER TABLE bookingLifecycles ADD COLUMN lastReminderAt INTEGER",
+      );
+    }
+    if (!lifecycleColumnNames.includes("reminderCount")) {
+      sqliteDb.exec(
+        "ALTER TABLE bookingLifecycles ADD COLUMN reminderCount INTEGER NOT NULL DEFAULT 0",
+      );
+    }
   }
+
+  sqliteDb.exec(`
+    INSERT OR IGNORE INTO bookingLifecycles (
+      bookingId,
+      lifecycleStatus,
+      attendanceIntention,
+      intentionUpdatedAt,
+      confirmedAt,
+      lastReminderAt,
+      reminderCount,
+      updatedAt
+    )
+    SELECT
+      id,
+      CASE
+        WHEN status = 'waitlist' THEN 'waitlisted'
+        WHEN status = 'cancelled' THEN 'cancelled_on_time'
+        ELSE 'confirmation_pending'
+      END,
+      'unanswered',
+      NULL,
+      NULL,
+      NULL,
+      0,
+      createdAt
+    FROM bookings;
+  `);
 
   if (!tableNames.includes("waitlistEntries")) {
     console.log("Creating waitlistEntries table...");
@@ -526,12 +570,93 @@ export async function initializeDatabase() {
         position INTEGER NOT NULL,
         createdAt INTEGER NOT NULL,
         promotedAt INTEGER,
+        promotionExpiresAt INTEGER,
         FOREIGN KEY(classId) REFERENCES gymClasses(id),
         FOREIGN KEY(userId) REFERENCES users(id),
         UNIQUE(classId, userId)
       );
       CREATE INDEX idx_waitlistEntries_classId ON waitlistEntries(classId);
       CREATE INDEX idx_waitlistEntries_userId ON waitlistEntries(userId);
+    `);
+  } else {
+    const waitlistColumns = sqliteDb
+      .prepare("PRAGMA table_info(waitlistEntries)")
+      .all() as Array<{ name: string }>;
+    if (
+      !waitlistColumns.some((column) => column.name === "promotionExpiresAt")
+    ) {
+      sqliteDb.exec(
+        "ALTER TABLE waitlistEntries ADD COLUMN promotionExpiresAt INTEGER",
+      );
+    }
+  }
+
+  if (!tableNames.includes("bookingReputations")) {
+    sqliteDb.exec(`
+      CREATE TABLE bookingReputations (
+        userId TEXT PRIMARY KEY,
+        score INTEGER NOT NULL DEFAULT 100 CHECK(score BETWEEN 0 AND 100),
+        penaltyUntil INTEGER,
+        updatedAt INTEGER NOT NULL,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+      );
+      CREATE INDEX idx_bookingReputations_penalty
+        ON bookingReputations(penaltyUntil);
+    `);
+  }
+
+  if (!tableNames.includes("bookingReputationEvents")) {
+    sqliteDb.exec(`
+      CREATE TABLE bookingReputationEvents (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        bookingId TEXT,
+        type TEXT NOT NULL,
+        pointsDelta INTEGER NOT NULL,
+        reason TEXT NOT NULL,
+        createdAt INTEGER NOT NULL,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY(bookingId) REFERENCES bookings(id) ON DELETE SET NULL
+      );
+      CREATE INDEX idx_bookingReputationEvents_user
+        ON bookingReputationEvents(userId, createdAt DESC);
+    `);
+  }
+
+  sqliteDb.exec(`
+    CREATE INDEX IF NOT EXISTS idx_bookingReputationEvents_booking_type
+      ON bookingReputationEvents(bookingId, type);
+    CREATE INDEX IF NOT EXISTS idx_waitlistEntries_class_expiry
+      ON waitlistEntries(classId, promotionExpiresAt);
+  `);
+
+  if (!tableNames.includes("classSessionContents")) {
+    sqliteDb.exec(`
+      CREATE TABLE classSessionContents (
+        classId TEXT PRIMARY KEY,
+        terminology TEXT NOT NULL DEFAULT 'Contenido de la sesión',
+        blocks TEXT NOT NULL DEFAULT '[]',
+        commentsEnabled INTEGER NOT NULL DEFAULT 0 CHECK(commentsEnabled IN (0, 1)),
+        updatedAt INTEGER NOT NULL,
+        FOREIGN KEY(classId) REFERENCES gymClasses(id) ON DELETE CASCADE
+      );
+    `);
+  }
+
+  if (!tableNames.includes("sessionContentProgress")) {
+    sqliteDb.exec(`
+      CREATE TABLE sessionContentProgress (
+        classId TEXT NOT NULL,
+        userId TEXT NOT NULL,
+        completedBlockIds TEXT NOT NULL DEFAULT '[]',
+        notes TEXT NOT NULL DEFAULT '',
+        updatedAt INTEGER NOT NULL,
+        PRIMARY KEY(classId, userId),
+        FOREIGN KEY(classId) REFERENCES gymClasses(id) ON DELETE CASCADE,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+      );
+      CREATE INDEX idx_sessionContentProgress_user
+        ON sessionContentProgress(userId, updatedAt DESC);
     `);
   }
 

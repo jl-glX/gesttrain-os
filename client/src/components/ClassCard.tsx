@@ -11,6 +11,7 @@ import { Card } from "./ui/card";
 import { formatDate, formatTime, isFutureClass } from "../lib/dateUtils";
 import { useTranslation } from "react-i18next";
 import { localizeClass } from "../lib/classLocalization";
+import { Link } from "react-router-dom";
 
 interface ClassCardProps {
   id: string;
@@ -28,6 +29,7 @@ interface ClassCardProps {
 }
 
 export function ClassCard({
+  id,
   name,
   description,
   trainerName,
@@ -115,6 +117,11 @@ export function ClassCard({
       </div>
 
       <div className="border-t border-slate-100 p-4 pt-3">
+        <Button asChild variant="ghost" className="mb-2 w-full rounded-xl">
+          <Link to={`/classes/${id}/session-content`}>
+            {t("classes.sessionContent")}
+          </Link>
+        </Button>
         {!isFuture ? (
           <Button disabled className="w-full rounded-xl" variant="outline">
             {t("classes.finished")}

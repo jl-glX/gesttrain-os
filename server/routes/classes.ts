@@ -1,12 +1,25 @@
 import express from "express";
 import { db } from "../db/client.js";
 import { getClassWithAvailability } from "../services/booking.js";
-import { validateId } from "../middleware/validation.js";
+import {
+  sessionContentValidation,
+  sessionProgressValidation,
+  validateId,
+} from "../middleware/validation.js";
 import {
   authenticate,
+  getAuthenticatedUser,
   requireRole,
   requireSelfParamOrRole,
+  requireTrainerClassOrRole,
 } from "../middleware/authorization.js";
+import {
+  getSessionContent,
+  getSessionProgress,
+  saveSessionContent,
+  saveSessionProgress,
+} from "../services/session-content.js";
+import { requireRecentFormVerification } from "../middleware/form-verification.js";
 
 export const classesRouter = express.Router();
 classesRouter.use(authenticate);
@@ -60,6 +73,88 @@ classesRouter.get(
     } catch (error) {
       console.error("Error fetching trainer classes:", error);
       res.status(500).json({ error: "Failed to fetch trainer classes" });
+    }
+  },
+);
+
+classesRouter.get(
+  "/:id/session-content",
+  validateId("id"),
+  async (req: express.Request, res: express.Response) => {
+    try {
+      res.json(await getSessionContent(req.params.id));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      res
+        .status(message === "Class not found" ? 404 : 400)
+        .json({ error: message });
+    }
+  },
+);
+
+classesRouter.put(
+  "/:id/session-content",
+  sessionContentValidation,
+  requireTrainerClassOrRole("id", "admin"),
+  requireRecentFormVerification,
+  async (req: express.Request, res: express.Response) => {
+    try {
+      res.json(
+        await saveSessionContent(req.params.id, {
+          terminology: req.body.terminology,
+          blocks: req.body.blocks,
+          commentsEnabled: req.body.commentsEnabled,
+        }),
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      res
+        .status(message === "Class not found" ? 404 : 400)
+        .json({ error: message });
+    }
+  },
+);
+
+classesRouter.get(
+  "/:id/session-progress",
+  validateId("id"),
+  async (req: express.Request, res: express.Response) => {
+    try {
+      res.json(
+        await getSessionProgress(
+          req.params.id,
+          getAuthenticatedUser(res).userId,
+        ),
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      res
+        .status(message === "Class not found" ? 404 : 400)
+        .json({ error: message });
+    }
+  },
+);
+
+classesRouter.put(
+  "/:id/session-progress",
+  sessionProgressValidation,
+  async (req: express.Request, res: express.Response) => {
+    try {
+      res.json(
+        await saveSessionProgress(
+          req.params.id,
+          getAuthenticatedUser(res).userId,
+          {
+            completedBlockIds: req.body.completedBlockIds,
+            notes: req.body.notes,
+          },
+        ),
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      res
+        .status(message === "Class not found" ? 404 : 400)
+        .json({ error: message });
     }
   },
 );

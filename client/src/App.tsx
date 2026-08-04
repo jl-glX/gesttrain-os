@@ -135,6 +135,10 @@ const CommercialTrialPage = lazyPage(
   () => import("./pages/CommercialTrialPage"),
   "CommercialTrialPage",
 );
+const SessionContentPage = lazyPage(
+  () => import("./pages/SessionContentPage"),
+  "SessionContentPage",
+);
 
 type UserRole = "member" | "trainer" | "admin";
 
@@ -245,6 +249,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <MyBookingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/classes/:id/session-content"
+            element={
+              <ProtectedRoute>
+                <SessionContentPage />
               </ProtectedRoute>
             }
           />

@@ -414,6 +414,94 @@ CREATE INDEX IF NOT EXISTS "idx_commercialRequests_status"
   ON "commercialRequests" ("status", "kind");
 `,
   },
+  {
+    version: 3,
+    name: "attendance-reputation-waitlist-session-content",
+    sql: String.raw`
+ALTER TABLE "bookingLifecycles"
+  ADD COLUMN IF NOT EXISTS "lastReminderAt" BIGINT;
+ALTER TABLE "bookingLifecycles"
+  ADD COLUMN IF NOT EXISTS "reminderCount" INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE "waitlistEntries"
+  ADD COLUMN IF NOT EXISTS "promotionExpiresAt" BIGINT;
+
+INSERT INTO "bookingLifecycles" (
+  "bookingId",
+  "lifecycleStatus",
+  "attendanceIntention",
+  "intentionUpdatedAt",
+  "confirmedAt",
+  "lastReminderAt",
+  "reminderCount",
+  "updatedAt"
+)
+SELECT
+  "id",
+  CASE
+    WHEN "status" = 'waitlist' THEN 'waitlisted'
+    WHEN "status" = 'cancelled' THEN 'cancelled_on_time'
+    ELSE 'confirmation_pending'
+  END,
+  'unanswered',
+  NULL,
+  NULL,
+  NULL,
+  0,
+  "createdAt"
+FROM "bookings"
+ON CONFLICT ("bookingId") DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS "bookingReputations" (
+  "userId" TEXT PRIMARY KEY REFERENCES "users" ("id") ON DELETE CASCADE,
+  "score" INTEGER NOT NULL DEFAULT 100 CHECK ("score" BETWEEN 0 AND 100),
+  "penaltyUntil" BIGINT,
+  "updatedAt" BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_bookingReputations_penalty"
+  ON "bookingReputations" ("penaltyUntil");
+
+CREATE TABLE IF NOT EXISTS "bookingReputationEvents" (
+  "id" TEXT PRIMARY KEY,
+  "userId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE,
+  "bookingId" TEXT REFERENCES "bookings" ("id") ON DELETE SET NULL,
+  "type" TEXT NOT NULL,
+  "pointsDelta" INTEGER NOT NULL,
+  "reason" TEXT NOT NULL,
+  "createdAt" BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_bookingReputationEvents_user"
+  ON "bookingReputationEvents" ("userId", "createdAt" DESC);
+
+CREATE TABLE IF NOT EXISTS "classSessionContents" (
+  "classId" TEXT PRIMARY KEY REFERENCES "gymClasses" ("id") ON DELETE CASCADE,
+  "terminology" TEXT NOT NULL DEFAULT 'Contenido de la sesión',
+  "blocks" TEXT NOT NULL DEFAULT '[]',
+  "commentsEnabled" SMALLINT NOT NULL DEFAULT 0 CHECK ("commentsEnabled" IN (0, 1)),
+  "updatedAt" BIGINT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "sessionContentProgress" (
+  "classId" TEXT NOT NULL REFERENCES "gymClasses" ("id") ON DELETE CASCADE,
+  "userId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE,
+  "completedBlockIds" TEXT NOT NULL DEFAULT '[]',
+  "notes" TEXT NOT NULL DEFAULT '',
+  "updatedAt" BIGINT NOT NULL,
+  PRIMARY KEY ("classId", "userId")
+);
+CREATE INDEX IF NOT EXISTS "idx_sessionContentProgress_user"
+  ON "sessionContentProgress" ("userId", "updatedAt" DESC);
+`,
+  },
+  {
+    version: 4,
+    name: "booking-lifecycle-query-indexes",
+    sql: String.raw`
+CREATE INDEX IF NOT EXISTS "idx_bookingReputationEvents_booking_type"
+  ON "bookingReputationEvents" ("bookingId", "type");
+CREATE INDEX IF NOT EXISTS "idx_waitlistEntries_class_expiry"
+  ON "waitlistEntries" ("classId", "promotionExpiresAt");
+`,
+  },
 ];
 
 async function ensureMigrationTable(client: PoolClient): Promise<void> {

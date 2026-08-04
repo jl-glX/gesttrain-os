@@ -32,6 +32,20 @@ describe("billing API", () => {
         createdAt: Date.now(),
       })
       .execute();
+    await database.db
+      .insertInto("users")
+      .values({
+        id: "billing-member",
+        email: "linked-member@example.com",
+        phone: "+34900000000",
+        name: "Linked Member",
+        avatarDataUrl: "",
+        password: await auth.hashPassword("MemberPassword123"),
+        role: "member",
+        sessionIdleTimeoutMinutes: 7 * 24 * 60,
+        createdAt: Date.now(),
+      })
+      .execute();
     app = (await import("../index.js")).app;
     const login = await request(app).post("/api/auth/login").send({
       identifier: "billing-admin@example.com",
@@ -127,5 +141,103 @@ describe("billing API", () => {
         notes: "",
       })
       .expect(400);
+  });
+
+  it("searches real members and creates immutable server-side snapshots", async () => {
+    const search = await request(app)
+      .get("/api/billing/members?query=linked")
+      .set("Cookie", adminCookie)
+      .expect(200);
+    expect(search.body).toEqual([
+      expect.objectContaining({
+        id: "billing-member",
+        name: "Linked Member",
+        email: "linked-member@example.com",
+      }),
+    ]);
+
+    const created = await request(app)
+      .post("/api/billing")
+      .set("Cookie", adminCookie)
+      .send({
+        userId: "billing-member",
+        customerName: "Spoofed name",
+        customerEmail: "spoofed@example.com",
+        concept: "Monthly membership",
+        billingCycle: "monthly",
+        customCycleLabel: "",
+        amountCents: 6900,
+        currency: "EUR",
+        status: "pending",
+        dueAt: null,
+        paidAt: null,
+        invoiceNumber: "UF-LINKED-001",
+        notes: "",
+      })
+      .expect(201);
+    expect(created.body).toMatchObject({
+      userId: "billing-member",
+      customerName: "Linked Member",
+      customerEmail: "linked-member@example.com",
+    });
+
+    await request(app)
+      .patch(`/api/billing/${created.body.id}`)
+      .set("Cookie", adminCookie)
+      .send({ customerName: "Altered snapshot" })
+      .expect(400);
+    const preserved = await database.db
+      .selectFrom("billingRecords")
+      .select(["customerName", "customerEmail"])
+      .where("id", "=", created.body.id)
+      .executeTakeFirstOrThrow();
+    expect(preserved).toEqual({
+      customerName: "Linked Member",
+      customerEmail: "linked-member@example.com",
+    });
+  });
+
+  it("links an existing unassigned record using identity data from the server", async () => {
+    const created = await request(app)
+      .post("/api/billing")
+      .set("Cookie", adminCookie)
+      .send({
+        customerName: "Temporary customer",
+        customerEmail: "temporary@example.com",
+        concept: "Trial",
+        billingCycle: "trial_day",
+        customCycleLabel: "",
+        amountCents: 1500,
+        currency: "EUR",
+        status: "pending",
+        dueAt: null,
+        paidAt: null,
+        invoiceNumber: null,
+        notes: "",
+      })
+      .expect(201);
+
+    const linked = await request(app)
+      .patch(`/api/billing/${created.body.id}`)
+      .set("Cookie", adminCookie)
+      .send({
+        userId: "billing-member",
+        customerName: "Spoofed while linking",
+        customerEmail: "spoofed-link@example.com",
+      })
+      .expect(200);
+    expect(linked.body).toMatchObject({
+      userId: "billing-member",
+      customerName: "Linked Member",
+      customerEmail: "linked-member@example.com",
+    });
+  });
+
+  it("treats SQL wildcard characters as literal member search text", async () => {
+    const search = await request(app)
+      .get("/api/billing/members?query=%25_")
+      .set("Cookie", adminCookie)
+      .expect(200);
+    expect(search.body).toEqual([]);
   });
 });

@@ -30,7 +30,8 @@
     "unauthorized": "You do not have permission to access this section",
     "backHome": "Back to home",
     "continue": "Continue",
-    "back": "Back"
+    "back": "Back",
+    "delete": "Delete"
   },
   "language": {
     "label": "Language",
@@ -694,7 +695,17 @@
     "noConfirmed": "No confirmed attendees yet",
     "exportCsv": "Export CSV",
     "exportFailed": "Failed to export CSV",
-    "loadingAttendees": "Loading attendees..."
+    "loadingAttendees": "Loading attendees...",
+    "sessionContent": "Session content",
+    "attendanceIntention": "Stated intention",
+    "recordReminder": "Record reminder",
+    "reminderFailed": "The reminder could not be recorded",
+    "attendanceFailed": "Attendance could not be recorded",
+    "attendance": {
+      "attended": "Attended",
+      "absent": "Absent",
+      "excused": "Excused"
+    }
   },
   "bookings": {
     "title": "My bookings",
@@ -705,7 +716,88 @@
     "fetchFailed": "Failed to fetch bookings",
     "cancelFailed": "Failed to cancel booking",
     "upcomingNone": "No upcoming bookings",
-    "confirmed": "Confirmed"
+    "confirmed": "Confirmed",
+    "intentionError": "Your attendance intention could not be updated",
+    "intentionQuestion": "Are you planning to attend?",
+    "reminderQuestion": "Confirm whether you will attend this class",
+    "intentionYes": "Yes, I will attend",
+    "intentionNo": "I will not attend",
+    "intentionUncertain": "I do not know yet",
+    "onWaitlistPosition": "Waitlist · position {{position}}",
+    "promotionDeadline": "Confirm your place before {{date}}",
+    "reputationTitle": "Booking reliability",
+    "reputationScore": "Internal score: {{score}}/100",
+    "penaltyUntil": "The temporary priority reduction ends on {{date}}.",
+    "recoveryTitle": "How to recover priority",
+    "reputationHistory": "Recent reliability activity",
+    "reputationEvents": {
+      "attended": "Attendance recorded",
+      "confirmed_attended": "Confirmation honoured",
+      "cancelled_on_time": "Cancelled with notice",
+      "cancelled_neutral": "Cancellation without penalty or recovery",
+      "cancelled_late": "Late cancellation",
+      "absent": "Absence recorded",
+      "excused": "Justification accepted",
+      "uncertain": "Attendance marked as uncertain",
+      "penalty_cleared": "Penalty cleared",
+      "manual_adjustment": "Adjustment reviewed by the centre"
+    },
+    "reputationExplanation": {
+      "temporary_penalty": "Priority is temporarily reduced due to a recent incident.",
+      "no_penalty": "There is no active temporary penalty."
+    },
+    "recoveryActions": {
+      "attend": "Attend the next booked classes.",
+      "honor_confirmation": "Confirm attendance and honour the confirmation.",
+      "cancel_on_time": "Cancel within the notice period set by the centre.",
+      "request_review": "Request a review when there is a justified reason."
+    },
+    "reputationTier": {
+      "reliable": "Reliable",
+      "standard": "Standard",
+      "reduced": "Reduced priority"
+    },
+    "intentions": {
+      "unanswered": "No response",
+      "yes": "Will attend",
+      "no": "Will not attend",
+      "uncertain": "Unsure"
+    }
+  },
+  "sessionContent": {
+    "back": "Back to classes",
+    "description": "Review the training structure, mark completed blocks and keep your personal notes.",
+    "requestFailed": "The session content could not be loaded or saved",
+    "terminology": "Section name",
+    "commentsEnabled": "Prepare comments for this class",
+    "addBlock": "Add block",
+    "blockTitle": "Block title",
+    "instructions": "Instructions",
+    "sets": "Sets",
+    "repetitions": "Repetitions",
+    "duration": "Duration",
+    "rest": "Rest",
+    "percentage": "Percentage",
+    "load": "Load",
+    "exercises": "Exercises, one per line",
+    "material": "Equipment, one item per line",
+    "mediaUrls": "Media links, one per line",
+    "adaptations": "Adaptations and alternatives",
+    "notes": "Trainer notes",
+    "personalNotes": "Personal notes",
+    "toggleComplete": "Toggle block status",
+    "openResource": "Open resource",
+    "empty": "The trainer has not prepared content for this session yet.",
+    "types": {
+      "warmup": "Warm-up",
+      "mobility": "Mobility",
+      "strength": "Strength",
+      "technique": "Technique",
+      "conditioning": "Conditioning",
+      "main": "Main block",
+      "cooldown": "Cool-down",
+      "custom": "Custom"
+    }
   },
   "memberCommerce": {
     "eyebrow": "MEMBER ACCOUNT",
@@ -794,6 +886,10 @@
     "requestFailed": "The billing operation could not be completed",
     "newRecord": "New record",
     "customer": "Member or customer",
+    "memberSearch": "Search facility account",
+    "memberSearchPlaceholder": "Name, email, phone or public ID",
+    "search": "Search",
+    "memberLinked": "Account linked; visible details will be copied from the server when saved.",
     "concept": "Concept",
     "amount": "Amount",
     "currencyLabel": "Currency",

@@ -60,4 +60,32 @@ describe("editable booking configuration", () => {
       },
     });
   });
+
+  it("rejects contradictory cancellation windows", async () => {
+    await expect(
+      classes.saveClassBookingConfiguration("missing-class", {
+        configuration: {
+          onTimeCancellationMinutes: 60,
+          lateCancellationMinutes: 180,
+        },
+      }),
+    ).rejects.toThrow("Class not found");
+
+    const gymClass = await classes.createClass({
+      name: "Invalid rules",
+      description: "",
+      trainerId: "trainer-demo",
+      trainerName: "Ana",
+      maxCapacity: 10,
+      scheduledAt: Date.now() + 86_400_000,
+    });
+    await expect(
+      classes.saveClassBookingConfiguration(gymClass.id, {
+        configuration: {
+          onTimeCancellationMinutes: 60,
+          lateCancellationMinutes: 180,
+        },
+      }),
+    ).rejects.toThrow("late cancellation window");
+  });
 });

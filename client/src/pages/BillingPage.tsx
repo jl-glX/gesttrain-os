@@ -7,6 +7,7 @@ import {
   CreditCard,
   Plus,
   RefreshCw,
+  Search,
   Trash2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -56,6 +57,7 @@ function readSavedCurrency(): BillingCurrency {
 
 function createEmptyForm(currency: BillingCurrency) {
   return {
+    userId: null as string | null,
     customerName: "",
     customerEmail: "",
     concept: "",
@@ -70,6 +72,14 @@ function createEmptyForm(currency: BillingCurrency) {
   };
 }
 
+interface BillingMemberResult {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  publicId: string | null;
+}
+
 export function BillingPage() {
   const { t, i18n } = useTranslation();
   const editingLanguage = i18n.resolvedLanguage ?? i18n.language;
@@ -80,6 +90,9 @@ export function BillingPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [printRecord, setPrintRecord] = useState<BillingRecord | null>(null);
   const [recordFilter, setRecordFilter] = useState<RecordFilter>("active");
+  const [memberQuery, setMemberQuery] = useState("");
+  const [memberResults, setMemberResults] = useState<BillingMemberResult[]>([]);
+  const [memberSearching, setMemberSearching] = useState(false);
   const timeZone = useMemo(getDeviceTimeZone, []);
 
   const request = async <T,>(path: string, init?: RequestInit): Promise<T> => {
@@ -151,6 +164,7 @@ export function BillingPage() {
       const created = await request<BillingRecord>("/api/billing", {
         method: "POST",
         body: JSON.stringify({
+          userId: form.userId,
           customerName: form.customerName,
           customerEmail: form.customerEmail,
           concept: form.concept,
@@ -170,12 +184,45 @@ export function BillingPage() {
       });
       setRecords((current) => [created, ...current]);
       setForm(createEmptyForm(form.currency));
+      setMemberQuery("");
+      setMemberResults([]);
       setRecordFilter("active");
       setExpandedId(created.id);
       setError("");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     }
+  };
+
+  const searchMembers = async () => {
+    if (memberQuery.trim().length < 2) {
+      setMemberResults([]);
+      return;
+    }
+    setMemberSearching(true);
+    try {
+      setMemberResults(
+        await request<BillingMemberResult[]>(
+          `/api/billing/members?query=${encodeURIComponent(memberQuery.trim())}`,
+        ),
+      );
+      setError("");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setMemberSearching(false);
+    }
+  };
+
+  const selectMember = (member: BillingMemberResult) => {
+    setForm((current) => ({
+      ...current,
+      userId: member.id,
+      customerName: member.name,
+      customerEmail: member.email,
+    }));
+    setMemberQuery(member.name);
+    setMemberResults([]);
   };
 
   const update = async (id: string, values: Partial<BillingRecord>) => {
@@ -297,6 +344,59 @@ export function BillingPage() {
               spellCheck
               className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-4"
             >
+              <div className="relative md:col-span-2 lg:col-span-4">
+                <Label>{t("billing.memberSearch")}</Label>
+                <div className="mt-1 flex gap-2">
+                  <Input
+                    value={memberQuery}
+                    onChange={(event) => setMemberQuery(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        void searchMembers();
+                      }
+                    }}
+                    placeholder={t("billing.memberSearchPlaceholder")}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => void searchMembers()}
+                    disabled={memberSearching || memberQuery.trim().length < 2}
+                  >
+                    <Search /> {t("billing.search")}
+                  </Button>
+                </div>
+                {form.userId && (
+                  <p className="mt-2 text-sm font-medium text-emerald-700">
+                    {t("billing.memberLinked", { name: form.customerName })}
+                  </p>
+                )}
+                {memberResults.length > 0 && (
+                  <div className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
+                    {memberResults.map((member) => (
+                      <button
+                        key={member.id}
+                        type="button"
+                        onClick={() => selectMember(member)}
+                        className="flex w-full items-start justify-between rounded-lg px-3 py-2 text-left hover:bg-slate-50"
+                      >
+                        <span>
+                          <span className="block font-semibold text-slate-900">
+                            {member.name}
+                          </span>
+                          <span className="block text-sm text-slate-600">
+                            {member.email}
+                          </span>
+                        </span>
+                        <span className="text-xs text-slate-500">
+                          {member.publicId ?? member.id}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               <Field label={t("billing.customer")}>
                 <Input
                   required
@@ -304,6 +404,7 @@ export function BillingPage() {
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
+                      userId: null,
                       customerName: event.target.value,
                     }))
                   }
@@ -316,6 +417,7 @@ export function BillingPage() {
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
+                      userId: null,
                       customerEmail: event.target.value,
                     }))
                   }

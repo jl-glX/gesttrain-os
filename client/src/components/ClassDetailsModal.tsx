@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { Loader, AlertCircle, X, Download } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Loader, AlertCircle, X, Download, BellRing } from "lucide-react";
 import { Button } from "./ui/button";
 import { useClassAttendees } from "../hooks/useClassAttendees";
 import { useAuth } from "../hooks/useAuth";
@@ -28,8 +28,11 @@ export function ClassDetailsModal({
   onOpenChange,
 }: ClassDetailsModalProps) {
   const { t } = useTranslation();
-  const { attendees, waitlist, loading, error } = useClassAttendees(classId);
+  const { attendees, waitlist, loading, error, refreshAttendees } =
+    useClassAttendees(classId);
   const { user } = useAuth();
+  const [updatingBooking, setUpdatingBooking] = useState<string | null>(null);
+  const [actionError, setActionError] = useState("");
 
   const canExportCsv = user?.role === "trainer" || user?.role === "admin";
   const localizedClassName = localizeClass(className, undefined, t).name;
@@ -72,6 +75,50 @@ export function ClassDetailsModal({
     } catch (err) {
       console.error("Error exporting CSV:", err);
       alert(t("classes.exportFailed"));
+    }
+  };
+
+  const updateAttendance = async (
+    bookingId: string,
+    status: "attended" | "absent" | "excused",
+  ) => {
+    setUpdatingBooking(bookingId);
+    try {
+      const response = await authFetch(
+        `/api/bookings/${bookingId}/attendance`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        },
+      );
+      const body = await response.json();
+      if (!response.ok)
+        throw new Error(body.error ?? t("classes.attendanceFailed"));
+      setActionError("");
+      await refreshAttendees();
+    } catch (cause) {
+      setActionError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setUpdatingBooking(null);
+    }
+  };
+
+  const recordReminder = async (bookingId: string) => {
+    setUpdatingBooking(bookingId);
+    try {
+      const response = await authFetch(`/api/bookings/${bookingId}/reminder`, {
+        method: "POST",
+      });
+      const body = await response.json();
+      if (!response.ok)
+        throw new Error(body.error ?? t("classes.reminderFailed"));
+      setActionError("");
+      await refreshAttendees();
+    } catch (cause) {
+      setActionError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setUpdatingBooking(null);
     }
   };
 
@@ -150,6 +197,11 @@ export function ClassDetailsModal({
               <p className="text-sm text-red-800">{error}</p>
             </div>
           )}
+          {actionError && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+              {actionError}
+            </div>
+          )}
 
           {/* Loading State */}
           {loading ? (
@@ -188,6 +240,56 @@ export function ClassDetailsModal({
                           <p className="text-sm text-slate-600 truncate">
                             {attendee.email}
                           </p>
+                          <p className="mt-1 text-xs text-slate-500">
+                            {t("classes.attendanceIntention")}:{" "}
+                            {t(
+                              `bookings.intentions.${attendee.attendanceIntention ?? "unanswered"}`,
+                            )}
+                          </p>
+                        </div>
+                        <div className="ml-3 flex flex-wrap justify-end gap-1">
+                          {scheduledAt <= Date.now()
+                            ? (["attended", "absent", "excused"] as const).map(
+                                (status) => (
+                                  <Button
+                                    key={status}
+                                    type="button"
+                                    size="sm"
+                                    variant={
+                                      attendee.lifecycleStatus === status
+                                        ? "default"
+                                        : "outline"
+                                    }
+                                    disabled={
+                                      updatingBooking === attendee.id ||
+                                      attendee.lifecycleStatus === "attended" ||
+                                      attendee.lifecycleStatus === "excused" ||
+                                      (attendee.lifecycleStatus === "absent" &&
+                                        status !== "excused")
+                                    }
+                                    onClick={() =>
+                                      void updateAttendance(attendee.id, status)
+                                    }
+                                  >
+                                    {t(`classes.attendance.${status}`)}
+                                  </Button>
+                                ),
+                              )
+                            : !["yes", "no"].includes(
+                                attendee.attendanceIntention ?? "unanswered",
+                              ) && (
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  disabled={updatingBooking === attendee.id}
+                                  onClick={() =>
+                                    void recordReminder(attendee.id)
+                                  }
+                                >
+                                  <BellRing /> {t("classes.recordReminder")}
+                                </Button>
+                              )}
                         </div>
                       </div>
                     ))}

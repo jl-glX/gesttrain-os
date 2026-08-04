@@ -30,7 +30,8 @@
     "unauthorized": "No tienes permiso para acceder a esta sección",
     "backHome": "Volver al inicio",
     "continue": "Continuar",
-    "back": "Volver"
+    "back": "Volver",
+    "delete": "Eliminar"
   },
   "language": {
     "label": "Idioma",
@@ -698,7 +699,17 @@
     "noConfirmed": "Todavía no hay asistentes confirmados",
     "exportCsv": "Exportar CSV",
     "exportFailed": "No se ha podido exportar el CSV",
-    "loadingAttendees": "Cargando asistentes..."
+    "loadingAttendees": "Cargando asistentes...",
+    "sessionContent": "Contenido de la sesión",
+    "attendanceIntention": "Intención comunicada",
+    "recordReminder": "Registrar recordatorio",
+    "reminderFailed": "No se ha podido registrar el recordatorio",
+    "attendanceFailed": "No se ha podido registrar la asistencia",
+    "attendance": {
+      "attended": "Asistió",
+      "absent": "Ausente",
+      "excused": "Justificada"
+    }
   },
   "bookings": {
     "title": "Mis reservas",
@@ -709,7 +720,88 @@
     "fetchFailed": "No se han podido cargar las reservas",
     "cancelFailed": "No se ha podido cancelar la reserva",
     "upcomingNone": "No hay próximas reservas",
-    "confirmed": "Confirmada"
+    "confirmed": "Confirmada",
+    "intentionError": "No se ha podido actualizar tu intención de asistencia",
+    "intentionQuestion": "¿Tienes previsto asistir?",
+    "reminderQuestion": "Confirma si asistirás a esta clase",
+    "intentionYes": "Sí, asistiré",
+    "intentionNo": "No asistiré",
+    "intentionUncertain": "Todavía no lo sé",
+    "onWaitlistPosition": "Lista de espera · posición {{position}}",
+    "promotionDeadline": "Confirma la plaza antes del {{date}}",
+    "reputationTitle": "Fiabilidad de reservas",
+    "reputationScore": "Puntuación interna: {{score}}/100",
+    "penaltyUntil": "La reducción temporal de prioridad finaliza el {{date}}.",
+    "recoveryTitle": "Cómo recuperar la prioridad",
+    "reputationHistory": "Actividad reciente de fiabilidad",
+    "reputationEvents": {
+      "attended": "Asistencia registrada",
+      "confirmed_attended": "Confirmación cumplida",
+      "cancelled_on_time": "Cancelación con antelación",
+      "cancelled_neutral": "Cancelación sin penalización ni recuperación",
+      "cancelled_late": "Cancelación tardía",
+      "absent": "Ausencia registrada",
+      "excused": "Justificación aceptada",
+      "uncertain": "Asistencia marcada como incierta",
+      "penalty_cleared": "Penalización retirada",
+      "manual_adjustment": "Ajuste revisado por el centro"
+    },
+    "reputationExplanation": {
+      "temporary_penalty": "La prioridad está reducida temporalmente por una incidencia reciente.",
+      "no_penalty": "No existe una penalización temporal activa."
+    },
+    "recoveryActions": {
+      "attend": "Asistir a las próximas clases reservadas.",
+      "honor_confirmation": "Confirmar la asistencia y cumplir la confirmación.",
+      "cancel_on_time": "Cancelar con la antelación indicada por el centro.",
+      "request_review": "Solicitar revisión si existe una causa justificada."
+    },
+    "reputationTier": {
+      "reliable": "Fiable",
+      "standard": "Normal",
+      "reduced": "Prioridad reducida"
+    },
+    "intentions": {
+      "unanswered": "Sin respuesta",
+      "yes": "Asistirá",
+      "no": "No asistirá",
+      "uncertain": "No lo sabe"
+    }
+  },
+  "sessionContent": {
+    "back": "Volver a las clases",
+    "description": "Consulta la estructura del entrenamiento, marca los bloques completados y conserva tus notas personales.",
+    "requestFailed": "No se ha podido cargar o guardar el contenido de la sesión",
+    "terminology": "Nombre de esta sección",
+    "commentsEnabled": "Preparar comentarios para esta clase",
+    "addBlock": "Añadir bloque",
+    "blockTitle": "Título del bloque",
+    "instructions": "Instrucciones",
+    "sets": "Series",
+    "repetitions": "Repeticiones",
+    "duration": "Duración",
+    "rest": "Descanso",
+    "percentage": "Porcentaje",
+    "load": "Carga",
+    "exercises": "Ejercicios, uno por línea",
+    "material": "Material, un elemento por línea",
+    "mediaUrls": "Enlaces multimedia, uno por línea",
+    "adaptations": "Adaptaciones y alternativas",
+    "notes": "Notas del entrenador",
+    "personalNotes": "Notas personales",
+    "toggleComplete": "Cambiar estado del bloque",
+    "openResource": "Abrir recurso",
+    "empty": "El entrenador todavía no ha preparado contenido para esta sesión.",
+    "types": {
+      "warmup": "Calentamiento",
+      "mobility": "Movilidad",
+      "strength": "Fuerza",
+      "technique": "Técnica",
+      "conditioning": "Acondicionamiento",
+      "main": "Bloque principal",
+      "cooldown": "Vuelta a la calma",
+      "custom": "Personalizado"
+    }
   },
   "memberCommerce": {
     "eyebrow": "CUENTA DEL SOCIO",
@@ -798,6 +890,10 @@
     "requestFailed": "No se ha podido completar la operación de facturación",
     "newRecord": "Nuevo registro",
     "customer": "Socio o cliente",
+    "memberSearch": "Buscar una cuenta del centro",
+    "memberSearchPlaceholder": "Nombre, correo, teléfono o ID público",
+    "search": "Buscar",
+    "memberLinked": "Cuenta vinculada; los datos visibles se copiarán desde el servidor al guardar.",
     "concept": "Concepto",
     "amount": "Importe",
     "currencyLabel": "Moneda",

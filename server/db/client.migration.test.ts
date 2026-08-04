@@ -84,6 +84,18 @@ describe("legacy booking migration", () => {
         .where("id", "=", "legacy-waitlist-entry")
         .executeTakeFirst(),
     ).toBeUndefined();
+
+    const lifecycleRows = await database.db
+      .selectFrom("bookingLifecycles")
+      .select(["bookingId", "lifecycleStatus", "attendanceIntention"])
+      .orderBy("bookingId")
+      .execute();
+    expect(lifecycleRows).toHaveLength(3);
+    expect(lifecycleRows).toContainEqual({
+      bookingId: "legacy-confirmed-kept",
+      lifecycleStatus: "confirmation_pending",
+      attendanceIntention: "unanswered",
+    });
   });
 
   it("applies the active-booking uniqueness constraint after reconciliation", async () => {

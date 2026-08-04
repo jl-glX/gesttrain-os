@@ -4,6 +4,7 @@ export type BillingCycle =
 
 export interface BillingRecord {
   id: string;
+  userId: string | null;
   customerName: string;
   customerEmail: string;
   concept: string;

@@ -6,18 +6,32 @@ import {
   getClassBookings,
   getClassWaitlist,
   exportClassAttendeesCsv,
+  markBookingAttendance,
+  recordBookingReminder,
+  setAttendanceIntention,
 } from "../services/booking.js";
 import {
+  adjustBookingReputation,
+  getBookingReputation,
+} from "../services/booking-reputation.js";
+import {
+  bookingAttendanceValidation,
   bookingCancellationValidation,
+  bookingIntentionValidation,
   bookingValidation,
+  reputationAdjustmentValidation,
   validateId,
 } from "../middleware/validation.js";
 import {
   authenticate,
+  requireRole,
+  requireSelfBodyOrRole,
   requireSelfRoleOrBookingDelegation,
   requireSelfParamOrRole,
+  requireTrainerBookingOrRole,
   requireTrainerClassOrRole,
 } from "../middleware/authorization.js";
+import { requireRecentFormVerification } from "../middleware/form-verification.js";
 
 export const bookingsRouter = express.Router();
 bookingsRouter.use(authenticate);
@@ -95,6 +109,106 @@ bookingsRouter.post(
       const message = error instanceof Error ? error.message : "Unknown error";
       console.error("Error creating booking:", error);
       res.status(400).json({ error: message });
+    }
+  },
+);
+
+bookingsRouter.put(
+  "/:bookingId/intention",
+  bookingIntentionValidation,
+  requireSelfBodyOrRole("userId", "admin"),
+  async (req: express.Request, res: express.Response) => {
+    try {
+      res.json(
+        await setAttendanceIntention(
+          req.params.bookingId,
+          req.body.userId,
+          req.body.intention,
+        ),
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      res.status(400).json({ error: message });
+    }
+  },
+);
+
+bookingsRouter.post(
+  "/:bookingId/reminder",
+  validateId("bookingId"),
+  requireTrainerBookingOrRole("bookingId", "admin"),
+  async (req: express.Request, res: express.Response) => {
+    try {
+      res.json(await recordBookingReminder(req.params.bookingId));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      res.status(400).json({ error: message });
+    }
+  },
+);
+
+bookingsRouter.put(
+  "/:bookingId/attendance",
+  bookingAttendanceValidation,
+  requireTrainerBookingOrRole("bookingId", "admin"),
+  async (req: express.Request, res: express.Response) => {
+    try {
+      res.json(
+        await markBookingAttendance(req.params.bookingId, req.body.status),
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      res.status(400).json({ error: message });
+    }
+  },
+);
+
+bookingsRouter.get(
+  "/reputation/:userId",
+  validateId("userId"),
+  requireSelfParamOrRole("userId", "admin"),
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    try {
+      res.json(await getBookingReputation(req.params.userId));
+    } catch (error) {
+      if (error instanceof Error && error.message === "User not found") {
+        res.status(404).json({ error: error.message });
+        return;
+      }
+      next(error);
+    }
+  },
+);
+
+bookingsRouter.post(
+  "/reputation/:userId/adjustment",
+  reputationAdjustmentValidation,
+  requireRole("admin"),
+  requireRecentFormVerification,
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    try {
+      res.json(
+        await adjustBookingReputation({
+          userId: req.params.userId,
+          pointsDelta: req.body.pointsDelta,
+          reason: req.body.reason,
+          clearPenalty: req.body.clearPenalty,
+        }),
+      );
+    } catch (error) {
+      if (error instanceof Error && error.message === "User not found") {
+        res.status(404).json({ error: error.message });
+        return;
+      }
+      next(error);
     }
   },
 );

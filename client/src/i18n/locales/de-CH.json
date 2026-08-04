@@ -30,7 +30,8 @@
     "back": "Zurück",
     "loadingAnalytics": "Analyse wird geladen...",
     "loadingBookings": "Buchungen werden geladen...",
-    "loadingClasses": "Klassen werden geladen..."
+    "loadingClasses": "Klassen werden geladen...",
+    "delete": "Löschen"
   },
   "language": {
     "label": "Sprache",
@@ -182,6 +183,10 @@
     "requestFailed": "Der Abrechnungsvorgang konnte nicht abgeschlossen werden",
     "newRecord": "Neuer Eintrag",
     "customer": "Mitglied oder Kunde",
+    "memberSearch": "Konto des Zentrums suchen",
+    "memberSearchPlaceholder": "Name, E-Mail, Telefon oder öffentliche ID",
+    "search": "Suchen",
+    "memberLinked": "Konto verknüpft; sichtbare Daten werden beim Speichern vom Server übernommen.",
     "concept": "Bezeichnung",
     "amount": "Betrag",
     "currencyLabel": "Währung",
@@ -785,7 +790,17 @@
     "confirmedAttendees": "Bestätigte Teilnehmer ({{count}})",
     "noConfirmed": "Noch keine bestätigten Teilnehmer",
     "spotsAvailable_other": "{{count}} Plätze verfügbar",
-    "loadingAttendees": "Teilnehmer werden geladen..."
+    "loadingAttendees": "Teilnehmer werden geladen...",
+    "sessionContent": "Sitzungsinhalt",
+    "attendanceIntention": "Mitgeteilte Absicht",
+    "recordReminder": "Erinnerung erfassen",
+    "reminderFailed": "Die Erinnerung konnte nicht erfasst werden",
+    "attendanceFailed": "Die Anwesenheit konnte nicht erfasst werden",
+    "attendance": {
+      "attended": "Anwesend",
+      "absent": "Abwesend",
+      "excused": "Entschuldigt"
+    }
   },
   "bookings": {
     "title": "Meine Buchungen",
@@ -796,7 +811,88 @@
     "fetchFailed": "Buchungen konnten nicht abgerufen werden",
     "cancelFailed": "Buchung konnte nicht storniert werden",
     "description": "Verwalten Sie Ihre Kursreservierungen",
-    "upcomingNone": "Keine bevorstehenden Buchungen"
+    "upcomingNone": "Keine bevorstehenden Buchungen",
+    "intentionError": "Deine Teilnahmeabsicht konnte nicht aktualisiert werden",
+    "intentionQuestion": "Planst du teilzunehmen?",
+    "reminderQuestion": "Bestätige, ob du an dieser Klasse teilnimmst",
+    "intentionYes": "Ja, ich nehme teil",
+    "intentionNo": "Ich nehme nicht teil",
+    "intentionUncertain": "Ich weiss es noch nicht",
+    "onWaitlistPosition": "Warteliste · Position {{position}}",
+    "promotionDeadline": "Bestätige deinen Platz vor {{date}}",
+    "reputationTitle": "Buchungszuverlässigkeit",
+    "reputationScore": "Interne Punktzahl: {{score}}/100",
+    "penaltyUntil": "Die vorübergehende Prioritätsreduzierung endet am {{date}}.",
+    "recoveryTitle": "So stellst du die Priorität wieder her",
+    "reputationHistory": "Letzte Zuverlässigkeitsaktivitäten",
+    "reputationEvents": {
+      "attended": "Teilnahme erfasst",
+      "confirmed_attended": "Bestätigung eingehalten",
+      "cancelled_on_time": "Rechtzeitig storniert",
+      "cancelled_neutral": "Stornierung ohne Sanktion oder Erholung",
+      "cancelled_late": "Späte Stornierung",
+      "absent": "Abwesenheit erfasst",
+      "excused": "Begründung akzeptiert",
+      "uncertain": "Teilnahme als unsicher markiert",
+      "penalty_cleared": "Sanktion aufgehoben",
+      "manual_adjustment": "Vom Zentrum geprüfte Anpassung"
+    },
+    "reputationExplanation": {
+      "temporary_penalty": "Die Priorität ist wegen eines kürzlichen Vorfalls vorübergehend reduziert.",
+      "no_penalty": "Es gibt keine aktive vorübergehende Sanktion."
+    },
+    "recoveryActions": {
+      "attend": "Nimm an den nächsten gebuchten Kursen teil.",
+      "honor_confirmation": "Bestätige die Teilnahme und halte die Bestätigung ein.",
+      "cancel_on_time": "Storniere innerhalb der vom Zentrum festgelegten Frist.",
+      "request_review": "Beantrage bei einem berechtigten Grund eine Überprüfung."
+    },
+    "reputationTier": {
+      "reliable": "Zuverlässig",
+      "standard": "Normal",
+      "reduced": "Reduzierte Priorität"
+    },
+    "intentions": {
+      "unanswered": "Keine Antwort",
+      "yes": "Nimmt teil",
+      "no": "Nimmt nicht teil",
+      "uncertain": "Unklar"
+    }
+  },
+  "sessionContent": {
+    "back": "Zurück zu den Klassen",
+    "description": "Prüfe den Trainingsaufbau, markiere abgeschlossene Blöcke und bewahre persönliche Notizen auf.",
+    "requestFailed": "Der Sitzungsinhalt konnte nicht geladen oder gespeichert werden",
+    "terminology": "Name dieses Bereichs",
+    "commentsEnabled": "Kommentare für diese Klasse vorbereiten",
+    "addBlock": "Block hinzufügen",
+    "blockTitle": "Blocktitel",
+    "instructions": "Anweisungen",
+    "sets": "Sätze",
+    "repetitions": "Wiederholungen",
+    "duration": "Dauer",
+    "rest": "Pause",
+    "percentage": "Prozentsatz",
+    "load": "Last",
+    "exercises": "Übungen, eine pro Zeile",
+    "material": "Material, ein Eintrag pro Zeile",
+    "mediaUrls": "Medienlinks, einer pro Zeile",
+    "adaptations": "Anpassungen und Alternativen",
+    "notes": "Trainernotizen",
+    "personalNotes": "Persönliche Notizen",
+    "toggleComplete": "Blockstatus ändern",
+    "openResource": "Ressource öffnen",
+    "empty": "Der Trainer hat noch keinen Inhalt für diese Sitzung vorbereitet.",
+    "types": {
+      "warmup": "Aufwärmen",
+      "mobility": "Mobilität",
+      "strength": "Kraft",
+      "technique": "Technik",
+      "conditioning": "Kondition",
+      "main": "Hauptblock",
+      "cooldown": "Abkühlen",
+      "custom": "Benutzerdefiniert"
+    }
   },
   "memberCommerce": {
     "title": "Meine Zahlungen und Bestellungen",

@@ -1,5 +1,6 @@
 import { randomBytes } from "node:crypto";
 import express from "express";
+import { sql } from "kysely";
 import { db } from "../db/client.js";
 import { authenticate, requireRole } from "../middleware/authorization.js";
 import {
@@ -12,6 +13,61 @@ import { requireRecentFormVerification } from "../middleware/form-verification.j
 export const billingRouter = express.Router();
 billingRouter.use(authenticate, requireRole("admin"));
 billingRouter.use(requireRecentFormVerification);
+
+async function findBillingMember(userId: string) {
+  return db
+    .selectFrom("users")
+    .select(["id", "name", "email", "role"])
+    .where("id", "=", userId)
+    .executeTakeFirst();
+}
+
+billingRouter.get("/members", async (req, res, next) => {
+  try {
+    const query = String(req.query.query ?? "")
+      .trim()
+      .toLowerCase();
+    if (query.length < 2) {
+      res.json([]);
+      return;
+    }
+    if (query.length > 120) {
+      res.status(400).json({ error: "Search query is too long" });
+      return;
+    }
+    const pattern = `%${query.replace(/[\\%_]/g, "\\$&")}%`;
+    const members = await db
+      .selectFrom("users")
+      .leftJoin("accountSupportIdentifiers", (join) =>
+        join
+          .onRef("accountSupportIdentifiers.userId", "=", "users.id")
+          .on("accountSupportIdentifiers.status", "=", "active"),
+      )
+      .select([
+        "users.id",
+        "users.name",
+        "users.email",
+        "users.phone",
+        "accountSupportIdentifiers.publicId",
+      ])
+      .where("users.role", "=", "member")
+      .where((eb) =>
+        eb.or([
+          sql<boolean>`LOWER(${eb.ref("users.name")}) LIKE ${pattern} ESCAPE '\\'`,
+          sql<boolean>`LOWER(${eb.ref("users.email")}) LIKE ${pattern} ESCAPE '\\'`,
+          sql<boolean>`LOWER(COALESCE(${eb.ref("users.phone")}, '')) LIKE ${pattern} ESCAPE '\\'`,
+          sql<boolean>`LOWER(COALESCE(${eb.ref("accountSupportIdentifiers.publicId")}, '')) LIKE ${pattern} ESCAPE '\\'`,
+          sql<boolean>`LOWER(${eb.ref("users.id")}) LIKE ${pattern} ESCAPE '\\'`,
+        ]),
+      )
+      .orderBy("users.name")
+      .limit(20)
+      .execute();
+    res.json(members);
+  } catch (error) {
+    next(error);
+  }
+});
 
 billingRouter.get("/", async (_req, res, next) => {
   try {
@@ -38,11 +94,23 @@ billingRouter.post(
     try {
       const now = Date.now();
       const id = `billing-${randomBytes(10).toString("hex")}`;
+      const member = req.body.userId
+        ? await findBillingMember(req.body.userId)
+        : null;
+      if (req.body.userId && !member) {
+        res.status(400).json({ error: "Selected member does not exist" });
+        return;
+      }
+      if (member && member.role !== "member") {
+        res.status(400).json({ error: "Selected account is not a member" });
+        return;
+      }
       const values = {
         ...req.body,
         id,
-        userId: req.body.userId ?? null,
-        customerEmail: req.body.customerEmail ?? "",
+        userId: member?.id ?? null,
+        customerName: member?.name ?? req.body.customerName,
+        customerEmail: member?.email ?? req.body.customerEmail ?? "",
         currency: req.body.currency.toUpperCase(),
         customCycleLabel:
           req.body.billingCycle === "custom"
@@ -81,8 +149,42 @@ billingRouter.patch(
     next: express.NextFunction,
   ) => {
     try {
-      const values = {
-        ...req.body,
+      const current = await db
+        .selectFrom("billingRecords")
+        .selectAll()
+        .where("id", "=", req.params.id)
+        .executeTakeFirst();
+      if (!current) {
+        res.status(404).json({ error: "Billing record not found" });
+        return;
+      }
+      const values = { ...req.body };
+      if (current.userId) {
+        const hasOwnField = (field: string) =>
+          Object.prototype.hasOwnProperty.call(req.body, field);
+        if (
+          hasOwnField("customerName") ||
+          hasOwnField("customerEmail") ||
+          (hasOwnField("userId") && req.body.userId !== current.userId)
+        ) {
+          res.status(400).json({
+            error: "Linked member identity snapshots cannot be changed",
+          });
+          return;
+        }
+        delete values.userId;
+      } else if (req.body.userId) {
+        const member = await findBillingMember(req.body.userId);
+        if (!member || member.role !== "member") {
+          res.status(400).json({ error: "Selected member does not exist" });
+          return;
+        }
+        values.userId = member.id;
+        values.customerName = member.name;
+        values.customerEmail = member.email;
+      }
+      const normalizedValues = {
+        ...values,
         ...(req.body.billingCycle && req.body.billingCycle !== "custom"
           ? { customCycleLabel: "" }
           : {}),
@@ -99,7 +201,7 @@ billingRouter.patch(
       };
       const result = await db
         .updateTable("billingRecords")
-        .set(values)
+        .set(normalizedValues)
         .where("id", "=", req.params.id)
         .executeTakeFirst();
       if (Number(result.numUpdatedRows) === 0) {

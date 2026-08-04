@@ -12,6 +12,7 @@ export type BookingConfiguration = {
   waitlistEnabled: boolean;
   confirmationRequired: boolean;
   remindersEnabled: boolean;
+  promotionConfirmationMinutes: number;
   onTimeCancellationMinutes: number;
   lateCancellationMinutes: number;
   restrictions: string[];
@@ -33,6 +34,7 @@ export const defaultBookingConfiguration: BookingConfiguration = {
   waitlistEnabled: true,
   confirmationRequired: true,
   remindersEnabled: true,
+  promotionConfirmationMinutes: 15,
   onTimeCancellationMinutes: 180,
   lateCancellationMinutes: 60,
   restrictions: [],
