@@ -10,7 +10,7 @@ describe("progressive account signup", () => {
   let app: typeof import("../index.js").app;
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "gesttrain-signup-flow-"));
+    directory = await mkdtemp(join(tmpdir(), "umbravia-forge-signup-flow-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();

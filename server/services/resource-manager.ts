@@ -280,7 +280,7 @@ registerTask({
   id: "project-runtime-cleanup",
   name: "Project runtime cleanup",
   description:
-    "Removes stale GestTrain/OS runtime records without touching unrelated operating-system processes.",
+    "Removes stale Umbravia Forge runtime records without touching unrelated operating-system processes.",
   intervalMs: runtimeCheckIntervalMs(),
   priority: "normal",
   enabledByDefault: true,

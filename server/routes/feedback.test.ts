@@ -10,7 +10,7 @@ describe("feedback API", () => {
   let app: typeof import("../index.js").app;
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-feedback-"));
+    directory = await mkdtemp(join(tmpdir(), "umbravia-forge-feedback-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();

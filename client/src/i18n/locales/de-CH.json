@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "GestTrain/OS",
+    "appName": "Umbravia Forge",
     "loading": "Wird geladen...",
     "unknownError": "Unbekannter Fehler",
     "errorPrefix": "Fehler: {{error}}",
@@ -72,7 +72,7 @@
     "brandTitle": "Dein Fitnessstudio an einem Ort.",
     "brandDescription": "Plane Einheiten, verwalte Buchungen und bleibe mit deiner Trainingsgemeinschaft verbunden.",
     "welcomeBack": "Willkommen zurück",
-    "signInTitle": "Bei GestTrain/OS anmelden",
+    "signInTitle": "Bei Umbravia Forge anmelden",
     "signInDescription": "Verwalte weiterhin deine Kurse, Buchungen und Trainingsaktivitäten.",
     "memberSignInTitle": "Anmeldung für Mitglieder",
     "memberSignInDescription": "Buche Kurse, prüfe deinen Zeitplan und verwalte deine Trainingsaktivitäten.",
@@ -107,7 +107,7 @@
     "hideAlternativeSignIn": "Andere Anmeldearten ausblenden",
     "verifyIdentity": "Identität bestätigen",
     "useDifferentAccount": "Anderes Konto verwenden",
-    "join": "GestTrain/OS beitreten",
+    "join": "Umbravia Forge beitreten",
     "createTitle": "Konto erstellen",
     "fullName": "Vollständiger Name",
     "confirmPassword": "Passwort bestätigen",
@@ -151,7 +151,7 @@
     "passkeyHelp": "Nutzen Sie Ihren Geräteschutz: Fingerabdruck, Gesichtserkennung, PIN oder Sicherheitsschlüssel.",
     "passkeyVerificationFailed": "Die Überprüfung mit dem Geräteschutz konnte nicht abgeschlossen werden.",
     "passkeyChallengeInvalid": "Die Anmeldeanforderung ist abgelaufen. Bitte versuchen Sie es erneut.",
-    "alternativeCodeHelp": "Wenn Sie 2FA verwenden, geben Sie hier einen Authentifizierungs- oder Wiederherstellungscode ein. GestTrain/OS überprüft zunächst Ihr Konto und Ihr Passwort.",
+    "alternativeCodeHelp": "Wenn Sie 2FA verwenden, geben Sie hier einen Authentifizierungs- oder Wiederherstellungscode ein. Umbravia Forge überprüft zunächst Ihr Konto und Ihr Passwort.",
     "passwordPolicy": "Das Passwort muss mindestens 12 Zeichen und höchstens 72 Byte sowie Grossbuchstaben, Kleinbuchstaben und eine Zahl enthalten",
     "createDescription": "Richten Sie Ihr Profil ein und beginnen Sie mit der Planung Ihrer nächsten Trainingseinheiten."
   },
@@ -162,7 +162,7 @@
     "description": "Buche Kurse, verwalte deinen Zeitplan und nutze Wartelisten. Sobald ein Platz frei wird, rückst du automatisch nach.",
     "browse": "Kurse ansehen",
     "bookings": "Meine Buchungen",
-    "downloads": "GestTrain/OS herunterladen",
+    "downloads": "Umbravia Forge herunterladen",
     "rights": "Alle Rechte vorbehalten.",
     "features": {
       "calendarTitle": "Kurskalender",
@@ -176,7 +176,7 @@
     }
   },
   "billing": {
-    "eyebrow": "GestTrain/OS · Finanzverwaltung",
+    "eyebrow": "Umbravia Forge · Finanzverwaltung",
     "title": "Beiträge, Zahlungen und Rechnungen",
     "description": "Verwalte Studiobeiträge, offene Zahlungen, Rechnungen und Probetrainings.",
     "requestFailed": "Der Abrechnungsvorgang konnte nicht abgeschlossen werden",
@@ -213,7 +213,7 @@
     },
     "timeZone": {
       "label": "Zeitzone des Geräts",
-      "hint": "Datumsangaben werden automatisch in der GestTrain/OS-Sprache sowie der Zeitzone von Browser und System angezeigt."
+      "hint": "Datumsangaben werden automatisch in der Umbravia Forge-Sprache sowie der Zeitzone von Browser und System angezeigt."
     },
     "currencies": {
       "EUR": "Euro",
@@ -266,7 +266,7 @@
     "title": "Konten auf diesem Gerät",
     "remove": "Entfernen Sie {{name}} von diesem Gerät",
     "useAnother": "Fügen Sie ein anderes Konto hinzu oder verwenden Sie es",
-    "privacy": "Lediglich die Kennung und visuelle Details werden gespeichert. GestTrain/OS speichert hier niemals das Passwort oder die Sitzung."
+    "privacy": "Lediglich die Kennung und visuelle Details werden gespeichert. Umbravia Forge speichert hier niemals das Passwort oder die Sitzung."
   },
   "accountControl": {
     "managerEyebrow": "Kontoverwaltung",
@@ -291,7 +291,7 @@
     "comingSoon": "Kommt bald",
     "open": "Offen",
     "personalSection": "Persönliches Konto",
-    "personalSectionDescription": "Diese Optionen gehören zu Ihrem GestTrain/OS-Konto und sind nicht von Ihrer Position in einer Einrichtung abhängig.",
+    "personalSectionDescription": "Diese Optionen gehören zu Ihrem Umbravia Forge-Konto und sind nicht von Ihrer Position in einer Einrichtung abhängig.",
     "personalSectionTitle": "Identität, Zugriff und Präferenzen",
     "eyebrow": "Kontokontrollbereich",
     "memberSectionDescription": "Verwalten Sie nur die Buchungen, Zahlungen und Tools, die mit Ihrer Mitgliedsidentität verknüpft sind.",
@@ -304,7 +304,7 @@
     "trainerSectionDescription": "Greifen Sie auf die Ihrem Trainerkonto zugewiesenen Betriebstools zu.",
     "adminSectionTitle": "Betrieb und Verwaltung",
     "security": "Sicherheit und Anmeldung",
-    "linkedMemberNotice": "Buchungen und andere persönliche Mitgliederfunktionen werden hier nur angezeigt, wenn GestTrain/OS die explizite Verknüpfung einer separaten Mitgliedsidentität unterstützt. Eine Trainer- oder Administratorrolle allein gewährt diese Funktionen nicht.",
+    "linkedMemberNotice": "Buchungen und andere persönliche Mitgliederfunktionen werden hier nur angezeigt, wenn Umbravia Forge die explizite Verknüpfung einer separaten Mitgliedsidentität unterstützt. Eine Trainer- oder Administratorrolle allein gewährt diese Funktionen nicht.",
     "securityDescription": "Verwalten Sie 2FA, Passkeys und offene Sitzungen.",
     "lifecycle": "Kontolebenszyklus",
     "lifecycleDescription": "Konfigurieren Sie Inaktivität und prüfen Sie geplante Löschungen.",
@@ -392,7 +392,7 @@
   "accountIdentity": {
     "eyebrow": "Kontoidentität",
     "title": "Öffentliche Support-ID",
-    "description": "Verwenden Sie diese Kennung, wenn das Studio oder der GestTrain/OS-Support Ihr Konto finden muss, ohne mehr persönliche Daten als nötig abzufragen.",
+    "description": "Verwenden Sie diese Kennung, wenn das Studio oder der Umbravia Forge-Support Ihr Konto finden muss, ohne mehr persönliche Daten als nötig abzufragen.",
     "label": "Ihre Kennung",
     "show": "Anzeigen",
     "hide": "Ausblenden",
@@ -404,7 +404,7 @@
   "accountLifecycle": {
     "eyebrow": "Kontosteuerung",
     "title": "Inaktivität und Löschung",
-    "description": "Legen Sie fest, was geschieht, wenn Sie GestTrain/OS nicht mehr verwenden, und prüfen Sie geplante Schliessungen.",
+    "description": "Legen Sie fest, was geschieht, wenn Sie Umbravia Forge nicht mehr verwenden, und prüfen Sie geplante Schliessungen.",
     "currentState": "Aktueller Kontostatus: {{state}}.",
     "states": {
       "pending_verification": "Verifizierung ausstehend",
@@ -619,7 +619,7 @@
   },
   "adminHome": {
     "description": "Verwalten Sie Kurse, Mitglieder, Abrechnungen und die Leistung der Einrichtung von einem betriebsorientierten Arbeitsbereich aus.",
-    "title": "GestTrain/OS-Betrieb und -Management",
+    "title": "Umbravia Forge-Betrieb und -Management",
     "welcome": "Anlagenkonsole · {{name}}",
     "management": "Verwaltung",
     "billing": "Abrechnung",
@@ -630,10 +630,10 @@
     "billingDescription": "Verfolgen Sie Gebühren, ausstehende Zahlungen und Testzugang.",
     "analytics": "Anwesenheit und Nachfrage",
     "downloads": "Download-Center",
-    "downloadsDescription": "Greifen Sie auf die offiziellen Apps und das tragbare GestTrain/OS-Paket zu.",
+    "downloadsDescription": "Greifen Sie auf die offiziellen Apps und das tragbare Umbravia Forge-Paket zu.",
     "analyticsDescription": "Finden Sie Kurse und Zeitfenster mit der höchsten und niedrigsten Besucherzahl.",
     "resources": "Serverressourcen",
-    "resourcesDescription": "Überwachen und steuern Sie interne Aufgaben, die von GestTrain/OS registriert werden."
+    "resourcesDescription": "Überwachen und steuern Sie interne Aufgaben, die von Umbravia Forge registriert werden."
   },
   "downloads": {
     "title": "Download-Center",
@@ -667,10 +667,10 @@
         "destination": "Browser-Download"
       }
     },
-    "eyebrow": "GestTrain/OS auf allen Ihren Geräten",
+    "eyebrow": "Umbravia Forge auf allen Ihren Geräten",
     "loadError": "Download-Optionen konnten nicht geladen werden.",
     "download": "Download öffnen",
-    "securityNotice": "GestTrain/OS zeigt nur von der Plattform konfigurierte HTTPS-Ziele an. Bestätigen Sie immer, dass der Store oder Download zu GestTrain/OS gehört, bevor Sie ihn installieren."
+    "securityNotice": "Umbravia Forge zeigt nur von der Plattform konfigurierte HTTPS-Ziele an. Bestätigen Sie immer, dass der Store oder Download zu Umbravia Forge gehört, bevor Sie ihn installieren."
   },
   "securityManager": {
     "eyebrow": "Sicherheitsüberwachung",
@@ -711,7 +711,7 @@
     "residualChecksSummary": "{{checks}} Prüfungen abgeschlossen · {{removed}} veraltete Laufzeitdatensätze entfernt",
     "lastResidualCheck": "Letzte Prüfung: {{date}}",
     "noResidualCheck": "Warten auf die erste Prüfung",
-    "description": "Überwachen Sie interne Aufgaben von GestTrain/OS und führen Sie nur von der Plattform registrierte Prozesse aus, pausieren oder setzen Sie sie fort.",
+    "description": "Überwachen Sie interne Aufgaben von Umbravia Forge und führen Sie nur von der Plattform registrierte Prozesse aus, pausieren oder setzen Sie sie fort.",
     "updateError": "Die Aufgabe konnte nicht aktualisiert werden.",
     "pause": "Pause",
     "resume": "Wieder aufnehmen",
@@ -739,7 +739,7 @@
       },
       "project-runtime-cleanup": {
         "name": "Projektlaufzeit bereinigen",
-        "description": "Entfernt veraltete GestTrain/OS-Einträge und verhindert doppelte Entwicklungsinstanzen, ohne andere Prozesse anzutasten."
+        "description": "Entfernt veraltete Umbravia Forge-Einträge und verhindert doppelte Entwicklungsinstanzen, ohne andere Prozesse anzutasten."
       },
       "deleted-account-residual-cleanup": {
         "name": "Restbereinigung gelöschter Konten",
@@ -810,7 +810,7 @@
     "ordersAvailable": "Sie können jetzt Ihre Bestellungen überprüfen.",
     "notAvailable": "Es ist noch keine Aktivität verfügbar.",
     "loadFailed": "Ihre Zahlungen und Bestellungen konnten nicht geladen werden.",
-    "secureNotice": "GestTrain/OS verarbeitet in dieser Version keine Bankzahlungen und speichert keine vollständigen Kartendaten."
+    "secureNotice": "Umbravia Forge verarbeitet in dieser Version keine Bankzahlungen und speichert keine vollständigen Kartendaten."
   },
   "trainer": {
     "title": "Trainer-Dashboard",
@@ -866,7 +866,7 @@
     "accent": "Akzentfarbe",
     "logo": "Fitnessstudio-Logo",
     "name": "Handelsname der Einrichtung",
-    "description": "Konfigurieren Sie Ihre Einrichtungsidentität in GestTrain/OS. Das Hauptlogo des GestTrain/OS-Produkts wird nicht geändert.",
+    "description": "Konfigurieren Sie Ihre Einrichtungsidentität in Umbravia Forge. Das Hauptlogo des Umbravia Forge-Produkts wird nicht geändert.",
     "removeLogo": "Logo entfernen",
     "logoAlt": "{{gym}}-Logo",
     "tooLarge": "Das Logo darf 512 KB nicht überschreiten.",
@@ -965,7 +965,7 @@
   "legal": {
     "eyebrow": "Rechtliche Informationen",
     "lastUpdated": "Letzte Aktualisierung: 3. August 2026",
-    "back": "Zurück zu GestTrain/OS",
+    "back": "Zurück zu Umbravia Forge",
     "footer": {
       "notice": "Rechtlicher Hinweis",
       "navigation": "Rechtliche Links",
@@ -978,45 +978,45 @@
         "sections": {
           "owner": {
             "title": "1. Websitebesitzer",
-            "body": "GestTrain/OS gehört und wird von Javier López Díaz betrieben. GestTrain/OS ist derzeit ein Softwareprojekt in der Entwicklung. Vor der kommerziellen Freigabe des Dienstes müssen hier die Adresse, die Steueridentifikationsnummer, alle anwendbaren Registrierungsdaten und ein direkter rechtlicher Kontaktkanal hinzugefügt werden."
+            "body": "Umbravia Forge gehört und wird von Javier López Díaz betrieben. Umbravia Forge ist derzeit ein Softwareprojekt in der Entwicklung. Vor der kommerziellen Freigabe des Dienstes müssen hier die Adresse, die Steueridentifikationsnummer, alle anwendbaren Registrierungsdaten und ein direkter rechtlicher Kontaktkanal hinzugefügt werden."
           },
           "purpose": {
             "title": "2. Zweck",
-            "body": "GestTrain/OS bietet Tools zum Durchsuchen von Kursen, zum Verwalten von Buchungen und Wartelisten sowie zur Unterstützung der Verwaltung von Sportzentren. Die verfügbaren Funktionen können sich während der Entwicklung des Produkts ändern."
+            "body": "Umbravia Forge bietet Tools zum Durchsuchen von Kursen, zum Verwalten von Buchungen und Wartelisten sowie zur Unterstützung der Verwaltung von Sportzentren. Die verfügbaren Funktionen können sich während der Entwicklung des Produkts ändern."
           },
           "intellectualProperty": {
             "title": "3. Geistiges und gewerbliches Eigentum",
-            "body": "Design, Code, Marke, Text und andere Originalelemente von GestTrain/OS sind durch geltendes Recht geschützt. Der Zugriff gewährt keine Rechte zur Vervielfältigung, Verbreitung, Änderung oder Verwertung, es sei denn, dies ist ausdrücklich genehmigt oder durch eine geltende Lizenz abgedeckt."
+            "body": "Design, Code, Marke, Text und andere Originalelemente von Umbravia Forge sind durch geltendes Recht geschützt. Der Zugriff gewährt keine Rechte zur Vervielfältigung, Verbreitung, Änderung oder Verwertung, es sei denn, dies ist ausdrücklich genehmigt oder durch eine geltende Lizenz abgedeckt."
           },
           "links": {
             "title": "4. Links und Dienste Dritter",
-            "body": "Die Anwendung kann Links oder Integrationen von Drittanbietern enthalten. GestTrain/OS hat keine Kontrolle über deren Inhalte, Verfügbarkeit oder Richtlinien und jeder externe Dienst unterliegt seinen eigenen Bedingungen."
+            "body": "Die Anwendung kann Links oder Integrationen von Drittanbietern enthalten. Umbravia Forge hat keine Kontrolle über deren Inhalte, Verfügbarkeit oder Richtlinien und jeder externe Dienst unterliegt seinen eigenen Bedingungen."
           },
           "liability": {
             "title": "5. Verfügbarkeit und Haftung",
-            "body": "Eine ständige Verfügbarkeit und ein fehlerfreier Betrieb sind während der Entwicklung nicht gewährleistet. GestTrain/OS wird angemessene Massnahmen zum Schutz und zur Aufrechterhaltung des Dienstes ergreifen, ohne Haftungen auszuschliessen, die gesetzlich nicht ausgeschlossen werden können."
+            "body": "Eine ständige Verfügbarkeit und ein fehlerfreier Betrieb sind während der Entwicklung nicht gewährleistet. Umbravia Forge wird angemessene Massnahmen zum Schutz und zur Aufrechterhaltung des Dienstes ergreifen, ohne Haftungen auszuschliessen, die gesetzlich nicht ausgeschlossen werden können."
           },
           "identityAndData": {
             "title": "6. Identität, Kennungen und Daten",
-            "body": "GestTrain/OS trennt die interne Kontoidentität, die öffentliche Support-Kennung, Sicherheitszugangsdaten und -geheimnisse, Betriebsdaten sowie Daten, die einer eingeschränkten Aufbewahrung unterliegen können. Die interne Kennung erhält technische Beziehungen; der öffentliche Alias dient nur dazu, dass autorisierter Support das Konto findet; und nur autorisierte Zugangsdaten und Prüfungen authentifizieren eine Person. Eine öffentliche Kennung allein ist niemals ein Identitäts- oder Zugriffsnachweis."
+            "body": "Umbravia Forge trennt die interne Kontoidentität, die öffentliche Support-Kennung, Sicherheitszugangsdaten und -geheimnisse, Betriebsdaten sowie Daten, die einer eingeschränkten Aufbewahrung unterliegen können. Die interne Kennung erhält technische Beziehungen; der öffentliche Alias dient nur dazu, dass autorisierter Support das Konto findet; und nur autorisierte Zugangsdaten und Prüfungen authentifizieren eine Person. Eine öffentliche Kennung allein ist niemals ein Identitäts- oder Zugriffsnachweis."
           },
           "law": {
             "title": "7. Anwendbares Recht",
             "body": "Die endgültige Fassung muss an die tatsächliche Tätigkeit, den Standort und die Rechtsstellung des Inhabers sowie an die geltenden E-Commerce-, Verbraucher- und Datenschutzbestimmungen angepasst werden."
           }
         },
-        "introduction": "Diese Mitteilung enthält allgemeine Informationen über die Website und die Grundregeln für den Zugriff auf GestTrain/OS während der Entwicklungsphase."
+        "introduction": "Diese Mitteilung enthält allgemeine Informationen über die Website und die Grundregeln für den Zugriff auf Umbravia Forge während der Entwicklungsphase."
       },
       "terms": {
         "title": "Geschäftsbedingungen",
         "sections": {
           "scope": {
             "title": "1. Umfang der Leistung",
-            "body": "GestTrain/OS unterstützt die Verwaltung von Kursen, Benutzern, Trainern, Buchungen, Kapazitäten und Wartelisten. Jedes Zentrum kann Teile des Dienstes konfigurieren und ist für die Kommunikation seiner Zeitpläne, Preise und spezifischen Regeln verantwortlich."
+            "body": "Umbravia Forge unterstützt die Verwaltung von Kursen, Benutzern, Trainern, Buchungen, Kapazitäten und Wartelisten. Jedes Zentrum kann Teile des Dienstes konfigurieren und ist für die Kommunikation seiner Zeitpläne, Preise und spezifischen Regeln verantwortlich."
           },
           "payments": {
             "title": "4. Zahlungen und Pläne",
-            "body": "Kommerzielle Zahlungen sind in dieser Version von GestTrain/OS nicht aktiviert. Bevor Stripe oder ein anderer Anbieter hinzugefügt wird, müssen Preise, Steuern, Rechnungsstellung, Verlängerungen, Rückerstattungen und Verantwortlichkeiten zwischen GestTrain/OS, dem Zentrum und dem Zahlungsanbieter definiert werden. GestTrain/OS speichert nicht die vollständigen Kartendaten."
+            "body": "Kommerzielle Zahlungen sind in dieser Version von Umbravia Forge nicht aktiviert. Bevor Stripe oder ein anderer Anbieter hinzugefügt wird, müssen Preise, Steuern, Rechnungsstellung, Verlängerungen, Rückerstattungen und Verantwortlichkeiten zwischen Umbravia Forge, dem Zentrum und dem Zahlungsanbieter definiert werden. Umbravia Forge speichert nicht die vollständigen Kartendaten."
           },
           "accounts": {
             "body": "Benutzer müssen genaue Angaben machen und ihre Zugangsdaten sicher aufbewahren. Konten sind persönlich. Mitglieder-, Trainer- und Administratorberechtigungen schränken die auf der Plattform verfügbaren Aktionen ein.",
@@ -1051,18 +1051,18 @@
             "body": "Anwendbares Recht, zuständige Gerichte und Beschwerdemechanismen werden entsprechend dem tatsächlichen Standort und der Tätigkeit des Eigentümers festgelegt, wobei stets die zwingenden Verbraucherrechte respektiert werden."
           }
         },
-        "introduction": "Diese Begriffe beschreiben die beabsichtigte Grundlage der Beziehung zwischen GestTrain/OS, Sportzentren und Nutzern. Es handelt sich noch nicht um endgültige Geschäftsbedingungen."
+        "introduction": "Diese Begriffe beschreiben die beabsichtigte Grundlage der Beziehung zwischen Umbravia Forge, Sportzentren und Nutzern. Es handelt sich noch nicht um endgültige Geschäftsbedingungen."
       },
       "use": {
         "title": "Nutzungsbedingungen",
-        "introduction": "Diese Regeln erklären, wie Sie GestTrain/OS bei der Verwaltung von Kursen, Buchungen und Community-Aktivitäten sicher und verantwortungsbewusst nutzen.",
+        "introduction": "Diese Regeln erklären, wie Sie Umbravia Forge bei der Verwaltung von Kursen, Buchungen und Community-Aktivitäten sicher und verantwortungsbewusst nutzen.",
         "sections": {
           "access": {
             "body": "Geben Sie keine Zugangsdaten weiter und versuchen Sie nicht, ohne Genehmigung auf Konten, Funktionen oder Daten zuzugreifen. Melden Sie verdächtige Aktivitäten und halten Sie Ihre Kontoinformationen auf dem neuesten Stand.",
             "title": "1. Zugang und Sicherheit"
           },
           "acceptableUse": {
-            "body": "Sie dürfen den Dienst nicht stören, missbräuchliche Anfragen automatisieren, bösartigen Code einschleusen, sich als andere ausgeben, Daten ohne Genehmigung extrahieren oder GestTrain/OS für rechtswidrige Aktivitäten nutzen.",
+            "body": "Sie dürfen den Dienst nicht stören, missbräuchliche Anfragen automatisieren, bösartigen Code einschleusen, sich als andere ausgeben, Daten ohne Genehmigung extrahieren oder Umbravia Forge für rechtswidrige Aktivitäten nutzen.",
             "title": "2. Akzeptable Verwendung"
           },
           "bookings": {
@@ -1071,7 +1071,7 @@
           },
           "health": {
             "title": "5. Gesundheit und körperliche Aktivität",
-            "body": "GestTrain/OS organisiert Informationen und Buchungen, bietet jedoch keine medizinische Beratung an. Jede Person muss ihren Gesundheitszustand beurteilen, professionelle Anleitung befolgen und das Zentrum über relevante Einschränkungen informieren, bevor sie an einer Aktivität teilnimmt."
+            "body": "Umbravia Forge organisiert Informationen und Buchungen, bietet jedoch keine medizinische Beratung an. Jede Person muss ihren Gesundheitszustand beurteilen, professionelle Anleitung befolgen und das Zentrum über relevante Einschränkungen informieren, bevor sie an einer Aktivität teilnimmt."
           },
           "community": {
             "body": "Wenn Kommentare aktiviert sind, müssen diese respektvoll verwendet werden. Belästigungen, Diskriminierungen, Drohungen, rechtswidrige Inhalte sowie die unerlaubte Veröffentlichung personenbezogener Daten Dritter sind nicht gestattet.",
@@ -1095,19 +1095,19 @@
           },
           "dataRequests": {
             "title": "9. Daten- und Kontoanfragen",
-            "body": "Der Inhaber kann eine selektive Anfrage für bestimmte Kategorien vorbereiten, ohne das Konto zu schliessen, oder die vollständige Schliessung beginnen. Vor jeder künftigen Ausführung muss GestTrain/OS Identität und Befugnis prüfen, Daten klassifizieren, Abhängigkeiten, Aufbewahrung und Sperren bewerten, das Ergebnis mitteilen und angemessene Nachvollziehbarkeit sichern. Die aktuelle Oberfläche ist demonstrativ und führt keine destruktive Aktion aus."
+            "body": "Der Inhaber kann eine selektive Anfrage für bestimmte Kategorien vorbereiten, ohne das Konto zu schliessen, oder die vollständige Schliessung beginnen. Vor jeder künftigen Ausführung muss Umbravia Forge Identität und Befugnis prüfen, Daten klassifizieren, Abhängigkeiten, Aufbewahrung und Sperren bewerten, das Ergebnis mitteilen und angemessene Nachvollziehbarkeit sichern. Die aktuelle Oberfläche ist demonstrativ und führt keine destruktive Aktion aus."
           }
         }
       }
     },
     "draftTitle": "Entwurf eines Dokuments.",
-    "draftDescription": "GestTrain/OS befindet sich in der Entwicklung. Dieser Text muss vor der Veröffentlichung oder Zahlungsannahme überprüft und mit Angaben zum tatsächlichen Eigentümer, zum Service und zur Geschäftspolitik vervollständigt werden."
+    "draftDescription": "Umbravia Forge befindet sich in der Entwicklung. Dieser Text muss vor der Veröffentlichung oder Zahlungsannahme überprüft und mit Angaben zum tatsächlichen Eigentümer, zum Service und zur Geschäftspolitik vervollständigt werden."
   },
   "profilePhoto": {
     "title": "Profilfoto",
     "choose": "Foto auswählen",
     "remove": "Foto entfernen",
-    "description": "Dieses Bild identifiziert Ihr Konto bei GestTrain/OS. Es unterscheidet sich vom offiziellen Plattformlogo und dem Fitnessstudio-Logo.",
+    "description": "Dieses Bild identifiziert Ihr Konto bei Umbravia Forge. Es unterscheidet sich vom offiziellen Plattformlogo und dem Fitnessstudio-Logo.",
     "invalidType": "Wählen Sie ein PNG-, JPEG- oder WebP-Bild.",
     "saved": "Ihr Profilfoto wurde aktualisiert.",
     "saving": "Sparen…",
@@ -1130,7 +1130,7 @@
     "twoFactorDescription": "Zusätzlich zu Ihrem Passwort ist ein temporärer Authentifizierungs-App-Code erforderlich.",
     "passkeyTitle": "Biometrisches Schloss und Passschlüssel",
     "passkeyUnavailable": "Dieser Browser oder dieses Gerät bietet derzeit keinen kompatiblen integrierten Authentifikator.",
-    "passkeyPrivacy": "Ihr Fingerabdruck oder Ihr Gesicht werden auf dem Gerät überprüft und niemals an GestTrain/OS gesendet oder von GestTrain/OS gespeichert.",
+    "passkeyPrivacy": "Ihr Fingerabdruck oder Ihr Gesicht werden auf dem Gerät überprüft und niemals an Umbravia Forge gesendet oder von Umbravia Forge gespeichert.",
     "enablePasskey": "Auf diesem Gerät aktivieren",
     "disablePasskey": "Passschlüssel deaktivieren",
     "enabled": "Ermöglicht",
@@ -1156,11 +1156,11 @@
     "disabledSuccess": "Die zweistufige Verifizierung wurde deaktiviert.",
     "codesCopied": "Codes kopiert und ausgeblendet.",
     "downloadCodes": "Codes herunterladen",
-    "codesShownOnce": "Jeder Code funktioniert einmal und wird nicht erneut angezeigt. Bewahren Sie sie ausserhalb von GestTrain/OS auf.",
+    "codesShownOnce": "Jeder Code funktioniert einmal und wird nicht erneut angezeigt. Bewahren Sie sie ausserhalb von Umbravia Forge auf.",
     "saveCodes": "Speichern Sie diese Wiederherstellungscodes",
     "sessions": "Aktive Sitzungen",
     "sessionsDescription": "Überprüfen Sie, wo Ihr Konto geöffnet ist, und schliessen Sie alle Zugriffe, die Sie nicht kennen.",
-    "downloadHeading": "GestTrain/OS-Wiederherstellungscodes",
+    "downloadHeading": "Umbravia Forge-Wiederherstellungscodes",
     "inactivityTitle": "Automatische Schliessung nach Inaktivität",
     "codesDownloaded": "Codes heruntergeladen und ausgeblendet.",
     "downloadWarning": "Bewahren Sie diese Datei sicher auf. Jeder Code kann nur einmal verwendet werden.",
@@ -1263,7 +1263,7 @@
     },
     "message": "Nachricht",
     "category": "Feedback-Typ",
-    "title": "Helfen Sie uns, GestTrain/OS zu verbessern",
+    "title": "Helfen Sie uns, Umbravia Forge zu verbessern",
     "sending": "Senden...",
     "submit": "Feedback senden",
     "sent": "Danke schön. Wir haben Ihr Feedback erhalten.",
@@ -1283,12 +1283,12 @@
     "public": {
       "eyebrow": "Erst erkunden, dann entscheiden",
       "title": "Ein System, das sich an den tatsächlichen Betrieb deines Zentrums anpasst",
-      "description": "GestTrain/OS ohne automatische Verkaufsgespräche oder versteckte Verpflichtungen konfigurieren und testen.",
+      "description": "Umbravia Forge ohne automatische Verkaufsgespräche oder versteckte Verpflichtungen konfigurieren und testen.",
       "explore": "Konto erstellen",
       "openEnvironment": "Testumgebung öffnen",
       "returnHome": "Zur Anwendung zurückkehren",
       "signIn": "Anmelden",
-      "menuLink": "GestTrain/OS kennenlernen",
+      "menuLink": "Umbravia Forge kennenlernen",
       "cards": {
         "modular": {
           "title": "Modular",

@@ -72,14 +72,14 @@ describe("server authorization", () => {
     await request(app).get("/admin").expect(401);
     await request(app)
       .get("/admin")
-      .set("Cookie", "gesttrain-os_session=invalid")
+      .set("Cookie", "umbravia-forge_session=invalid")
       .expect(401);
   });
 
   it("prevents a member from escalating into an administrator route", async () => {
     const response = await request(createTestApp())
       .get("/admin")
-      .set("Cookie", "gesttrain-os_session=member")
+      .set("Cookie", "umbravia-forge_session=member")
       .expect(403);
 
     expect(response.body.code).toBe("FORBIDDEN");
@@ -88,7 +88,7 @@ describe("server authorization", () => {
   it("allows administrators into administrator routes", async () => {
     await request(createTestApp())
       .get("/admin")
-      .set("Cookie", "gesttrain-os_session=admin")
+      .set("Cookie", "umbravia-forge_session=admin")
       .expect(200, { ok: true });
   });
 
@@ -96,15 +96,15 @@ describe("server authorization", () => {
     const app = createTestApp();
     await request(app)
       .get("/profile/member-2")
-      .set("Cookie", "gesttrain-os_session=member")
+      .set("Cookie", "umbravia-forge_session=member")
       .expect(403);
     await request(app)
       .get("/profile/member-1")
-      .set("Cookie", "gesttrain-os_session=member")
+      .set("Cookie", "umbravia-forge_session=member")
       .expect(200);
     await request(app)
       .get("/profile/member-1")
-      .set("Cookie", "gesttrain-os_session=admin")
+      .set("Cookie", "umbravia-forge_session=admin")
       .expect(200);
   });
 });

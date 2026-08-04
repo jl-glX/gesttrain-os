@@ -12,7 +12,9 @@ describe("security manager API", () => {
   let memberCookie: string;
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "gesttrain-security-manager-"));
+    directory = await mkdtemp(
+      join(tmpdir(), "umbravia-forge-security-manager-"),
+    );
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();

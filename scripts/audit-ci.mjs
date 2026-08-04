@@ -11,7 +11,7 @@ const temporaryExceptions = new Map([
       viaPackages: new Set(),
       versions: new Set(["7.18.2"]),
       reason:
-        "La corrección está en react-router 8.3.0, pero react-router-dom todavía solo publica 7.18.2. GestTrain/OS usa BrowserRouter declarativo y no activa las API RSC inestables afectadas.",
+        "La corrección está en react-router 8.3.0, pero react-router-dom todavía solo publica 7.18.2. Umbravia Forge usa BrowserRouter declarativo y no activa las API RSC inestables afectadas.",
     },
   ],
   [

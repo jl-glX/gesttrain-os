@@ -11,7 +11,7 @@ describe("account lifecycle API", () => {
   let cookie: string;
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-lifecycle-api-"));
+    directory = await mkdtemp(join(tmpdir(), "umbravia-forge-lifecycle-api-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();

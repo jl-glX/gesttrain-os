@@ -22,7 +22,7 @@ export const commercialFacilityTypes: CommercialFacilityType[] = [
 ];
 
 export const commercialFoundation = {
-  productName: "GestTrain/OS",
+  productName: "Umbravia Forge",
   vision:
     "Plataforma modular para que cada centro deportivo adapte su gestión, reservas, comunidad, facturación y seguridad a su propia operativa.",
   principle: "Producto primero, conversación después.",

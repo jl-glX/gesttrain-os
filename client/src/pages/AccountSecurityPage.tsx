@@ -299,7 +299,7 @@ export function AccountSecurityPage() {
     );
     const link = document.createElement("a");
     link.href = url;
-    link.download = `gesttrain-os-recovery-codes-${date}.txt`;
+    link.download = `umbravia-forge-recovery-codes-${date}.txt`;
     document.body.appendChild(link);
     link.click();
     link.remove();

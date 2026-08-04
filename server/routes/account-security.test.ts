@@ -21,7 +21,7 @@ describe("account compromise response", () => {
   let originalSupportId: string;
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "gesttrain-compromise-"));
+    directory = await mkdtemp(join(tmpdir(), "umbravia-forge-compromise-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();

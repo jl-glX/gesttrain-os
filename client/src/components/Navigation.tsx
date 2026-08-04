@@ -17,6 +17,7 @@ import {
 import { useAuth } from "../hooks/useAuth";
 import { useTranslation } from "react-i18next";
 import { BrandLogo } from "./BrandLogo";
+import { BrandWordmark } from "./BrandWordmark";
 import { useFacilityProfile } from "../hooks/useFacilityProfile";
 import { AccountMenu } from "./AccountMenu";
 
@@ -58,7 +59,11 @@ export function Navigation() {
             className="flex shrink-0 items-center gap-2.5 font-bold text-xl tracking-tight text-slate-950"
           >
             <BrandLogo className="h-10 w-10 rounded-xl shadow-lg shadow-blue-600/20" />
-            <span className="hidden sm:inline">GestTrain/OS</span>
+            <BrandWordmark
+              className="hidden sm:inline-flex"
+              titleClassName="text-lg"
+              subtitleClassName="text-blue-600"
+            />
           </Link>
 
           <div

@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "GestTrain/OS",
+    "appName": "Umbravia Forge",
     "loading": "Loading...",
     "loadingClasses": "Loading classes...",
     "loadingBookings": "Loading bookings...",
@@ -67,7 +67,7 @@
     "title": "Accounts on this device",
     "remove": "Remove {{name}} from this device",
     "useAnother": "Add or use another account",
-    "privacy": "Only the identifier and visual details are stored. GestTrain/OS never saves the password or session here."
+    "privacy": "Only the identifier and visual details are stored. Umbravia Forge never saves the password or session here."
   },
   "accountControl": {
     "managerEyebrow": "Account manager",
@@ -94,7 +94,7 @@
     "comingSoon": "Coming soon",
     "personalSection": "Personal account",
     "personalSectionTitle": "Identity, access and preferences",
-    "personalSectionDescription": "These options belong to your GestTrain/OS account and do not depend on your position at a facility.",
+    "personalSectionDescription": "These options belong to your Umbravia Forge account and do not depend on your position at a facility.",
     "memberSection": "Member area",
     "memberSectionTitle": "Training and personal activity",
     "memberSectionDescription": "Manage only the bookings, payments and tools linked to your member identity.",
@@ -104,7 +104,7 @@
     "adminSection": "Facility management",
     "adminSectionTitle": "Operations and administration",
     "adminSectionDescription": "Access facility functions without mixing data or actions from a member identity.",
-    "linkedMemberNotice": "Bookings and other personal member features will only appear here when GestTrain/OS supports explicitly linking a separate member identity. A trainer or administrator role does not grant those features by itself.",
+    "linkedMemberNotice": "Bookings and other personal member features will only appear here when Umbravia Forge supports explicitly linking a separate member identity. A trainer or administrator role does not grant those features by itself.",
     "security": "Security and sign-in",
     "securityDescription": "Manage 2FA, passkeys and open sessions.",
     "lifecycle": "Account lifecycle",
@@ -193,7 +193,7 @@
   "accountIdentity": {
     "eyebrow": "Account identity",
     "title": "Public support ID",
-    "description": "Use this identifier when the facility or GestTrain/OS support needs to locate your account without asking for more personal information than necessary.",
+    "description": "Use this identifier when the facility or Umbravia Forge support needs to locate your account without asking for more personal information than necessary.",
     "label": "Your identifier",
     "show": "Show",
     "hide": "Hide",
@@ -205,7 +205,7 @@
   "accountLifecycle": {
     "eyebrow": "Account control",
     "title": "Inactivity and deletion",
-    "description": "Decide what should happen if you stop using GestTrain/OS and review any scheduled closure.",
+    "description": "Decide what should happen if you stop using Umbravia Forge and review any scheduled closure.",
     "currentState": "Current account state: {{state}}.",
     "states": {
       "pending_verification": "pending verification",
@@ -428,7 +428,7 @@
       "secure": "Secure access for every role"
     },
     "welcomeBack": "Welcome back",
-    "signInTitle": "Sign in to GestTrain/OS",
+    "signInTitle": "Sign in to Umbravia Forge",
     "signInDescription": "Continue managing your classes, bookings and training activity.",
     "memberSignInTitle": "Member sign in",
     "memberSignInDescription": "Book classes, review your schedule and manage your training activity.",
@@ -471,10 +471,10 @@
     "verificationHelp": "Enter the code from your authenticator app or a recovery code.",
     "alternativeSignIn": "Sign in another way",
     "hideAlternativeSignIn": "Hide other sign-in methods",
-    "alternativeCodeHelp": "If you use 2FA, enter an authenticator or recovery code here. GestTrain/OS will verify your account and password first.",
+    "alternativeCodeHelp": "If you use 2FA, enter an authenticator or recovery code here. Umbravia Forge will verify your account and password first.",
     "verifyIdentity": "Verify identity",
     "useDifferentAccount": "Use another account",
-    "join": "Join GestTrain/OS",
+    "join": "Join Umbravia Forge",
     "createTitle": "Create your account",
     "createDescription": "Set up your profile and start planning your next training sessions.",
     "fullName": "Full name",
@@ -513,7 +513,7 @@
     "description": "Book classes, manage your schedule, and join waitlists. Get promoted automatically when spots open up.",
     "browse": "Browse classes",
     "bookings": "My bookings",
-    "downloads": "Download GestTrain/OS",
+    "downloads": "Download Umbravia Forge",
     "rights": "All rights reserved.",
     "features": {
       "calendarTitle": "Class calendar",
@@ -528,7 +528,7 @@
   },
   "adminHome": {
     "welcome": "Facility console · {{name}}",
-    "title": "GestTrain/OS operations and management",
+    "title": "Umbravia Forge operations and management",
     "description": "Manage classes, members, billing and facility performance from an operations-focused workspace.",
     "createClass": "Create class",
     "classes": "Classes and schedules",
@@ -540,19 +540,19 @@
     "analytics": "Attendance and demand",
     "analyticsDescription": "Find classes and time slots with the highest and lowest attendance.",
     "downloads": "Download center",
-    "downloadsDescription": "Access the official apps and GestTrain/OS portable package.",
+    "downloadsDescription": "Access the official apps and Umbravia Forge portable package.",
     "resources": "Server resources",
-    "resourcesDescription": "Monitor and control internal tasks registered by GestTrain/OS."
+    "resourcesDescription": "Monitor and control internal tasks registered by Umbravia Forge."
   },
   "downloads": {
-    "eyebrow": "GestTrain/OS on all your devices",
+    "eyebrow": "Umbravia Forge on all your devices",
     "title": "Download center",
     "description": "Choose the official app for your device or download the portable package. Options become available as each distribution is published.",
     "loadError": "Download options could not be loaded.",
     "recommended": "Recommended",
     "download": "Open download",
     "comingSoon": "Coming soon",
-    "securityNotice": "GestTrain/OS only shows HTTPS destinations configured by the platform. Always confirm that the store or download belongs to GestTrain/OS before installing it.",
+    "securityNotice": "Umbravia Forge only shows HTTPS destinations configured by the platform. Always confirm that the store or download belongs to Umbravia Forge before installing it.",
     "platforms": {
       "windows": {
         "name": "Windows",
@@ -611,7 +611,7 @@
   "resourceManager": {
     "eyebrow": "API operations",
     "title": "Resource manager",
-    "description": "Monitor GestTrain/OS internal tasks and run, pause or resume only processes registered by the platform.",
+    "description": "Monitor Umbravia Forge internal tasks and run, pause or resume only processes registered by the platform.",
     "loadError": "Resource status could not be loaded.",
     "updateError": "The task could not be updated.",
     "memory": "Memory in use",
@@ -650,7 +650,7 @@
       },
       "project-runtime-cleanup": {
         "name": "Project runtime cleanup",
-        "description": "Removes stale GestTrain/OS records and prevents duplicate development instances without touching other operating-system processes."
+        "description": "Removes stale Umbravia Forge records and prevents duplicate development instances without touching other operating-system processes."
       },
       "deleted-account-residual-cleanup": {
         "name": "Deleted account residual cleanup",
@@ -719,7 +719,7 @@
     "ordersUnavailable": "Sales and orders are not enabled yet.",
     "ordersAvailable": "You can now review your orders.",
     "loadFailed": "Your payments and orders could not be loaded.",
-    "secureNotice": "GestTrain/OS does not process bank payments or store full card details in this version."
+    "secureNotice": "Umbravia Forge does not process bank payments or store full card details in this version."
   },
   "trainer": {
     "title": "Trainer dashboard",
@@ -769,7 +769,7 @@
   },
   "facilityBranding": {
     "title": "Panel customisation",
-    "description": "Configure your facility identity inside GestTrain/OS. The main GestTrain/OS product logo is not changed.",
+    "description": "Configure your facility identity inside Umbravia Forge. The main Umbravia Forge product logo is not changed.",
     "preview": "Facility preview",
     "previewDescription": "This identity will appear in the facility panel and invoices.",
     "currentFacility": "Active facility",
@@ -788,7 +788,7 @@
     "saved": "The facility identity has been updated."
   },
   "billing": {
-    "eyebrow": "GestTrain/OS · Financial administration",
+    "eyebrow": "Umbravia Forge · Financial administration",
     "title": "Fees, payments and invoices",
     "description": "Manage facility fees, pending payments, invoices and trial access. This version records operations but does not process bank payments yet.",
     "requestFailed": "The billing operation could not be completed",
@@ -834,7 +834,7 @@
     },
     "timeZone": {
       "label": "Device time zone",
-      "hint": "Dates are shown automatically using the GestTrain/OS language and the browser and system time zone."
+      "hint": "Dates are shown automatically using the Umbravia Forge language and the browser and system time zone."
     },
     "currencies": {
       "EUR": "Euro",
@@ -951,10 +951,10 @@
   },
   "legal": {
     "eyebrow": "Legal information",
-    "back": "Back to GestTrain/OS",
+    "back": "Back to Umbravia Forge",
     "lastUpdated": "Last updated: 3 August 2026",
     "draftTitle": "Draft document.",
-    "draftDescription": "GestTrain/OS is under development. This text must be reviewed and completed with the real owner, service and commercial-policy details before publication or payment acceptance.",
+    "draftDescription": "Umbravia Forge is under development. This text must be reviewed and completed with the real owner, service and commercial-policy details before publication or payment acceptance.",
     "footer": {
       "navigation": "Legal links",
       "notice": "Legal notice",
@@ -964,31 +964,31 @@
     "pages": {
       "notice": {
         "title": "Legal notice",
-        "introduction": "This notice sets out general information about the site and the basic rules governing access to GestTrain/OS during its development phase.",
+        "introduction": "This notice sets out general information about the site and the basic rules governing access to Umbravia Forge during its development phase.",
         "sections": {
           "owner": {
             "title": "1. Site owner",
-            "body": "GestTrain/OS is owned and operated by Javier López Díaz. GestTrain/OS is currently a software project under development. The address, tax identification, any applicable registration details and a direct legal contact channel must be added here before the service is commercially released."
+            "body": "Umbravia Forge is owned and operated by Javier López Díaz. Umbravia Forge is currently a software project under development. The address, tax identification, any applicable registration details and a direct legal contact channel must be added here before the service is commercially released."
           },
           "purpose": {
             "title": "2. Purpose",
-            "body": "GestTrain/OS provides tools to browse classes, manage bookings and waitlists, and support sports-centre administration. Available features may change while the product remains under development."
+            "body": "Umbravia Forge provides tools to browse classes, manage bookings and waitlists, and support sports-centre administration. Available features may change while the product remains under development."
           },
           "intellectualProperty": {
             "title": "3. Intellectual and industrial property",
-            "body": "GestTrain/OS's design, code, brand, text and other original elements are protected by applicable law. Access does not grant rights to reproduce, distribute, modify or exploit them unless expressly authorised or covered by an applicable licence."
+            "body": "Umbravia Forge's design, code, brand, text and other original elements are protected by applicable law. Access does not grant rights to reproduce, distribute, modify or exploit them unless expressly authorised or covered by an applicable licence."
           },
           "links": {
             "title": "4. Third-party links and services",
-            "body": "The application may include third-party links or integrations. GestTrain/OS does not control their content, availability or policies, and each external service is governed by its own terms."
+            "body": "The application may include third-party links or integrations. Umbravia Forge does not control their content, availability or policies, and each external service is governed by its own terms."
           },
           "liability": {
             "title": "5. Availability and liability",
-            "body": "Continuous availability and error-free operation are not guaranteed during development. GestTrain/OS will apply reasonable measures to protect and maintain the service, without excluding liabilities that cannot legally be excluded."
+            "body": "Continuous availability and error-free operation are not guaranteed during development. Umbravia Forge will apply reasonable measures to protect and maintain the service, without excluding liabilities that cannot legally be excluded."
           },
           "identityAndData": {
             "title": "6. Identity, identifiers and data",
-            "body": "GestTrain/OS separates the account's internal identity, public support identifier, security credentials and secrets, operational data, and data that may be subject to restricted retention. The internal identifier maintains technical relationships; the public alias only helps authorized support locate the account; and only authorized credentials and verification can authenticate a person. A public identifier alone is never proof of identity or access."
+            "body": "Umbravia Forge separates the account's internal identity, public support identifier, security credentials and secrets, operational data, and data that may be subject to restricted retention. The internal identifier maintains technical relationships; the public alias only helps authorized support locate the account; and only authorized credentials and verification can authenticate a person. A public identifier alone is never proof of identity or access."
           },
           "law": {
             "title": "7. Applicable law",
@@ -998,11 +998,11 @@
       },
       "terms": {
         "title": "Terms and conditions",
-        "introduction": "These terms describe the intended basis of the relationship between GestTrain/OS, sports centres and users. They are not yet final commercial terms.",
+        "introduction": "These terms describe the intended basis of the relationship between Umbravia Forge, sports centres and users. They are not yet final commercial terms.",
         "sections": {
           "scope": {
             "title": "1. Scope of the service",
-            "body": "GestTrain/OS supports the management of classes, users, trainers, bookings, capacity and waitlists. Each centre may configure parts of the service and is responsible for communicating its schedules, prices and specific rules."
+            "body": "Umbravia Forge supports the management of classes, users, trainers, bookings, capacity and waitlists. Each centre may configure parts of the service and is responsible for communicating its schedules, prices and specific rules."
           },
           "accounts": {
             "title": "2. Registration and accounts",
@@ -1014,7 +1014,7 @@
           },
           "payments": {
             "title": "4. Payments and plans",
-            "body": "Commercial payments are not enabled in this version of GestTrain/OS. Before Stripe or another provider is added, prices, taxes, invoicing, renewals, refunds and responsibilities among GestTrain/OS, the centre and the payment provider must be defined. GestTrain/OS will not store full card details."
+            "body": "Commercial payments are not enabled in this version of Umbravia Forge. Before Stripe or another provider is added, prices, taxes, invoicing, renewals, refunds and responsibilities among Umbravia Forge, the centre and the payment provider must be defined. Umbravia Forge will not store full card details."
           },
           "cancellations": {
             "title": "5. Cancellations and termination",
@@ -1044,7 +1044,7 @@
       },
       "use": {
         "title": "Conditions of use",
-        "introduction": "These rules explain how to use GestTrain/OS safely and responsibly when managing classes, bookings and community activities.",
+        "introduction": "These rules explain how to use Umbravia Forge safely and responsibly when managing classes, bookings and community activities.",
         "sections": {
           "access": {
             "title": "1. Access and security",
@@ -1052,7 +1052,7 @@
           },
           "acceptableUse": {
             "title": "2. Acceptable use",
-            "body": "You may not interfere with the service, automate abusive requests, introduce malicious code, impersonate others, extract data without authorisation or use GestTrain/OS for unlawful activity."
+            "body": "You may not interfere with the service, automate abusive requests, introduce malicious code, impersonate others, extract data without authorisation or use Umbravia Forge for unlawful activity."
           },
           "bookings": {
             "title": "3. Responsible booking",
@@ -1064,7 +1064,7 @@
           },
           "health": {
             "title": "5. Health and physical activity",
-            "body": "GestTrain/OS organises information and bookings but does not provide medical advice. Each person must assess their health, follow professional guidance and inform the centre of relevant limitations before taking part in an activity."
+            "body": "Umbravia Forge organises information and bookings but does not provide medical advice. Each person must assess their health, follow professional guidance and inform the centre of relevant limitations before taking part in an activity."
           },
           "availability": {
             "title": "6. Service availability",
@@ -1080,7 +1080,7 @@
           },
           "dataRequests": {
             "title": "9. Data and account requests",
-            "body": "The owner may prepare a selective request for specific categories without closing the account, or start full closure. Before any future execution, GestTrain/OS must verify identity and authority, classify data, evaluate dependencies, retention and holds, report the outcome and preserve suitable traceability. The current interface is demonstrative and performs no destructive action."
+            "body": "The owner may prepare a selective request for specific categories without closing the account, or start full closure. Before any future execution, Umbravia Forge must verify identity and authority, classify data, evaluate dependencies, retention and holds, report the outcome and preserve suitable traceability. The current interface is demonstrative and performs no destructive action."
           },
           "suspension": {
             "title": "10. Access suspension",
@@ -1092,7 +1092,7 @@
   },
   "profilePhoto": {
     "title": "Profile photo",
-    "description": "This image identifies your account inside GestTrain/OS. It is separate from the official platform logo and the gym logo.",
+    "description": "This image identifies your account inside Umbravia Forge. It is separate from the official platform logo and the gym logo.",
     "choose": "Choose photo",
     "remove": "Remove photo",
     "save": "Save photo",
@@ -1116,7 +1116,7 @@
     "twoFactorDescription": "Require a temporary authenticator-app code in addition to your password.",
     "passkeyTitle": "Biometric lock and passkeys",
     "passkeyDescription": "Enable a passkey to sign in using device protection instead of typing your password.",
-    "passkeyPrivacy": "Your fingerprint or face is verified on the device and is never sent to or stored by GestTrain/OS.",
+    "passkeyPrivacy": "Your fingerprint or face is verified on the device and is never sent to or stored by Umbravia Forge.",
     "passkeyUnavailable": "This browser or device does not currently provide a compatible built-in authenticator.",
     "enablePasskey": "Enable on this device",
     "disablePasskey": "Disable passkeys",
@@ -1141,12 +1141,12 @@
     "codesRegenerated": "New recovery codes have been generated.",
     "disabledSuccess": "Two-step verification has been disabled.",
     "saveCodes": "Save these recovery codes",
-    "codesShownOnce": "Each code works once and will not be shown again. Store them outside GestTrain/OS.",
+    "codesShownOnce": "Each code works once and will not be shown again. Store them outside Umbravia Forge.",
     "copyCodes": "Copy codes",
     "codesCopied": "Codes copied and hidden.",
     "downloadCodes": "Download codes",
     "codesDownloaded": "Codes downloaded and hidden.",
-    "downloadHeading": "GestTrain/OS recovery codes",
+    "downloadHeading": "Umbravia Forge recovery codes",
     "downloadWarning": "Store this file securely. Each code can only be used once.",
     "sessions": "Active sessions",
     "sessionsDescription": "Review where your account is open and close any access you do not recognise.",
@@ -1200,7 +1200,7 @@
   },
   "feedback": {
     "footer": "Feedback",
-    "title": "Help us improve GestTrain/OS",
+    "title": "Help us improve Umbravia Forge",
     "description": "Tell us what works, what is difficult to use or what we could improve. Your message is linked to your account so it can be investigated.",
     "category": "Feedback type",
     "categories": {
@@ -1270,12 +1270,12 @@
     "public": {
       "eyebrow": "Explore before deciding",
       "title": "A system that adapts to how your centre really works",
-      "description": "Configure and test GestTrain/OS without automatic sales calls or hidden commitments. The product explains itself by working.",
+      "description": "Configure and test Umbravia Forge without automatic sales calls or hidden commitments. The product explains itself by working.",
       "explore": "Create an account",
       "openEnvironment": "Open commercial environment",
       "returnHome": "Return to the application",
       "signIn": "Sign in",
-      "menuLink": "Discover GestTrain/OS",
+      "menuLink": "Discover Umbravia Forge",
       "cards": {
         "modular": {
           "title": "Modular",

@@ -3,11 +3,11 @@ import { validateProductionConfiguration } from "./production-config.js";
 
 const validEnvironment = {
   NODE_ENV: "production",
-  CLIENT_ORIGIN: "https://demo.gesttrain.example",
-  WEBAUTHN_ORIGIN: "https://demo.gesttrain.example",
-  WEBAUTHN_RP_ID: "demo.gesttrain.example",
+  CLIENT_ORIGIN: "https://demo.umbravia-forge.example",
+  WEBAUTHN_ORIGIN: "https://demo.umbravia-forge.example",
+  WEBAUTHN_RP_ID: "demo.umbravia-forge.example",
   DATABASE_PROVIDER: "postgresql",
-  DATABASE_URL: "postgresql://example.invalid/gesttrain",
+  DATABASE_URL: "postgresql://example.invalid/umbravia_forge",
   TURNSTILE_SECRET_KEY: "turnstile-secret",
   MFA_ENCRYPTION_KEY: "mfa-encryption-key",
   SEED_DEMO_DATA: "false",
@@ -21,7 +21,7 @@ describe("production configuration", () => {
   it("accepts a complete HTTPS configuration", () => {
     expect(
       validateProductionConfiguration(validEnvironment, "postgresql"),
-    ).toMatchObject({ webauthnRpId: "demo.gesttrain.example" });
+    ).toMatchObject({ webauthnRpId: "demo.umbravia-forge.example" });
   });
 
   it("applies the same safeguards to staging", () => {
@@ -32,7 +32,7 @@ describe("production configuration", () => {
       ),
     ).toMatchObject({
       deploymentProfile: "staging",
-      webauthnRpId: "demo.gesttrain.example",
+      webauthnRpId: "demo.umbravia-forge.example",
     });
   });
 
@@ -52,7 +52,7 @@ describe("production configuration", () => {
     expect(() =>
       validateProductionConfiguration({
         ...validEnvironment,
-        CLIENT_ORIGIN: "http://demo.gesttrain.example",
+        CLIENT_ORIGIN: "http://demo.umbravia-forge.example",
       }),
     ).toThrow(/HTTPS/);
   });

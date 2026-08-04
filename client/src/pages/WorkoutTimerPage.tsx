@@ -25,7 +25,7 @@ interface TimerSettings {
   soundEnabled: boolean;
 }
 
-const STORAGE_KEY = "gesttrain-os.workout-timer.v1";
+const STORAGE_KEY = "umbravia-forge.workout-timer.v1";
 const DEFAULT_SETTINGS: TimerSettings = {
   amrapMinutes: 10,
   forTimeCapMinutes: 20,

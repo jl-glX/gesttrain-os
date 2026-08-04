@@ -1,17 +1,17 @@
 {
-  "name": "gesttrain-os",
+  "name": "umbravia-forge",
   "private": true,
   "version": "0.1.0",
   "description": "Plataforma modular para la gestión integral de centros deportivos.",
   "license": "UNLICENSED",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jl-glX/gesttrain-os.git"
+    "url": "git+https://github.com/jl-glX/umbravia-forge.git"
   },
   "bugs": {
-    "url": "https://github.com/jl-glX/gesttrain-os/issues"
+    "url": "https://github.com/jl-glX/umbravia-forge/issues"
   },
-  "homepage": "https://github.com/jl-glX/gesttrain-os#readme",
+  "homepage": "https://github.com/jl-glX/umbravia-forge#readme",
   "type": "module",
   "packageManager": "npm@11.18.0",
   "engines": {

@@ -9,7 +9,7 @@ describe("data retention foundation", () => {
   let retention: typeof import("./data-retention.js");
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-retention-"));
+    directory = await mkdtemp(join(tmpdir(), "umbravia-forge-retention-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.resetModules();
     database = await import("../db/client.js");

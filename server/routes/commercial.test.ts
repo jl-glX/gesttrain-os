@@ -12,7 +12,7 @@ describe("commercial foundation API", () => {
   let memberCookie: string;
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-commercial-"));
+    directory = await mkdtemp(join(tmpdir(), "umbravia-forge-commercial-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();
@@ -78,7 +78,7 @@ describe("commercial foundation API", () => {
     const response = await request(app).get("/api/commercial").expect(200);
 
     expect(response.body).toMatchObject({
-      productName: "GestTrain/OS",
+      productName: "Umbravia Forge",
       principle: "Producto primero, conversación después.",
       trialDays: 31,
       contactPolicy: {

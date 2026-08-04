@@ -9,7 +9,7 @@ describe("persistent authentication sessions", () => {
   let auth: typeof import("./auth.js");
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-auth-"));
+    directory = await mkdtemp(join(tmpdir(), "umbravia-forge-auth-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.resetModules();
     database = await import("../db/client.js");
@@ -61,7 +61,7 @@ describe("persistent authentication sessions", () => {
       .insertInto("users")
       .values({
         id: "secure-admin",
-        email: "secure-admin@gesttrain-os.test",
+        email: "secure-admin@umbravia-forge.test",
         phone: "+34953000123",
         name: "Secure Admin",
         avatarDataUrl: "",
@@ -73,7 +73,7 @@ describe("persistent authentication sessions", () => {
       .execute();
 
     await expect(
-      auth.login("secure-admin@gesttrain-os.test", password, "member"),
+      auth.login("secure-admin@umbravia-forge.test", password, "member"),
     ).rejects.toThrow("Invalid email or password");
 
     const staffLogin = await auth.login("+34 953 000 123", password, "staff");

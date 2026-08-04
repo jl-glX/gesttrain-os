@@ -62,7 +62,7 @@ cuentas reales ni redes ajenas.
 ## Dependencia con excepción temporal
 
 `npm audit` informa del aviso alto `GHSA-qwww-vcr4-c8h2` para React Router
-7.18.2. El aviso afecta al modo React Server Components; GestTrain/OS usa
+7.18.2. El aviso afecta al modo React Server Components; Umbravia Forge usa
 `BrowserRouter` declarativo y no activa RSC. No existe una versión corregida
 publicada dentro del rango actual.
 

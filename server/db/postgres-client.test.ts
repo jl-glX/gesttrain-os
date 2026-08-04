@@ -7,7 +7,7 @@ describe("PostgreSQL runtime", () => {
     const connect = vi.spyOn(pg.Pool.prototype, "connect");
     const runtime = createPostgresDatabaseRuntime({
       NODE_ENV: "test",
-      DATABASE_URL: "postgresql://example.invalid/gesttrain",
+      DATABASE_URL: "postgresql://example.invalid/umbravia_forge",
       DATABASE_SSL: "false",
     });
 

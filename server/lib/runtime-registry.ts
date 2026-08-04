@@ -3,7 +3,7 @@ import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 
 interface DevelopmentLease {
-  kind: "gesttrain-development-instance";
+  kind: "umbravia-forge-development-instance";
   pid: number;
   cwd: string;
   createdAt: number;
@@ -33,7 +33,7 @@ async function readLease(): Promise<DevelopmentLease | null> {
     const value = JSON.parse(
       await readFile(leasePath(), "utf8"),
     ) as Partial<DevelopmentLease>;
-    return value.kind === "gesttrain-development-instance" &&
+    return value.kind === "umbravia-forge-development-instance" &&
       typeof value.pid === "number" &&
       typeof value.cwd === "string" &&
       typeof value.createdAt === "number"
@@ -59,7 +59,7 @@ export async function cleanupStaleRuntimeRecords(): Promise<number> {
 export async function acquireDevelopmentLease(): Promise<void> {
   await mkdir(runtimeDirectory(), { recursive: true });
   const lease: DevelopmentLease = {
-    kind: "gesttrain-development-instance",
+    kind: "umbravia-forge-development-instance",
     pid: process.pid,
     cwd: process.cwd(),
     createdAt: Date.now(),
@@ -80,7 +80,7 @@ export async function acquireDevelopmentLease(): Promise<void> {
       if (existing && isProcessAlive(existing.pid)) {
         throw Object.assign(
           new Error(
-            `GestTrain/OS development servers are already active (PID ${existing.pid}). Stop that instance before starting another one.`,
+            `Umbravia Forge development servers are already active (PID ${existing.pid}). Stop that instance before starting another one.`,
           ),
           { cause: error },
         );
@@ -88,7 +88,7 @@ export async function acquireDevelopmentLease(): Promise<void> {
       await unlink(leasePath()).catch(() => undefined);
     }
   }
-  throw new Error("Could not acquire the GestTrain/OS development lease");
+  throw new Error("Could not acquire the Umbravia Forge development lease");
 }
 
 export async function releaseDevelopmentLease(): Promise<void> {

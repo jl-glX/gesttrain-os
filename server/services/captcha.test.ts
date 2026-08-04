@@ -22,7 +22,7 @@ describe("captcha verification", () => {
   it("rejects a valid provider response for the wrong action", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("TURNSTILE_SECRET_KEY", "production-secret");
-    vi.stubEnv("CLIENT_ORIGIN", "https://app.gesttrain.example");
+    vi.stubEnv("CLIENT_ORIGIN", "https://app.umbravia-forge.example");
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
@@ -30,7 +30,7 @@ describe("captcha verification", () => {
           JSON.stringify({
             success: true,
             action: "signup",
-            hostname: "app.gesttrain.example",
+            hostname: "app.umbravia-forge.example",
           }),
           { status: 200 },
         ),
@@ -42,7 +42,7 @@ describe("captcha verification", () => {
   it("accepts only a matching action and trusted hostname", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("TURNSTILE_SECRET_KEY", "production-secret");
-    vi.stubEnv("CLIENT_ORIGIN", "https://app.gesttrain.example");
+    vi.stubEnv("CLIENT_ORIGIN", "https://app.umbravia-forge.example");
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
@@ -50,7 +50,7 @@ describe("captcha verification", () => {
           JSON.stringify({
             success: true,
             action: "login",
-            hostname: "app.gesttrain.example",
+            hostname: "app.umbravia-forge.example",
           }),
           { status: 200 },
         ),
@@ -62,7 +62,7 @@ describe("captcha verification", () => {
   it("does not cache a token and therefore preserves provider replay rejection", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("TURNSTILE_SECRET_KEY", "production-secret");
-    vi.stubEnv("CLIENT_ORIGIN", "https://app.gesttrain.example");
+    vi.stubEnv("CLIENT_ORIGIN", "https://app.umbravia-forge.example");
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce(
@@ -70,7 +70,7 @@ describe("captcha verification", () => {
           JSON.stringify({
             success: true,
             action: "login",
-            hostname: "app.gesttrain.example",
+            hostname: "app.umbravia-forge.example",
           }),
           { status: 200 },
         ),

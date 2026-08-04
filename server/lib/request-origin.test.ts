@@ -13,7 +13,7 @@ describe("trusted request origins", () => {
       "CLIENT_ORIGIN is required in production",
     );
 
-    vi.stubEnv("CLIENT_ORIGIN", "http://gesttrain-os.example");
+    vi.stubEnv("CLIENT_ORIGIN", "http://umbravia-forge.example");
     expect(() => getAllowedClientOrigins()).toThrow(
       "CLIENT_ORIGIN must use HTTPS in production",
     );
@@ -23,10 +23,10 @@ describe("trusted request origins", () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv(
       "CLIENT_ORIGIN",
-      "https://gesttrain-os.example,https://admin.gesttrain-os.example",
+      "https://umbravia-forge.example,https://admin.umbravia-forge.example",
     );
 
-    expect(isTrustedOrigin("https://gesttrain-os.example")).toBe(true);
+    expect(isTrustedOrigin("https://umbravia-forge.example")).toBe(true);
     expect(isTrustedOrigin("https://attacker.example")).toBe(false);
   });
 });

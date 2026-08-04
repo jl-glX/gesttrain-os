@@ -6,7 +6,7 @@ estabilidad precedente, para crear el
 
 ## Resumen ejecutivo
 
-GestTrain/OS fue sometido a una evaluación defensiva de caja negra, caja gris y
+Umbravia Forge fue sometido a una evaluación defensiva de caja negra, caja gris y
 caja blanca sobre una instancia local aislada y datos de laboratorio. La prueba
 cubrió la aplicación web, la API, autenticación, sesiones, roles, ciclo de vida
 de cuentas, concurrencia, entradas hostiles, presión controlada y resistencia de
@@ -140,7 +140,7 @@ laboratorio y se probó un diccionario de seis candidatos. En esta ejecución:
 - resultado débil: el candidato de laboratorio fue encontrado;
 - seis comparaciones contra una contraseña aleatoria: 4009 ms, sin coincidencia;
 - bcrypt aceptó en bruto dos entradas distintas con el mismo prefijo de 72
-  bytes; la política de GestTrain/OS rechaza ambas antes de alcanzar el hash;
+  bytes; la política de Umbravia Forge rechaza ambas antes de alcanzar el hash;
 - credenciales reales, filtradas o pertenecientes a usuarios: ninguna.
 
 El resultado demuestra que bcrypt encarece cada intento, pero no convierte una
@@ -210,7 +210,7 @@ acotada y una máquina de laboratorio que no afecte a terceros.
 ### Dependencia temporal
 
 `react-router` y `react-router-dom` 7.18.2 mantienen la excepción
-`GHSA-qwww-vcr4-c8h2`, limitada al modo React Server Components que GestTrain/OS
+`GHSA-qwww-vcr4-c8h2`, limitada al modo React Server Components que Umbravia Forge
 no utiliza. `npm run audit:ci` bloquea cualquier aviso o versión distinta. La
 excepción debe retirarse en cuanto exista una versión corregida compatible.
 

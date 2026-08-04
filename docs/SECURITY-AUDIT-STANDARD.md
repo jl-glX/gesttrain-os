@@ -4,7 +4,7 @@
 
 **Estado:** base oficial interna
 
-**Ámbito:** GestTrain/OS y sus futuros entornos autorizados
+**Ámbito:** Umbravia Forge y sus futuros entornos autorizados
 
 ## 1. Propósito
 

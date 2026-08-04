@@ -7,7 +7,7 @@ describe("development runtime registry", () => {
   let directory: string;
 
   beforeEach(async () => {
-    directory = await mkdtemp(path.join(tmpdir(), "gesttrain-runtime-"));
+    directory = await mkdtemp(path.join(tmpdir(), "umbravia-forge-runtime-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
   });
 

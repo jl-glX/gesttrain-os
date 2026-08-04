@@ -913,7 +913,7 @@ export async function initializeDatabase() {
     .prepare(
       `INSERT OR IGNORE INTO facilityProfiles
        (id, name, logoDataUrl, accentColor, updatedAt)
-       VALUES ('primary', 'Centro GestTrain/OS', '', '#2563eb', ?)`,
+       VALUES ('primary', 'Centro Umbravia Forge', '', '#2563eb', ?)`,
     )
     .run(Date.now());
 

@@ -56,14 +56,14 @@ export function LoginPage() {
           role: t("roles.member"),
           description: t("auth.demoMemberDescription"),
           email: "juan@example.com",
-          password: "GestTrain/OSMember123",
+          password: "UmbraviaForgeMember123",
           icon: UserRound,
         }
       : {
           role: t("roles.admin"),
           description: t("auth.demoAdminDescription"),
-          email: "admin@gesttrain-os.com",
-          password: "GestTrain/OSAdmin123",
+          email: "admin@umbravia-forge.com",
+          password: "UmbraviaForgeAdmin123",
           icon: ShieldCheck,
         };
 
@@ -358,7 +358,7 @@ export function LoginPage() {
               placeholder={
                 accessPortal === "member"
                   ? "juan@example.com"
-                  : "centro@gesttrain-os.com / +34 953 000 000"
+                  : "centro@umbravia-forge.com / +34 953 000 000"
               }
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}

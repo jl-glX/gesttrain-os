@@ -21,7 +21,7 @@ export interface FacilityProfileContextValue {
 
 export const defaultFacilityProfile: FacilityProfile = {
   id: "primary",
-  name: "Centro GestTrain/OS",
+  name: "Centro Umbravia Forge",
   logoDataUrl: "",
   accentColor: "#2563eb",
   updatedAt: 0,

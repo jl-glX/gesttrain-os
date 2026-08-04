@@ -355,7 +355,7 @@ CREATE INDEX IF NOT EXISTS "idx_delegationGrants_delegate" ON "delegationGrants"
 CREATE INDEX IF NOT EXISTS "idx_delegationGrants_expiry" ON "delegationGrants" ("expiresAt");
 
 INSERT INTO "facilityProfiles" ("id", "name", "logoDataUrl", "accentColor", "updatedAt")
-VALUES ('primary', 'Centro GestTrain/OS', '', '#2563eb', 0)
+VALUES ('primary', 'Centro Umbravia Forge', '', '#2563eb', 0)
 ON CONFLICT ("id") DO NOTHING;
 `;
 

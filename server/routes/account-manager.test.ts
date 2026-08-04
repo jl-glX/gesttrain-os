@@ -11,7 +11,9 @@ describe("account manager API", () => {
   let cookie: string;
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "gesttrain-account-manager-"));
+    directory = await mkdtemp(
+      join(tmpdir(), "umbravia-forge-account-manager-"),
+    );
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();

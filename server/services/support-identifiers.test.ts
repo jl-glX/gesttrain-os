@@ -10,7 +10,7 @@ describe("public account support identifiers", () => {
   let identifiers: typeof import("./support-identifiers.js");
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-support-id-"));
+    directory = await mkdtemp(join(tmpdir(), "umbravia-forge-support-id-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.resetModules();
     database = await import("../db/client.js");

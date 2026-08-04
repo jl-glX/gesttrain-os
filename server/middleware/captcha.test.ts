@@ -42,7 +42,7 @@ describe("captcha middleware", () => {
   it("lets a server-validated token reach the protected handler", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("TURNSTILE_SECRET_KEY", "production-secret");
-    vi.stubEnv("CLIENT_ORIGIN", "https://app.gesttrain.example");
+    vi.stubEnv("CLIENT_ORIGIN", "https://app.umbravia-forge.example");
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
@@ -50,7 +50,7 @@ describe("captcha middleware", () => {
           JSON.stringify({
             success: true,
             action: "login",
-            hostname: "app.gesttrain.example",
+            hostname: "app.umbravia-forge.example",
           }),
           { status: 200 },
         ),

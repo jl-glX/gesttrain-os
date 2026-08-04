@@ -1,8 +1,8 @@
-# GestTrain/OS
+# Umbravia Forge
 
-GestTrain/OS is a modular gym-management application for classes, bookings, waitlists, users, trainers and activity analytics. The responsive interface supports Spanish, English, German and Swiss Standard German.
+Umbravia Forge is a modular gym-management application for classes, bookings, waitlists, users, trainers and activity analytics. The responsive interface supports Spanish, English, German and Swiss Standard German.
 
-> Project status: active development. GestTrain/OS is not yet ready for commercial production or real payments.
+> Project status: active development. Umbravia Forge is not yet ready for commercial production or real payments.
 
 ## Current capabilities
 
@@ -85,4 +85,4 @@ Development mode seeds demonstration accounts and classes. Demo credentials are 
 
 ## Ownership and licence
 
-GestTrain/OS is owned and operated by Javier López Díaz. The repository currently has no open-source licence; reuse rights are not granted by default.
+Umbravia Forge is owned and operated by Javier López Díaz. The repository currently has no open-source licence; reuse rights are not granted by default.

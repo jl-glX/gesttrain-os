@@ -28,7 +28,7 @@ void i18n
     nonExplicitSupportedLngs: false,
     detection: {
       order: ["localStorage", "navigator"],
-      lookupLocalStorage: "gesttrain-os-language",
+      lookupLocalStorage: "umbravia-forge-language",
       caches: ["localStorage"],
     },
     interpolation: {

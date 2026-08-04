@@ -15,7 +15,7 @@ describe("two-step verification", () => {
 
   const currentCode = () =>
     new OTPAuth.TOTP({
-      issuer: "GestTrain/OS",
+      issuer: "Umbravia Forge",
       label: "mfa-member@example.com",
       algorithm: "SHA1",
       digits: 6,
@@ -24,7 +24,7 @@ describe("two-step verification", () => {
     }).generate();
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-mfa-"));
+    directory = await mkdtemp(join(tmpdir(), "umbravia-forge-mfa-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();

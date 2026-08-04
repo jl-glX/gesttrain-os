@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { LegalFooter } from "../components/LegalFooter";
 import { BrandLogo } from "../components/BrandLogo";
+import { BrandWordmark } from "../components/BrandWordmark";
 
 type LegalPageKind = "notice" | "terms" | "use";
 
@@ -60,7 +61,10 @@ function LegalPage({ kind }: LegalPageProps) {
             to="/"
           >
             <BrandLogo className="h-11 w-11 rounded-xl shadow-lg shadow-blue-600/20" />
-            <span className="text-xl">GestTrain/OS</span>
+            <BrandWordmark
+              className="text-xl"
+              subtitleClassName="text-blue-600"
+            />
           </Link>
           <LanguageSwitcher compact />
         </div>

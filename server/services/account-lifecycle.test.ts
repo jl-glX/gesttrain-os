@@ -11,7 +11,7 @@ describe("account lifecycle", () => {
   let userId: string;
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-lifecycle-"));
+    directory = await mkdtemp(join(tmpdir(), "umbravia-forge-lifecycle-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.resetModules();
     database = await import("../db/client.js");

@@ -3,15 +3,15 @@ import { hashPassword } from "../services/auth.js";
 import { ensureSupportIdentifier } from "../services/support-identifiers.js";
 
 const DEMO_PASSWORDS = {
-  admin: "GestTrain/OSAdmin123",
-  trainer: "GestTrain/OSTrainer123",
-  member: "GestTrain/OSMember123",
+  admin: "UmbraviaForgeAdmin123",
+  trainer: "UmbraviaForgeTrainer123",
+  member: "UmbraviaForgeMember123",
 } as const;
 
 const ADMIN_USER = {
   id: "admin-1",
-  name: "Admin GestTrain/OS",
-  email: "admin@gesttrain-os.com",
+  name: "Admin Umbravia Forge",
+  email: "admin@umbravia-forge.com",
   phone: "+34953000000",
   password: DEMO_PASSWORDS.admin,
 };
@@ -20,25 +20,25 @@ const TRAINERS = [
   {
     id: "trainer-1",
     name: "Carlos Martínez",
-    email: "carlos@gesttrain-os.com",
+    email: "carlos@umbravia-forge.com",
     password: DEMO_PASSWORDS.trainer,
   },
   {
     id: "trainer-2",
     name: "Ana García",
-    email: "ana@gesttrain-os.com",
+    email: "ana@umbravia-forge.com",
     password: DEMO_PASSWORDS.trainer,
   },
   {
     id: "trainer-3",
     name: "Jorge López",
-    email: "jorge@gesttrain-os.com",
+    email: "jorge@umbravia-forge.com",
     password: DEMO_PASSWORDS.trainer,
   },
   {
     id: "trainer-4",
     name: "Sofía Rodríguez",
-    email: "sofia@gesttrain-os.com",
+    email: "sofia@umbravia-forge.com",
     password: DEMO_PASSWORDS.trainer,
   },
 ];

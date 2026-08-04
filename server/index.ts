@@ -130,7 +130,7 @@ app.use("/api/commercial", commercialRouter);
 if (process.env.NODE_ENV !== "production") {
   app.get("/", (_req, res) => {
     res.json({
-      service: "GestTrain/OS API",
+      service: "Umbravia Forge API",
       message: "The web application runs on the frontend development URL.",
       frontend: process.env.CLIENT_ORIGIN ?? "http://127.0.0.1:3000",
       health: "/api/health",

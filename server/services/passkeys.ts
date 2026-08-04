@@ -20,7 +20,7 @@ import {
 import { recordSecurityEvent } from "./security-events.js";
 import { completeAccountRecovery } from "./account-recovery.js";
 
-const RP_NAME = "GestTrain/OS";
+const RP_NAME = "Umbravia Forge";
 
 function tokenId(token: string): string {
   return createHash("sha256").update(token).digest("hex");

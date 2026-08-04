@@ -10,7 +10,7 @@ describe("legacy booking migration", () => {
 
   beforeAll(async () => {
     directory = await mkdtemp(
-      join(tmpdir(), "gesttrain-os-booking-migration-"),
+      join(tmpdir(), "umbravia-forge-booking-migration-"),
     );
     const legacy = new Database(join(directory, "database.sqlite"));
     legacy.exec(`

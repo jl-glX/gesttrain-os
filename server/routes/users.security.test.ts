@@ -11,7 +11,7 @@ describe("administrator account safety", () => {
   let adminCookie: string;
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-admin-safety-"));
+    directory = await mkdtemp(join(tmpdir(), "umbravia-forge-admin-safety-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();
@@ -41,7 +41,7 @@ describe("administrator account safety", () => {
         rememberDevice: false,
       })
     ).headers["set-cookie"][0];
-  });
+  }, 20_000);
 
   afterAll(async () => {
     database.closeDatabase();

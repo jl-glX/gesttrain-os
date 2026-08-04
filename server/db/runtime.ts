@@ -71,6 +71,6 @@ export function postgresPoolSettings(environment = process.env) {
       60_000,
     ),
     ssl: environment.DATABASE_SSL === "false" ? false : { rejectUnauthorized },
-    application_name: "gesttrain-os",
+    application_name: "umbravia-forge",
   } as const;
 }

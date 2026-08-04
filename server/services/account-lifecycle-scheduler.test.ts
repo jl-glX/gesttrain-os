@@ -9,7 +9,9 @@ describe("account lifecycle scheduler", () => {
   let scheduler: typeof import("./account-lifecycle-scheduler.js");
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "gesttrain-account-scheduler-"));
+    directory = await mkdtemp(
+      join(tmpdir(), "umbravia-forge-account-scheduler-"),
+    );
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("ACCOUNT_LIFECYCLE_REVIEW_INTERVAL_MS", "60000");
     vi.resetModules();

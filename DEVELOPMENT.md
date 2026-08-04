@@ -1,4 +1,4 @@
-# GestTrain/OS development guide
+# Umbravia Forge development guide
 
 ## Requirements
 
@@ -14,7 +14,7 @@ npm run dev
 
 The launcher in `scripts/dev.ts` starts Vite and Express together and closes
 both processes cleanly. The frontend uses port `3000` and the API uses `3001`.
-The resource manager checks GestTrain/OS runtime records when it starts, before
+The resource manager checks Umbravia Forge runtime records when it starts, before
 and after every managed task, and again during shutdown. Vite also closes its
 own HTTP/HMR connections, file watcher and plugin resources during a graceful
 development shutdown. These safeguards never terminate unrelated Windows

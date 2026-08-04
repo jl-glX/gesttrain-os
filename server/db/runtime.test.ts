@@ -14,7 +14,7 @@ describe("database runtime selection", () => {
     expect(
       resolveDatabaseProvider({
         NODE_ENV: "production",
-        DATABASE_URL: "postgresql://example.invalid/gesttrain",
+        DATABASE_URL: "postgresql://example.invalid/umbravia_forge",
       }),
     ).toBe("postgresql");
   });
@@ -59,13 +59,13 @@ describe("database runtime selection", () => {
   it("uses bounded connection-pool settings and verified TLS by default", () => {
     expect(
       postgresPoolSettings({
-        DATABASE_URL: "postgresql://example.invalid/gesttrain",
+        DATABASE_URL: "postgresql://example.invalid/umbravia_forge",
         DATABASE_POOL_MAX: "500",
       }),
     ).toMatchObject({
       max: 50,
       ssl: { rejectUnauthorized: true },
-      application_name: "gesttrain-os",
+      application_name: "umbravia-forge",
     });
   });
 });

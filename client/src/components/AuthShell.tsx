@@ -3,6 +3,7 @@ import { CalendarDays, ShieldCheck, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { BrandLogo } from "./BrandLogo";
+import { BrandWordmark } from "./BrandWordmark";
 
 interface AuthShellProps {
   eyebrow: string;
@@ -34,7 +35,7 @@ export function AuthShell({
 
         <div className="relative flex items-center gap-3 text-xl font-bold tracking-tight">
           <BrandLogo className="h-11 w-11 rounded-xl shadow-lg shadow-blue-500/20" />
-          GestTrain/OS
+          <BrandWordmark subtitleClassName="text-blue-300" />
         </div>
 
         <div className="relative max-w-xl">
@@ -63,7 +64,7 @@ export function AuthShell({
         </div>
 
         <p className="relative text-xs text-slate-500">
-          © {new Date().getFullYear()} GestTrain/OS
+          © {new Date().getFullYear()} Umbravia Forge
         </p>
       </section>
 
@@ -76,9 +77,10 @@ export function AuthShell({
             </div>
             <div className="mb-8 flex items-center gap-3 lg:hidden">
               <BrandLogo className="h-11 w-11 rounded-xl shadow-lg shadow-blue-600/20" />
-              <span className="text-xl font-bold tracking-tight text-slate-950">
-                GestTrain/OS
-              </span>
+              <BrandWordmark
+                className="text-xl font-bold tracking-tight text-slate-950"
+                subtitleClassName="text-blue-600"
+              />
             </div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-600">
               {eyebrow}
@@ -95,7 +97,7 @@ export function AuthShell({
           </div>
         </div>
         <p className="px-4 pb-6 text-center text-xs text-slate-400 lg:hidden">
-          © {new Date().getFullYear()} GestTrain/OS
+          © {new Date().getFullYear()} Umbravia Forge
         </p>
       </section>
     </main>

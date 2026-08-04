@@ -4,9 +4,9 @@ import {
   REMEMBERED_SESSION_DURATION,
 } from "../services/auth.js";
 
-const SESSION_COOKIE_NAME = "gesttrain-os_session";
-const MFA_CHALLENGE_COOKIE_NAME = "gesttrain-os_mfa_challenge";
-const PASSKEY_CHALLENGE_COOKIE_NAME = "gesttrain-os_passkey_challenge";
+const SESSION_COOKIE_NAME = "umbravia-forge_session";
+const MFA_CHALLENGE_COOKIE_NAME = "umbravia-forge_mfa_challenge";
+const PASSKEY_CHALLENGE_COOKIE_NAME = "umbravia-forge_passkey_challenge";
 
 function readCookie(req: Request, name: string): string | null {
   const cookies = req.get("Cookie")?.split(";") ?? [];

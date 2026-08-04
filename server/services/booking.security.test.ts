@@ -9,7 +9,9 @@ describe("booking integrity and export security", () => {
   let booking: typeof import("./booking.js");
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-booking-security-"));
+    directory = await mkdtemp(
+      join(tmpdir(), "umbravia-forge-booking-security-"),
+    );
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();

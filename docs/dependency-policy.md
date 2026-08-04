@@ -1,6 +1,6 @@
 # Dependency update policy
 
-GestTrain/OS keeps direct dependencies pinned to exact versions and uses the
+Umbravia Forge keeps direct dependencies pinned to exact versions and uses the
 committed lockfile as the reproducible source for installations.
 
 ## Supported toolchain
@@ -38,7 +38,7 @@ major releases remain isolated for explicit migration and testing.
 
 React Router 7.18.2 is the safest currently verified release for this client,
 but npm reports `GHSA-qwww-vcr4-c8h2` for its optional React Server Components
-action mode. GestTrain/OS uses declarative client-side `BrowserRouter` routing
+action mode. Umbravia Forge uses declarative client-side `BrowserRouter` routing
 and does not enable the affected RSC mode.
 
 Older releases are not an acceptable workaround: the npm advisory database

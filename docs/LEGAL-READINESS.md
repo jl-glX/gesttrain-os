@@ -18,7 +18,7 @@ execution by itself.
 ## Confirmed
 
 - Owner and responsible person: Javier López Díaz.
-- Product name: GestTrain/OS.
+- Product name: Umbravia Forge.
 - Current stage: private software project under development.
 - Commercial payments: not enabled.
 

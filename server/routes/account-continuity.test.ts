@@ -15,7 +15,7 @@ describe("account continuity API", () => {
   let ownerInternalId: string;
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "gesttrain-continuity-"));
+    directory = await mkdtemp(join(tmpdir(), "umbravia-forge-continuity-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();

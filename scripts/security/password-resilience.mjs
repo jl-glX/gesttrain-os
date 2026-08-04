@@ -6,7 +6,7 @@ const weakLaboratoryPassword = "LaboratoryOnlyPassword123";
 const strongLaboratoryPassword = `${randomBytes(24).toString("base64url")}Aa1`;
 const candidates = [
   "Password123456",
-  "GestTrain2026",
+  "UmbraviaForge2026",
   "SummerTraining123",
   "Administrator123",
   "GymPassword123",

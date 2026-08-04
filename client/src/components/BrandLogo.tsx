@@ -5,11 +5,11 @@ interface BrandLogoProps {
 
 export function BrandLogo({
   className = "h-10 w-10 rounded-xl",
-  alt = "GestTrain/OS",
+  alt = "Umbravia Forge",
 }: BrandLogoProps) {
   return (
     <img
-      src="/gesttrain-os-logo.png"
+      src="/umbravia-forge-logo.png"
       alt={alt}
       className={`shrink-0 object-cover ${className}`}
     />

@@ -9,7 +9,7 @@ describe("editable booking configuration", () => {
   let classes: typeof import("./classes.js");
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "gesttrain-booking-config-"));
+    directory = await mkdtemp(join(tmpdir(), "umbravia-forge-booking-config-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.resetModules();

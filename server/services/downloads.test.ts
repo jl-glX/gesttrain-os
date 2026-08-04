@@ -26,10 +26,13 @@ describe("download manifest", () => {
   });
 
   it("only exposes configured HTTPS destinations", () => {
-    vi.stubEnv("DOWNLOAD_WINDOWS_URL", "https://apps.example.com/gesttrain-os");
+    vi.stubEnv(
+      "DOWNLOAD_WINDOWS_URL",
+      "https://apps.example.com/umbravia-forge",
+    );
     vi.stubEnv(
       "DOWNLOAD_ANDROID_URL",
-      "http://insecure.example.com/gesttrain-os",
+      "http://insecure.example.com/umbravia-forge",
     );
     vi.stubEnv("DOWNLOAD_ZIP_URL", "not-a-url");
 
@@ -37,7 +40,7 @@ describe("download manifest", () => {
 
     expect(manifest.find((option) => option.id === "windows")).toMatchObject({
       available: true,
-      url: "https://apps.example.com/gesttrain-os",
+      url: "https://apps.example.com/umbravia-forge",
     });
     expect(manifest.find((option) => option.id === "android")).toMatchObject({
       available: false,

@@ -44,7 +44,9 @@ describe("extreme local security assessment", () => {
   const password = "AssessmentPassword123";
 
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "gesttrain-os-extreme-security-"));
+    directory = await mkdtemp(
+      join(tmpdir(), "umbravia-forge-extreme-security-"),
+    );
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
     vi.stubEnv("AUTH_RATE_LIMIT_MAX_REQUESTS", "16");

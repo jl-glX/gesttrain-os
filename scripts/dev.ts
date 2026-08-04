@@ -51,7 +51,7 @@ async function shutdown(exitCode: number): Promise<void> {
   if (shuttingDown) return;
   shuttingDown = true;
   let finalExitCode = exitCode;
-  console.log("Stopping GestTrain/OS development resources...");
+  console.log("Stopping Umbravia Forge development resources...");
 
   const results = await Promise.allSettled([
     closeViteDevelopmentServer(viteServer),

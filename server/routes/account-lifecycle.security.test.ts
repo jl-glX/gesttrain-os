@@ -23,7 +23,7 @@ describe("account deletion security", () => {
 
   beforeAll(async () => {
     directory = await mkdtemp(
-      join(tmpdir(), "gesttrain-os-deletion-security-"),
+      join(tmpdir(), "umbravia-forge-deletion-security-"),
     );
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
