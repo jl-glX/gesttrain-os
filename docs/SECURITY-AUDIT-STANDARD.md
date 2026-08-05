@@ -222,6 +222,7 @@ npm run audit:ci
 
 - [Auditoría de estabilidad y seguridad — 1 de agosto de 2026](./SECURITY-AUDIT-2026-08-01.md)
 - [Evaluación extrema local de seguridad — 1 de agosto de 2026](./SECURITY-ASSESSMENT-EXTREME-2026-08-01.md)
+- [Auditoría integral de seguridad — 5 de agosto de 2026](./SECURITY-AUDIT-2026-08-05.md)
 
 Esos informes documentan lo ejecutado y sus resultados. Este estándar define
 cómo deben planificarse, limitarse, comparar y cerrar las siguientes auditorías.

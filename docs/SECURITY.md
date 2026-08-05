@@ -1,10 +1,13 @@
 # Security
 
+The latest integral black-box, gray-box and white-box assessment is documented
+in [SECURITY-AUDIT-2026-08-05.md](./SECURITY-AUDIT-2026-08-05.md).
+
 Future reviews follow the
 [`SECURITY-AUDIT-STANDARD.md`](./SECURITY-AUDIT-STANDARD.md) internal standard.
-The latest local black-box, gray-box and white-box assessment is documented in
+The initial local black-box, gray-box and white-box assessment is documented in
 [`SECURITY-ASSESSMENT-EXTREME-2026-08-01.md`](./SECURITY-ASSESSMENT-EXTREME-2026-08-01.md).
-The preceding hardening review remains available in
+The related hardening review remains available in
 [`SECURITY-AUDIT-2026-08-01.md`](./SECURITY-AUDIT-2026-08-01.md).
 
 ## Account protection

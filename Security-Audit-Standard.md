@@ -4,7 +4,7 @@
 
 **Estado:** base oficial interna
 
-**Ámbito:** GestTrain/OS y sus futuros entornos autorizados
+**Ámbito:** Umbravia Forge y sus futuros entornos autorizados
 
 ## 1. Propósito
 
@@ -220,10 +220,9 @@ npm run audit:ci
 
 ## 10. Registro inicial que fundamenta este estándar
 
-- [Informe consolidado de estabilidad y seguridad](./SECURITY-CONSOLIDATED-REPORT-2026-08-01.md)
-- [Procedimiento operativo para auditorías](./SECURITY-AUDIT-RUNBOOK.md)
-- [Auditoría de estabilidad y seguridad — 1 de agosto de 2026](./SECURITY-AUDIT-2026-08-01.md)
-- [Evaluación extrema local de seguridad — 1 de agosto de 2026](./SECURITY-ASSESSMENT-EXTREME-2026-08-01.md)
+- [Auditoría de estabilidad y seguridad — 1 de agosto de 2026](./docs/SECURITY-AUDIT-2026-08-01.md)
+- [Evaluación extrema local de seguridad — 1 de agosto de 2026](./docs/SECURITY-ASSESSMENT-EXTREME-2026-08-01.md)
+- [Auditoría integral de seguridad — 5 de agosto de 2026](./docs/SECURITY-AUDIT-2026-08-05.md)
 
 Esos informes documentan lo ejecutado y sus resultados. Este estándar define
 cómo deben planificarse, limitarse, comparar y cerrar las siguientes auditorías.
