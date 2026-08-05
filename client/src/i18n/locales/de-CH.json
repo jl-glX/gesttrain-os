@@ -344,6 +344,10 @@
     "securityManagerDescription": "Zentralisieren Sie Kontrollen, Signale und Risikobeobachtungen ohne automatische Sperren.",
     "dataRetention": "Datenaufbewahrung",
     "dataRetentionDescription": "Bereiten Sie Richtlinienentwürfe vor und prüfen Sie zukünftige Datensätze.",
+    "environmentManager": "Umgebungsverwaltung",
+    "environmentManagerDescription": "Erstellen Sie isolierte SQLite-Umgebungen und bereiten Sie deren geprüfte Übernahme in PostgreSQL vor.",
+    "capabilityRoadmap": "Funktions-Roadmap",
+    "capabilityRoadmapDescription": "Vergleichen Sie umgesetzte, teilweise und fehlende Funktionen mit dem Markt.",
     "notificationsDescription": "Benachrichtigungseinstellungen und -verlauf werden in einer zukünftigen Phase aktiviert.",
     "delegationSecurity": "Bei Delegationen kann nur jemand in Ihrem Namen buchen oder stornieren. Sie gewähren keinen Zugriff auf Ihr Profil, Ihr Passwort, Ihre Zahlungen oder Sicherheitseinstellungen.",
     "preferencesDescription": "Thema, Privatsphäre und weitere persönliche Optionen werden nach und nach hinzugefügt."
@@ -639,7 +643,11 @@
     "downloadsDescription": "Greifen Sie auf die offiziellen Apps und das tragbare Umbravia Forge-Paket zu.",
     "analyticsDescription": "Finden Sie Kurse und Zeitfenster mit der höchsten und niedrigsten Besucherzahl.",
     "resources": "Serverressourcen",
-    "resourcesDescription": "Überwachen und steuern Sie interne Aufgaben, die von Umbravia Forge registriert werden."
+    "resourcesDescription": "Überwachen und steuern Sie interne Aufgaben, die von Umbravia Forge registriert werden.",
+    "environments": "Umgebungen und Datenbanken",
+    "environmentsDescription": "Verwalten Sie isolierte Demos und ihre PostgreSQL-Bereitschaft.",
+    "capabilityRoadmap": "Funktions-Roadmap",
+    "capabilityRoadmapDescription": "Prüfen Sie die tatsächliche Abdeckung und priorisierte Produktlücken."
   },
   "downloads": {
     "title": "Download-Center",
@@ -754,10 +762,62 @@
       "source-hygiene-audit": {
         "name": "Quellcode-Hygieneprüfung",
         "description": "Meldet identische, leere oder möglicherweise veraltete Dateien zur Prüfung, ohne Quellcode automatisch zu löschen."
+      },
+      "environment-readiness-audit": {
+        "name": "Umgebungsbereitschaft",
+        "description": "Prüft, ob verwaltete SQLite-Umgebungen ein vollständiges Schema besitzen, bevor ihre Übernahme in PostgreSQL vorbereitet wird."
       }
     },
     "managedTasks": "Gemanagte Prozesse",
     "runNow": "Lauf jetzt"
+  },
+  "environmentManager": {
+    "eyebrow": "Dateninfrastruktur",
+    "title": "Umgebungsverwaltung",
+    "description": "PostgreSQL ist die primäre Datenbank für reale Umgebungen. SQLite bleibt auf Entwicklung, Tests, Demos und isolierte kommerzielle MVPs beschränkt.",
+    "loadError": "Die Umgebungsverwaltung konnte nicht geladen werden.",
+    "createError": "Die isolierte Umgebung konnte nicht erstellt werden.",
+    "planError": "Der Migrationsplan konnte nicht vorbereitet werden.",
+    "activeEngine": "Aktive Datenbank",
+    "primaryEngine": "Primäre Datenbank",
+    "migrationMode": "Migrationsmodus",
+    "reviewFirst": "Prüfung zuerst",
+    "createTitle": "Isolierte SQLite-Umgebung erstellen",
+    "name": "Umgebungsname",
+    "slug": "Technische Kennung",
+    "kind": "Verwendung",
+    "customerSandbox": "Virtuelle Kundenprobe",
+    "commercialMvp": "Isoliertes kommerzielles MVP",
+    "create": "Umgebung erstellen",
+    "prepareMigration": "Migration vorbereiten",
+    "planSummary": "{{rows}} Datensätze zur Prüfung erfasst.",
+    "sensitiveReview": "Sensible Kategorien sind vorhanden und benötigen vor der Übertragung eine ausdrückliche Freigabe.",
+    "noSensitiveData": "In sensiblen Kategorien wurden keine Datensätze gefunden.",
+    "executionDisabled": "Die automatische Ausführung ist deaktiviert; dieser Schritt prüft und plant nur.",
+    "mutationsDisabled": "Die Erstellung von Umgebungen ist in dieser Bereitstellung deaktiviert.",
+    "empty": "Es gibt noch keine verwalteten isolierten Umgebungen.",
+    "status": {
+      "ready": "Bereit",
+      "migration_review": "In Prüfung",
+      "migration_ready": "Bereit zur Migrationsprüfung",
+      "migration_blocked": "Migration blockiert"
+    }
+  },
+  "capabilityRoadmap": {
+    "eyebrow": "Produktbewertung",
+    "title": "Was vorhanden ist und was fehlt",
+    "description": "Vergleicht die letzte Bewertung von Umbravia Forge mit dem aktuellen Code und Marktanforderungen.",
+    "loadError": "Die Funktions-Roadmap konnte nicht geladen werden.",
+    "current": "Vorhanden",
+    "gap": "Fehlt noch",
+    "evidence": "Lokaler Nachweis",
+    "openDestination": "Ziel öffnen",
+    "status": {
+      "implemented": "Umgesetzt",
+      "partial": "Teilweise",
+      "prepared": "Vorbereitet",
+      "missing": "Ausstehend"
+    }
   },
   "classes": {
     "scheduled": "Geplant",

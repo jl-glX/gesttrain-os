@@ -7,33 +7,55 @@ import { Kysely, SqliteDialect } from "kysely";
 import type { Database as DatabaseSchema } from "./types.js";
 import { generateSupportId } from "../lib/support-id.js";
 import { initializeCommunitySchema } from "./community-schema.js";
+import { createPostgresDatabaseRuntime } from "./postgres-client.js";
+import { resolveDatabaseProvider } from "./runtime.js";
 
-const dataDirectory =
-  process.env.DATA_DIRECTORY ?? path.join(process.cwd(), "data");
+export const databaseProvider = resolveDatabaseProvider(process.env);
+const postgresRuntime =
+  databaseProvider === "postgresql"
+    ? createPostgresDatabaseRuntime(process.env)
+    : null;
+const sqliteDb = databaseProvider === "sqlite" ? createSqliteDatabase() : null;
 
-if (!fs.existsSync(dataDirectory)) {
-  fs.mkdirSync(dataDirectory, { recursive: true });
+function createSqliteDatabase(): Database.Database {
+  const dataDirectory =
+    process.env.DATA_DIRECTORY ?? path.join(process.cwd(), "data");
+  if (!fs.existsSync(dataDirectory)) {
+    fs.mkdirSync(dataDirectory, { recursive: true });
+  }
+  const databasePath = path.join(dataDirectory, "database.sqlite");
+  const database = new Database(databasePath);
+  database.pragma("foreign_keys = ON");
+  database.pragma("journal_mode = WAL");
+  database.pragma("busy_timeout = 5000");
+  return database;
 }
 
-const databasePath = path.join(dataDirectory, "database.sqlite");
-const sqliteDb = new Database(databasePath);
-sqliteDb.pragma("foreign_keys = ON");
-sqliteDb.pragma("journal_mode = WAL");
-sqliteDb.pragma("busy_timeout = 5000");
+function requireSqliteDatabase(): Database.Database {
+  if (!sqliteDb) {
+    throw new Error("The active database provider is not SQLite");
+  }
+  return sqliteDb;
+}
 
-export const db = new Kysely<DatabaseSchema>({
-  dialect: new SqliteDialect({ database: sqliteDb }),
-  log: process.env.NODE_ENV === "development" ? ["query", "error"] : ["error"],
-});
-
-export const databaseProvider = "sqlite" as const;
+export const db: Kysely<DatabaseSchema> =
+  postgresRuntime?.db ??
+  new Kysely<DatabaseSchema>({
+    dialect: new SqliteDialect({ database: requireSqliteDatabase() }),
+    log:
+      process.env.NODE_ENV === "development" ? ["query", "error"] : ["error"],
+  });
 
 export async function checkDatabaseConnection(): Promise<void> {
+  if (postgresRuntime) {
+    await postgresRuntime.check();
+    return;
+  }
   await db.selectFrom("facilityProfiles").select("id").limit(1).execute();
 }
 
 function reconcileDuplicateBookings(): number {
-  return sqliteDb
+  return requireSqliteDatabase()
     .prepare(
       `WITH ranked AS (
          SELECT id,
@@ -56,7 +78,7 @@ function reconcileDuplicateBookings(): number {
 }
 
 function removeStaleWaitlistEntries(): number {
-  return sqliteDb
+  return requireSqliteDatabase()
     .prepare(
       `DELETE FROM waitlistEntries
        WHERE promotedAt IS NULL
@@ -70,10 +92,13 @@ function removeStaleWaitlistEntries(): number {
     .run().changes;
 }
 
-export function reconcileBookingIntegrity(): {
+export async function reconcileBookingIntegrity(): Promise<{
   duplicateBookings: number;
   staleWaitlistEntries: number;
-} {
+}> {
+  if (postgresRuntime) {
+    return postgresRuntime.reconcileBookingIntegrity();
+  }
   return {
     duplicateBookings: reconcileDuplicateBookings(),
     staleWaitlistEntries: removeStaleWaitlistEntries(),
@@ -83,6 +108,40 @@ export function reconcileBookingIntegrity(): {
 export async function initializeDatabase() {
   console.log("Initializing database...");
 
+  if (postgresRuntime) {
+    await postgresRuntime.initialize();
+    console.log("PostgreSQL database initialized successfully");
+    return;
+  }
+
+  await initializeSqliteSchema(requireSqliteDatabase());
+}
+
+export async function createSqliteEnvironmentDatabase(
+  databasePath: string,
+): Promise<void> {
+  const parentDirectory = path.dirname(databasePath);
+  if (!fs.existsSync(parentDirectory)) {
+    fs.mkdirSync(parentDirectory, { recursive: true });
+  }
+  if (fs.existsSync(databasePath)) {
+    throw new Error("The SQLite environment database already exists");
+  }
+
+  const environmentDatabase = new Database(databasePath);
+  environmentDatabase.pragma("foreign_keys = ON");
+  environmentDatabase.pragma("journal_mode = WAL");
+  environmentDatabase.pragma("busy_timeout = 5000");
+  try {
+    await initializeSqliteSchema(environmentDatabase);
+  } finally {
+    environmentDatabase.close();
+  }
+}
+
+async function initializeSqliteSchema(
+  sqliteDb: Database.Database,
+): Promise<void> {
   const tables = sqliteDb
     .prepare(
       "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'",
@@ -1048,6 +1107,10 @@ export async function initializeDatabase() {
   console.log("Database initialized successfully");
 }
 
-export function closeDatabase() {
-  sqliteDb.close();
+export async function closeDatabase(): Promise<void> {
+  if (postgresRuntime) {
+    await postgresRuntime.close();
+    return;
+  }
+  requireSqliteDatabase().close();
 }

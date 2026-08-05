@@ -130,10 +130,19 @@ describe("API security baseline", () => {
   it("enables transport and content protections in production", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("CLIENT_ORIGIN", "https://umbravia-forge.example");
+    vi.stubEnv("DATABASE_PROVIDER", "postgresql");
+    vi.stubEnv(
+      "DATABASE_URL",
+      "postgresql://example.invalid/umbravia_forge_security_headers",
+    );
+    vi.stubEnv("DATABASE_SSL", "false");
     vi.resetModules();
+    let closeProductionDatabase: (() => Promise<void>) | undefined;
 
     try {
       const { app: productionApp } = await import("../index.js");
+      ({ closeDatabase: closeProductionDatabase } =
+        await import("../db/client.js"));
       const allowed = await request(productionApp)
         .get("/api/health/live")
         .set("Origin", "https://umbravia-forge.example")
@@ -150,6 +159,7 @@ describe("API security baseline", () => {
       expect(allowed.headers["content-security-policy"]).toBeDefined();
       expect(denied.headers["access-control-allow-origin"]).toBeUndefined();
     } finally {
+      await closeProductionDatabase?.();
       vi.unstubAllEnvs();
       vi.resetModules();
     }

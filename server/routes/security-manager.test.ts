@@ -111,7 +111,7 @@ describe("security manager API", () => {
       },
       coordination: {
         mode: "shared-runtime",
-        managers: ["account", "security", "resource"],
+        managers: ["account", "security", "resource", "environment"],
       },
     });
     expect(

@@ -22,6 +22,7 @@ import {
   Trash2,
   UserRound,
   UserRoundCog,
+  Route,
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -226,6 +227,18 @@ export function AccountControlPage() {
       icon: Database,
       title: t("accountControl.dataRetention"),
       description: t("accountControl.dataRetentionDescription"),
+    },
+    {
+      to: "/admin/environment-manager",
+      icon: Database,
+      title: t("accountControl.environmentManager"),
+      description: t("accountControl.environmentManagerDescription"),
+    },
+    {
+      to: "/admin/capability-roadmap",
+      icon: Route,
+      title: t("accountControl.capabilityRoadmap"),
+      description: t("accountControl.capabilityRoadmapDescription"),
     },
   ];
 

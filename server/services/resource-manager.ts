@@ -1,8 +1,13 @@
 import { performance } from "node:perf_hooks";
 import { sql } from "kysely";
-import { db, reconcileBookingIntegrity } from "../db/client.js";
+import {
+  databaseProvider,
+  db,
+  reconcileBookingIntegrity,
+} from "../db/client.js";
 import { cleanupStaleRuntimeRecords } from "../lib/runtime-registry.js";
 import { auditSourceHygiene } from "./source-hygiene.js";
+import { runEnvironmentReadinessAudit } from "./environment-manager.js";
 import {
   getManagerCoordinationStatus,
   ManagerCoordinationConflictError,
@@ -89,6 +94,7 @@ const taskCoordinationScopes: Record<string, string[]> = {
   "project-runtime-cleanup": ["runtime-records"],
   "source-hygiene-audit": ["source-tree"],
   "sqlite-query-planner": ["database-maintenance"],
+  "environment-readiness-audit": ["database-maintenance"],
 };
 
 function runtimeCheckIntervalMs(): number {
@@ -246,8 +252,12 @@ registerTask({
     for (const table of tables) {
       const result = await sql`
         DELETE FROM ${sql.table(table)}
-        WHERE userId IS NOT NULL
-          AND NOT EXISTS (SELECT 1 FROM users WHERE users.id = userId)
+        WHERE ${sql.ref(`${table}.userId`)} IS NOT NULL
+          AND NOT EXISTS (
+            SELECT 1
+            FROM ${sql.table("users")}
+            WHERE ${sql.ref("users.id")} = ${sql.ref(`${table}.userId`)}
+          )
       `.execute(db);
       count += Number(result.numAffectedRows ?? 0);
     }
@@ -267,7 +277,7 @@ registerTask({
   priority: "critical",
   enabledByDefault: true,
   run: async () => {
-    const result = reconcileBookingIntegrity();
+    const result = await reconcileBookingIntegrity();
     const count = result.duplicateBookings + result.staleWaitlistEntries;
     return {
       count,
@@ -312,15 +322,28 @@ registerTask({
 });
 
 registerTask({
-  id: "sqlite-query-planner",
-  name: "SQLite query planner optimization",
+  id: "environment-readiness-audit",
+  name: "Managed environment readiness audit",
   description:
-    "Lets SQLite refresh lightweight planner statistics when the database needs it.",
+    "Checks isolated SQLite environments and their readiness for a reviewed PostgreSQL promotion.",
   intervalMs: 6 * 60 * 60 * 1000,
-  priority: "low",
+  priority: "normal",
   enabledByDefault: true,
-  run: optimizeSqlitePlanner,
+  run: runEnvironmentReadinessAudit,
 });
+
+if (databaseProvider === "sqlite") {
+  registerTask({
+    id: "sqlite-query-planner",
+    name: "SQLite query planner optimization",
+    description:
+      "Lets SQLite refresh lightweight planner statistics when the database needs it.",
+    intervalMs: 6 * 60 * 60 * 1000,
+    priority: "low",
+    enabledByDefault: true,
+    run: optimizeSqlitePlanner,
+  });
+}
 
 export async function startResourceManager(): Promise<void> {
   if (started) return;

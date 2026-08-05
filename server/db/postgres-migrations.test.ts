@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parse } from "pgsql-ast-parser";
+import { migratableTables } from "./database-bridge.js";
 import {
   postgresInitialSchema,
   postgresMigrationSql,
@@ -19,5 +20,16 @@ describe("PostgreSQL migrations", () => {
     for (const migration of postgresMigrationSql()) {
       expect(() => parse(migration)).not.toThrow();
     }
+  });
+
+  it("covers every application table expected by isolated SQLite environments", () => {
+    const sql = postgresMigrationSql().join("\n");
+    const tables = new Set(
+      [...sql.matchAll(/CREATE TABLE IF NOT EXISTS "([^"]+)"/g)].map(
+        (match) => match[1],
+      ),
+    );
+
+    expect([...migratableTables].sort()).toEqual([...tables].sort());
   });
 });

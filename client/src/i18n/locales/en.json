@@ -139,6 +139,10 @@
     "securityManagerDescription": "Centralize controls, signals and risk observations without automatic blocking.",
     "dataRetention": "Data retention",
     "dataRetentionDescription": "Prepare draft policies and review their future records.",
+    "environmentManager": "Environment manager",
+    "environmentManagerDescription": "Create isolated SQLite environments and prepare their reviewed promotion to PostgreSQL.",
+    "capabilityRoadmap": "Capability roadmap",
+    "capabilityRoadmapDescription": "Compare implemented, partial and missing product capabilities against the market.",
     "notifications": "Notifications",
     "notificationsDescription": "Notification preferences and history will be enabled in a future phase.",
     "preferences": "Preferences",
@@ -544,7 +548,11 @@
     "downloads": "Download center",
     "downloadsDescription": "Access the official apps and Umbravia Forge portable package.",
     "resources": "Server resources",
-    "resourcesDescription": "Monitor and control internal tasks registered by Umbravia Forge."
+    "resourcesDescription": "Monitor and control internal tasks registered by Umbravia Forge.",
+    "environments": "Environments and databases",
+    "environmentsDescription": "Manage isolated demos and their PostgreSQL readiness.",
+    "capabilityRoadmap": "Capability roadmap",
+    "capabilityRoadmapDescription": "Review real coverage and prioritized product gaps."
   },
   "downloads": {
     "eyebrow": "Umbravia Forge on all your devices",
@@ -661,7 +669,59 @@
       "source-hygiene-audit": {
         "name": "Source hygiene audit",
         "description": "Finds identical, empty or potentially obsolete files for review without deleting source code automatically."
+      },
+      "environment-readiness-audit": {
+        "name": "Environment readiness",
+        "description": "Checks that managed SQLite environments keep a complete schema before their promotion to PostgreSQL is prepared."
       }
+    }
+  },
+  "environmentManager": {
+    "eyebrow": "Data infrastructure",
+    "title": "Environment manager",
+    "description": "PostgreSQL is the primary engine for real environments. SQLite is limited to development, testing, demonstrations and isolated commercial MVPs.",
+    "loadError": "The environment manager could not be loaded.",
+    "createError": "The isolated environment could not be created.",
+    "planError": "The migration plan could not be prepared.",
+    "activeEngine": "Active engine",
+    "primaryEngine": "Primary engine",
+    "migrationMode": "Migration mode",
+    "reviewFirst": "Review first",
+    "createTitle": "Create an isolated SQLite environment",
+    "name": "Environment name",
+    "slug": "Technical identifier",
+    "kind": "Purpose",
+    "customerSandbox": "Virtual customer trial",
+    "commercialMvp": "Isolated commercial MVP",
+    "create": "Create environment",
+    "prepareMigration": "Prepare migration",
+    "planSummary": "{{rows}} records inventoried for review.",
+    "sensitiveReview": "Sensitive categories are present and require specific authorization before transfer.",
+    "noSensitiveData": "No records were found in sensitive categories.",
+    "executionDisabled": "Automatic execution is disabled: this step only validates and prepares the transfer.",
+    "mutationsDisabled": "Environment creation is disabled in this deployment.",
+    "empty": "There are no managed isolated environments yet.",
+    "status": {
+      "ready": "Ready",
+      "migration_review": "Under review",
+      "migration_ready": "Ready for migration review",
+      "migration_blocked": "Migration blocked"
+    }
+  },
+  "capabilityRoadmap": {
+    "eyebrow": "Product assessment",
+    "title": "What exists and what is missing",
+    "description": "Compares the latest Umbravia Forge assessment with the current code and capabilities observed in the market.",
+    "loadError": "The capability roadmap could not be loaded.",
+    "current": "What exists",
+    "gap": "What is missing",
+    "evidence": "Local evidence",
+    "openDestination": "Open destination",
+    "status": {
+      "implemented": "Implemented",
+      "partial": "Partial",
+      "prepared": "Prepared",
+      "missing": "Pending"
     }
   },
   "classes": {

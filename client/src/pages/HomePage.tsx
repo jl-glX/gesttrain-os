@@ -12,6 +12,8 @@ import {
   Building2,
   MonitorDown,
   ServerCog,
+  Database,
+  Route,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { useCurrentUser } from "../hooks/useCurrentUser";
@@ -164,6 +166,18 @@ function AdminHome({ name }: { name: string }) {
       icon: ServerCog,
       title: t("adminHome.resources"),
       text: t("adminHome.resourcesDescription"),
+    },
+    {
+      to: "/admin/environment-manager",
+      icon: Database,
+      title: t("adminHome.environments"),
+      text: t("adminHome.environmentsDescription"),
+    },
+    {
+      to: "/admin/capability-roadmap",
+      icon: Route,
+      title: t("adminHome.capabilityRoadmap"),
+      text: t("adminHome.capabilityRoadmapDescription"),
     },
   ];
 

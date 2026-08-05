@@ -33,6 +33,8 @@ import { delegationsRouter } from "./routes/delegations.js";
 import { downloadsRouter } from "./routes/downloads.js";
 import { resourceManagerRouter } from "./routes/resource-manager.js";
 import { securityManagerRouter } from "./routes/security-manager.js";
+import { environmentManagerRouter } from "./routes/environment-manager.js";
+import { capabilityRoadmapRouter } from "./routes/capability-roadmap.js";
 import { commercialRouter } from "./routes/commercial.js";
 import { communityRouter } from "./routes/community.js";
 import { moderationRouter } from "./routes/moderation.js";
@@ -127,6 +129,8 @@ app.use("/api/account/delegations", delegationsRouter);
 app.use("/api/downloads", downloadsRouter);
 app.use("/api/admin/resource-manager", resourceManagerRouter);
 app.use("/api/admin/security-manager", securityManagerRouter);
+app.use("/api/admin/environment-manager", environmentManagerRouter);
+app.use("/api/admin/capability-roadmap", capabilityRoadmapRouter);
 app.use("/api/commercial", commercialRouter);
 app.use("/api/community", communityRouter);
 app.use("/api/moderation", moderationRouter);
@@ -202,8 +206,8 @@ export function stopServer(server: Server): void {
   void (async () => {
     await stopAccountLifecycleScheduler();
     await stopResourceManager();
-    server.close((error) => {
-      closeDatabase();
+    server.close(async (error) => {
+      await closeDatabase();
       if (error) console.error("Failed to stop API server:", error);
       process.exit(error ? 1 : 0);
     });
@@ -221,9 +225,9 @@ if (
       process.once("SIGINT", () => stopServer(server));
       process.once("SIGTERM", () => stopServer(server));
     })
-    .catch((error: unknown) => {
+    .catch(async (error: unknown) => {
       console.error("Failed to start server:", error);
-      closeDatabase();
+      await closeDatabase();
       process.exit(1);
     });
 }

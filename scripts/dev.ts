@@ -78,7 +78,7 @@ async function shutdown(exitCode: number): Promise<void> {
   }
 
   try {
-    closeDatabase();
+    await closeDatabase();
   } catch (error) {
     console.error("Failed to close the development database:", error);
     finalExitCode = 1;

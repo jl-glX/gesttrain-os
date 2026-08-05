@@ -143,6 +143,10 @@
     "securityManagerDescription": "Centraliza controles, señales y observaciones de riesgo sin aplicar bloqueos automáticos.",
     "dataRetention": "Retención de datos",
     "dataRetentionDescription": "Prepara políticas en borrador y revisa sus futuros registros.",
+    "environmentManager": "Gestor de entornos",
+    "environmentManagerDescription": "Crea entornos SQLite aislados y prepara su promoción revisada a PostgreSQL.",
+    "capabilityRoadmap": "Ruta de capacidades",
+    "capabilityRoadmapDescription": "Compara lo implementado, lo parcial y lo que todavía falta frente al mercado.",
     "notifications": "Notificaciones",
     "notificationsDescription": "El centro de preferencias y avisos se habilitará en una próxima fase.",
     "preferences": "Preferencias",
@@ -548,7 +552,11 @@
     "downloads": "Centro de descargas",
     "downloadsDescription": "Accede a las aplicaciones oficiales y al paquete portátil de Umbravia Forge.",
     "resources": "Recursos del servidor",
-    "resourcesDescription": "Supervisa y controla las tareas internas registradas por Umbravia Forge."
+    "resourcesDescription": "Supervisa y controla las tareas internas registradas por Umbravia Forge.",
+    "environments": "Entornos y bases de datos",
+    "environmentsDescription": "Administra demos aisladas y su preparación para PostgreSQL.",
+    "capabilityRoadmap": "Ruta de capacidades",
+    "capabilityRoadmapDescription": "Revisa la cobertura real y las carencias priorizadas del producto."
   },
   "downloads": {
     "eyebrow": "Umbravia Forge en todos tus dispositivos",
@@ -665,7 +673,59 @@
       "source-hygiene-audit": {
         "name": "Auditoría de higiene del código",
         "description": "Detecta archivos idénticos, vacíos o aparentemente obsoletos y los presenta para revisión sin borrar código automáticamente."
+      },
+      "environment-readiness-audit": {
+        "name": "Preparación de entornos",
+        "description": "Comprueba que los entornos SQLite administrados conservan un esquema completo antes de preparar su promoción a PostgreSQL."
       }
+    }
+  },
+  "environmentManager": {
+    "eyebrow": "Infraestructura de datos",
+    "title": "Gestor de entornos",
+    "description": "PostgreSQL es el motor principal de los entornos reales. SQLite queda limitado a desarrollo, pruebas, demostraciones y MVP comerciales aislados.",
+    "loadError": "No se ha podido cargar el gestor de entornos.",
+    "createError": "No se ha podido crear el entorno aislado.",
+    "planError": "No se ha podido preparar el plan de migración.",
+    "activeEngine": "Motor activo",
+    "primaryEngine": "Motor principal",
+    "migrationMode": "Modo de migración",
+    "reviewFirst": "Revisión previa",
+    "createTitle": "Crear un entorno SQLite aislado",
+    "name": "Nombre del entorno",
+    "slug": "Identificador técnico",
+    "kind": "Uso",
+    "customerSandbox": "Prueba virtual de cliente",
+    "commercialMvp": "MVP comercial aislado",
+    "create": "Crear entorno",
+    "prepareMigration": "Preparar migración",
+    "planSummary": "{{rows}} registros inventariados para revisión.",
+    "sensitiveReview": "Hay categorías sensibles y requieren autorización específica antes de transferirse.",
+    "noSensitiveData": "No se han detectado registros en categorías sensibles.",
+    "executionDisabled": "La ejecución automática está desactivada: este paso solo valida y prepara el traslado.",
+    "mutationsDisabled": "La creación de entornos está desactivada en este despliegue.",
+    "empty": "Todavía no hay entornos aislados administrados.",
+    "status": {
+      "ready": "Preparado",
+      "migration_review": "En revisión",
+      "migration_ready": "Listo para revisión de migración",
+      "migration_blocked": "Migración bloqueada"
+    }
+  },
+  "capabilityRoadmap": {
+    "eyebrow": "Diagnóstico de producto",
+    "title": "Qué existe y qué falta",
+    "description": "Contrasta el último diagnóstico de Umbravia Forge con el código actual y con capacidades observadas en el mercado.",
+    "loadError": "No se ha podido cargar la ruta de capacidades.",
+    "current": "Qué hay",
+    "gap": "Qué falta",
+    "evidence": "Evidencia local",
+    "openDestination": "Abrir destino",
+    "status": {
+      "implemented": "Implementado",
+      "partial": "Parcial",
+      "prepared": "Preparado",
+      "missing": "Pendiente"
     }
   },
   "classes": {

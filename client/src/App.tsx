@@ -119,6 +119,14 @@ const SecurityManagerPage = lazyPage(
   () => import("./pages/SecurityManagerPage"),
   "SecurityManagerPage",
 );
+const EnvironmentManagerPage = lazyPage(
+  () => import("./pages/EnvironmentManagerPage"),
+  "EnvironmentManagerPage",
+);
+const CapabilityRoadmapPage = lazyPage(
+  () => import("./pages/CapabilityRoadmapPage"),
+  "CapabilityRoadmapPage",
+);
 const BillingPage = lazyPage(
   () => import("./pages/BillingPage"),
   "BillingPage",
@@ -361,6 +369,22 @@ function AppContent() {
             element={
               <ProtectedRoute requiredRole="admin">
                 <SecurityManagerPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/environment-manager"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <EnvironmentManagerPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/capability-roadmap"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <CapabilityRoadmapPage />
               </ProtectedRoute>
             }
           />

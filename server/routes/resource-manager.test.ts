@@ -95,6 +95,10 @@ describe("resource manager API", () => {
           id: "source-hygiene-audit",
           enabled: false,
         }),
+        expect.objectContaining({
+          id: "environment-readiness-audit",
+          enabled: true,
+        }),
       ]),
     );
     expect(

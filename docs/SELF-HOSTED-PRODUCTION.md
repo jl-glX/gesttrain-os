@@ -26,11 +26,14 @@ El proyecto incluye:
 - paquete de despliegue independiente del proveedor;
 - endpoints `/api/health/live` y `/api/health`;
 - validación local de la configuración PostgreSQL sin abrir conexiones.
+- selección efectiva del cliente PostgreSQL compartido en `staging` y
+  `production`;
+- gestor coordinado para crear entornos SQLite aislados e inventariar su futura
+  promoción.
 
-La activación del cliente PostgreSQL compartido debe realizarse después de
-probar las migraciones contra una instancia de staging autorizada. Hasta ese
-momento el servidor rechaza un arranque de producción que anuncie PostgreSQL
-pero continúe usando el cliente SQLite.
+El cliente compartido ya selecciona PostgreSQL cuando lo exige el perfil. Esto
+no sustituye la prueba contra una instancia de staging autorizada: el despliegue
+real sigue bloqueado hasta comprobar migraciones, persistencia y restauración.
 
 ## Perfiles de entorno
 
@@ -117,9 +120,11 @@ La primera prueba debe usar una base vacía de staging. El orden recomendado es:
 6. reiniciar aplicación y base para comprobar persistencia;
 7. ensayar copia de seguridad y restauración antes de admitir datos reales.
 
-Los datos SQLite no se migran automáticamente. Cualquier traslado requiere
-detener escrituras, respaldar, clasificar datos reales y ficticios, transformar,
-cargar por dependencias y conservar una vía de reversión.
+El gestor puede inspeccionar cada SQLite y preparar un plan por categorías. Los
+datos no se transfieren automáticamente. Cualquier traslado requiere detener
+escrituras, identificar el destino, respaldar, clasificar datos reales y
+ficticios, excluir credenciales efímeras, cargar por dependencias, comparar
+recuentos y conservar una vía de reversión.
 
 ## Operación y recuperación
 
@@ -137,7 +142,7 @@ cargar por dependencias y conservar una vía de reversión.
 2. Instalar Node.js, PostgreSQL o su cliente, y el proxy HTTPS.
 3. Crear usuarios del sistema y reglas de firewall.
 4. Configurar secretos fuera del repositorio.
-5. Validar PostgreSQL y activar el cliente compartido tras la revisión.
+5. Validar el cliente PostgreSQL compartido y sus migraciones.
 6. Construir y desplegar una versión inmutable.
 7. Confirmar salud, autenticación, passkeys, CAPTCHA y reservas.
 8. Reiniciar todos los servicios y comprobar persistencia.

@@ -2,7 +2,9 @@
 
 ## Overview
 
-Umbravia Forge is a TypeScript application with a React client, an Express API and a SQLite database accessed through Kysely.
+Umbravia Forge is a TypeScript application with a React client, an Express API
+and a provider-selecting Kysely data layer. PostgreSQL is the primary engine for
+staging and production; SQLite supports development, tests and isolated demos.
 
 ```text
 Browser
@@ -12,7 +14,9 @@ Browser
   -> validation and authorization middleware
   -> domain services
   -> Kysely
-  -> SQLite
+  -> provider runtime
+       -> PostgreSQL (staging and production)
+       -> SQLite (development, tests and isolated demos)
 ```
 
 Development uses a single launcher for Vite and Express. Production builds the client into `dist/public` and compiles the server as Node ESM.
@@ -29,6 +33,9 @@ Development uses a single launcher for Vite and Express. Production builds the c
 - Public legal information.
 - Account identity, reversible closure scheduling and draft-only data-retention
   policies.
+- Coordinated account, security, resource and environment managers.
+- Isolated SQLite environment provisioning and reviewed PostgreSQL promotion
+  planning.
 
 ## Roles
 
@@ -48,8 +55,11 @@ Known demo classes are localized at display time. User-created names and descrip
 
 ## Evolution boundaries
 
-- Replace ad-hoc table initialization with migrations before production.
-- Move from local SQLite to a production-grade database when concurrency and deployment require it.
+- Validate the versioned PostgreSQL migrations against an authorized staging
+  instance and prove backup restoration before production.
+- Keep data transfer separate from migration planning: sensitive identity,
+  billing, community and authentication records require explicit approval and
+  a destination-specific procedure.
 - Keep the Umbravia Forge billing ledger separate from future Stripe payment processing. The current module records operational status; it does not move money.
 - Invoice details, archived records and custom billing cycles belong to Umbravia Forge's financial domain. The visible interface does not expose App-ProTrack as a product name.
 - Facility profile settings store the centre name, logo and accent colour separately from Umbravia Forge's product identity. Logo updates are admin-only and accept PNG, JPEG or WebP images up to 512 KB.

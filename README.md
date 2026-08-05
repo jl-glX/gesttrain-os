@@ -24,7 +24,8 @@ Umbravia Forge is a modular gym-management application for classes, bookings, wa
 
 - React 19, TypeScript 6, Vite 8 and Tailwind CSS 4.
 - Node.js 24 LTS, Express 5 and Kysely.
-- SQLite for local development and PostgreSQL as the production target.
+- PostgreSQL as the primary engine for staging and production, with SQLite
+  reserved for local development, automated tests and isolated commercial demos.
 - Vitest, ESLint and Prettier.
 
 ## Start locally
@@ -74,9 +75,12 @@ Development mode seeds demonstration accounts and classes. Demo credentials are 
 
 ## Known limitations
 
-- PostgreSQL migrations are prepared but still require validation against an
-  authorized self-hosted staging database before the shared client is switched
-  from SQLite.
+- The shared database client now selects PostgreSQL in staging/production and
+  SQLite in explicitly isolated environments. PostgreSQL still requires an
+  authorized integration test, backup and restoration exercise before launch.
+- SQLite-to-PostgreSQL promotion currently provides inventory and a guarded
+  review plan. It deliberately does not transfer identity, billing, community
+  or authentication data without a separately approved migration procedure.
 - Commercial trials still use a single shared centre and remain disabled by
   default in production until tenant isolation is implemented.
 - Password recovery, email verification and optional two-factor authentication are pending.

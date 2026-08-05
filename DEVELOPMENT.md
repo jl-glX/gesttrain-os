@@ -109,13 +109,21 @@ documented in `docs/dependency-policy.md`.
 
 ## Database changes
 
-The current MVP initializes SQLite tables from `server/db/client.ts`. Before production use, introduce versioned migrations and a documented backup/restore process. Local database files under `data/` are ignored by Git.
+The shared database facade in `server/db/client.ts` selects SQLite or PostgreSQL
+through the deployment configuration. SQLite schema initialization remains the
+self-contained path for development and isolated demos; PostgreSQL uses
+versioned migrations. Local database files under `data/` are ignored by Git.
 
 SQLite enables foreign-key checks, WAL journaling and a bounded busy timeout.
 Reservation and cancellation changes run in transactions. These protections
-improve the single-instance deployment; a multi-instance production service
-must move reservations to PostgreSQL or another database with equivalent
-transaction and locking guarantees.
+improve isolated single-instance environments. Staging and production require
+PostgreSQL and must validate locking, backup restoration and the main business
+flows against a real authorized instance before launch.
+
+The environment manager may create isolated SQLite databases and inventory
+their migration categories. It does not automatically copy credentials,
+identity, billing or community data. See
+`docs/DATABASE-ENVIRONMENT-MANAGER.md`.
 
 ## Adding a page or endpoint
 

@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 
-export type ManagerId = "account" | "security" | "resource";
+export type ManagerId = "account" | "security" | "resource" | "environment";
 export type ManagerSignalSeverity = "info" | "warning" | "critical";
 
 interface ActiveManagerOperation {
@@ -80,7 +80,7 @@ export async function withCoordinatedManagerOperation<T>(
 export function getManagerCoordinationStatus() {
   return {
     mode: "shared-runtime" as const,
-    managers: ["account", "security", "resource"] as const,
+    managers: ["account", "security", "resource", "environment"] as const,
     activeOperations: [...activeOperations.values()].map((operation) => ({
       ...operation,
       scopes: [...operation.scopes],
