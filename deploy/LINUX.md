@@ -105,6 +105,20 @@ correctas.
 - Conservar la versión anterior y revertir el enlace si la salud o los flujos
   esenciales fallan.
 
+## 7. Actualización automática opcional
+
+`auto-update.sh` y las unidades `umbravia-forge-update.*` permiten consultar
+`origin/main` cada 15 minutos. El flujo solo acepta avances descendientes del
+commit activo; nunca despliega una versión anterior ni una historia divergente.
+Cada candidato se construye en un árbol aislado, se instala como una release
+inmutable y debe superar las comprobaciones local y pública antes de quedar
+activo. Consulte `README.md` para instalar el usuario de construcción, el
+archivo `/etc/umbravia-forge/update.env` y el temporizador.
+
+La automatización no sustituye las copias de seguridad ni autoriza cambios
+incompatibles de esquema. Las migraciones destructivas deben seguir teniendo
+un procedimiento explícito, probado y reversible antes de entrar en `main`.
+
 Los escaneos automáticos continuarán existiendo mientras haya una IP pública.
 El objetivo es que no alcancen datos ni procesos internos, respondan de forma
 uniforme y queden observables. Ataques volumétricos superiores a la capacidad

@@ -67,6 +67,10 @@ for (const requiredFile of [
   "deploy/Caddyfile",
   "deploy/umbravia-forge.service",
   "deploy/umbravia-forge.env.template",
+  "deploy/auto-update.sh",
+  "deploy/umbravia-forge-update.env.template",
+  "deploy/umbravia-forge-update.service",
+  "deploy/umbravia-forge-update.timer",
 ]) {
   const platformPath = requiredFile.split("/").join(path.sep);
   if (!files.includes(platformPath)) {

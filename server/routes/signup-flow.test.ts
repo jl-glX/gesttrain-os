@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import request from "supertest";
 import bcryptjs from "bcryptjs";
+import Database from "better-sqlite3";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 describe("progressive account signup", () => {
@@ -21,7 +22,44 @@ describe("progressive account signup", () => {
   });
 
   afterAll(async () => {
-    database.closeDatabase();
+    await database.closeDatabase();
+    const reopened = new Database(join(directory, "database.sqlite"), {
+      readonly: true,
+    });
+    try {
+      const persisted = reopened
+        .prepare(
+          `SELECT email, name, lastName, countryCode, accountStatus,
+                  emailVerifiedAt, password
+             FROM users
+            WHERE email = ?`,
+        )
+        .get("new-account@example.com") as
+        | {
+            email: string;
+            name: string;
+            lastName: string;
+            countryCode: string;
+            accountStatus: string;
+            emailVerifiedAt: number | null;
+            password: string;
+          }
+        | undefined;
+      expect(persisted).toMatchObject({
+        email: "new-account@example.com",
+        name: "New",
+        lastName: "Account",
+        countryCode: "ES",
+        accountStatus: "active",
+        emailVerifiedAt: expect.any(Number),
+      });
+      expect(persisted?.password).toMatch(/^\$2[aby]\$12\$/);
+      await expect(
+        bcryptjs.compare("ProgressivePassword123", persisted?.password ?? ""),
+      ).resolves.toBe(true);
+    } finally {
+      reopened.close();
+    }
     vi.unstubAllEnvs();
     await rm(directory, { recursive: true, force: true });
   });

@@ -1,0 +1,12 @@
+[Unit]
+Description=Buscar nuevas releases de Umbravia Forge periodicamente
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=15min
+RandomizedDelaySec=2min
+Persistent=true
+Unit=umbravia-forge-update.service
+
+[Install]
+WantedBy=timers.target

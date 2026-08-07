@@ -18,6 +18,12 @@ documenta en `LINUX.md`.
 - `umbravia-forge.service`: servicio `systemd` sin privilegios, con reinicio
   limitado, cierre mediante `SIGTERM`, resolución portable de Node desde
   `/usr/local/bin` o `/usr/bin` y aislamiento del sistema de archivos.
+- `auto-update.sh`: actualización ascendente y atómica desde `origin/main`,
+  con bloqueo de concurrencia, compilación aislada, validación de salud y
+  reversión si la release nueva no responde.
+- `umbravia-forge-update.service` y `.timer`: comprobación periódica de cambios
+  cada 15 minutos, con un retraso aleatorio corto para evitar ejecuciones
+  simultáneas tras reinicios.
 - `audit-deployment-package.mjs`: impide empaquetar por accidente repositorios,
   secretos, claves privadas o bases de datos locales.
 
@@ -86,6 +92,47 @@ Las comprobaciones ofensivas del perímetro se harán más adelante sobre una
 preproducción pública controlada. Los logs se consultan con
 `journalctl -u umbravia-forge` y en
 `/var/log/caddy/umbravia-forge-access.log`.
+
+## Actualizaciones periódicas sin regresiones
+
+El actualizador opcional consulta exclusivamente la punta configurada de
+`origin/main`. Si el commit remoto coincide con el desplegado, no hace nada. Si
+es anterior o pertenece a una historia divergente, rechaza la operación: una
+comprobación automática nunca puede degradar el servidor a una versión vieja.
+
+La construcción se realiza en un `worktree` temporal con el usuario aislado
+`umbravia-updater`. Solo después de superar el empaquetado, la auditoría de la
+release, la instalación Linux de dependencias y el comprobador de preparación
+se cambia atómicamente el enlace `current`. La release anterior se conserva
+como mecanismo de reversión y se restaura si falla la salud local o pública.
+
+Instalación inicial:
+
+```text
+sudo useradd --system --home /var/lib/umbravia-forge-updater \
+  --create-home --shell /usr/sbin/nologin umbravia-updater
+sudo install -m 0755 deploy/auto-update.sh /usr/local/sbin/umbravia-forge-update
+sudo install -m 0644 deploy/umbravia-forge-update.service /etc/systemd/system/
+sudo install -m 0644 deploy/umbravia-forge-update.timer /etc/systemd/system/
+sudo install -m 0640 -o root -g root \
+  deploy/umbravia-forge-update.env.template /etc/umbravia-forge/update.env
+```
+
+Antes de activarlo hay que sustituir la clave pública de Turnstile y la URL de
+salud pública en `update.env`. Después se ejecuta una comprobación manual:
+
+```text
+sudo systemctl daemon-reload
+sudo systemctl start umbravia-forge-update.service
+sudo systemctl status umbravia-forge-update.service --no-pager
+sudo systemctl enable --now umbravia-forge-update.timer
+systemctl list-timers umbravia-forge-update.timer
+```
+
+El intervalo predeterminado es de 15 minutos. Se cambia mediante un override de
+`systemd` sobre `OnUnitActiveSec`; no es necesario modificar el script ni la
+aplicación. La ejecución usa un bloqueo exclusivo, por lo que una compilación
+lenta nunca se solapa con la siguiente comprobación.
 
 Los escaneos de Internet no se pueden impedir por completo. La defensa busca
 que sean inofensivos y observables: Caddy corta las sondas conocidas, Express
