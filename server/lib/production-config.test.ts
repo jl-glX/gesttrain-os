@@ -10,6 +10,13 @@ const validEnvironment = {
   DATABASE_URL: "postgresql://example.invalid/umbravia_forge",
   TURNSTILE_SECRET_KEY: "turnstile-secret",
   MFA_ENCRYPTION_KEY: Buffer.alloc(32, 7).toString("base64"),
+  SMTP_HOST: "smtp.example.invalid",
+  SMTP_PORT: "587",
+  SMTP_SECURE: "false",
+  SMTP_REQUIRE_TLS: "true",
+  SMTP_USER: "smtp-user",
+  SMTP_PASSWORD: "smtp-password",
+  EMAIL_FROM: "Umbravia Forge <no-reply@example.invalid>",
   HOST: "127.0.0.1",
   SEED_DEMO_DATA: "false",
 };
@@ -56,6 +63,27 @@ describe("production configuration", () => {
         CLIENT_ORIGIN: "http://demo.umbravia-forge.example",
       }),
     ).toThrow(/HTTPS/);
+  });
+
+  it("rejects production without a complete email delivery channel", () => {
+    expect(() =>
+      validateProductionConfiguration({
+        ...validEnvironment,
+        SMTP_HOST: "",
+        SMTP_PORT: "",
+        SMTP_SECURE: "",
+        SMTP_REQUIRE_TLS: "",
+        SMTP_USER: "",
+        SMTP_PASSWORD: "",
+        EMAIL_FROM: "",
+      }),
+    ).toThrow(/email verification/i);
+    expect(() =>
+      validateProductionConfiguration({
+        ...validEnvironment,
+        SMTP_PASSWORD: "",
+      }),
+    ).toThrow(/configured together/i);
   });
 
   it("rejects public demo credentials in production", () => {

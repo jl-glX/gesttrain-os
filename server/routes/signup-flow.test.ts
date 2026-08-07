@@ -2,6 +2,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import request from "supertest";
+import bcryptjs from "bcryptjs";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 describe("progressive account signup", () => {
@@ -41,10 +42,27 @@ describe("progressive account signup", () => {
       .expect(201);
     expect(signup.body).toMatchObject({
       verificationRequired: true,
+      verificationEmailSent: false,
       demoVerificationCode: expect.stringMatching(/^\d{6}$/),
     });
     const cookie = signup.headers["set-cookie"][0];
     expect(signup.body.user).not.toHaveProperty("password");
+    const storedCredential = await database.db
+      .selectFrom("users")
+      .select(["email", "name", "lastName", "countryCode", "password"])
+      .where("email", "=", "new-account@example.com")
+      .executeTakeFirstOrThrow();
+    expect(storedCredential).toMatchObject({
+      email: "new-account@example.com",
+      name: "New",
+      lastName: "Account",
+      countryCode: "ES",
+    });
+    expect(storedCredential.password).not.toBe("ProgressivePassword123");
+    expect(storedCredential.password).toMatch(/^\$2[aby]\$12\$/);
+    await expect(
+      bcryptjs.compare("ProgressivePassword123", storedCredential.password),
+    ).resolves.toBe(true);
     const storedChallenge = await database.db
       .selectFrom("emailVerificationChallenges")
       .select("codeHash")
@@ -84,6 +102,50 @@ describe("progressive account signup", () => {
     expect(login.body.user).not.toHaveProperty("password");
   });
 
+  it("rotates the verification challenge when a pending account requests another email", async () => {
+    const signup = await request(app)
+      .post("/api/auth/signup")
+      .send({
+        email: "resend-verification@example.com",
+        name: "Resend",
+        lastName: "Verification",
+        password: "ProgressivePassword123",
+        countryCode: "ES",
+        locale: "es",
+        acceptedTerms: true,
+        acceptedPrivacy: true,
+      })
+      .expect(201);
+    const cookie = signup.headers["set-cookie"][0];
+    const before = await database.db
+      .selectFrom("emailVerificationChallenges")
+      .select("codeHash")
+      .where("userId", "=", signup.body.user.id)
+      .executeTakeFirstOrThrow();
+
+    const resend = await request(app)
+      .post("/api/auth/resend-verification")
+      .set("Cookie", cookie)
+      .expect(202);
+    expect(resend.body).toMatchObject({
+      sent: false,
+      demoVerificationCode: expect.stringMatching(/^\d{6}$/),
+    });
+
+    const after = await database.db
+      .selectFrom("emailVerificationChallenges")
+      .select("codeHash")
+      .where("userId", "=", signup.body.user.id)
+      .executeTakeFirstOrThrow();
+    expect(after.codeHash).not.toBe(before.codeHash);
+
+    await request(app)
+      .post("/api/auth/verify-email")
+      .set("Cookie", cookie)
+      .send({ code: resend.body.demoVerificationCode })
+      .expect(200, { verified: true });
+  });
+
   it("rejects signup without both explicit acknowledgements", async () => {
     await request(app)
       .post("/api/auth/signup")
@@ -98,5 +160,45 @@ describe("progressive account signup", () => {
         acceptedPrivacy: false,
       })
       .expect(400);
+  });
+
+  it("removes an incomplete account when the verification message cannot be accepted", async () => {
+    const email = "undeliverable-signup@example.com";
+    process.env.SMTP_HOST = "127.0.0.1";
+    process.env.SMTP_PORT = "1";
+    process.env.SMTP_SECURE = "false";
+    process.env.SMTP_REQUIRE_TLS = "false";
+    process.env.EMAIL_FROM = "Umbravia Forge <no-reply@example.com>";
+    try {
+      await request(app)
+        .post("/api/auth/signup")
+        .send({
+          email,
+          name: "Undeliverable",
+          lastName: "Signup",
+          password: "ProgressivePassword123",
+          countryCode: "ES",
+          locale: "es",
+          acceptedTerms: true,
+          acceptedPrivacy: true,
+        })
+        .expect(503, {
+          code: "EMAIL_DELIVERY_UNAVAILABLE",
+          error:
+            "Verification email could not be sent. Please try again later.",
+        });
+      const stored = await database.db
+        .selectFrom("users")
+        .select("id")
+        .where("email", "=", email)
+        .executeTakeFirst();
+      expect(stored).toBeUndefined();
+    } finally {
+      delete process.env.SMTP_HOST;
+      delete process.env.SMTP_PORT;
+      delete process.env.SMTP_SECURE;
+      delete process.env.SMTP_REQUIRE_TLS;
+      delete process.env.EMAIL_FROM;
+    }
   });
 });

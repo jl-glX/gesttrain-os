@@ -17,7 +17,9 @@ export function VerifyEmailPage() {
     ?.demoVerificationCode;
   const [code, setCode] = useState(demoCode ?? "");
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  const [resending, setResending] = useState(false);
 
   const verify = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -39,6 +41,33 @@ export function VerifyEmailPage() {
     }
   };
 
+  const resend = async () => {
+    setResending(true);
+    setError("");
+    setNotice("");
+    try {
+      const response = await authFetch("/api/auth/resend-verification", {
+        method: "POST",
+      });
+      if (!response.ok) throw new Error(t("emailVerification.resendFailed"));
+      if (response.status === 204) {
+        await refreshUser();
+        navigate("/account/security");
+        return;
+      }
+      const result = (await response.json()) as {
+        sent: boolean;
+        demoVerificationCode?: string;
+      };
+      if (result.demoVerificationCode) setCode(result.demoVerificationCode);
+      setNotice(t("emailVerification.resent"));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setResending(false);
+    }
+  };
+
   return (
     <AuthShell
       eyebrow={t("emailVerification.eyebrow")}
@@ -51,6 +80,7 @@ export function VerifyEmailPage() {
         </p>
       )}
       {error && <p className="mb-4 text-sm text-red-700">{error}</p>}
+      {notice && <p className="mb-4 text-sm text-emerald-700">{notice}</p>}
       <form onSubmit={verify} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email-code">{t("emailVerification.code")}</Label>
@@ -69,6 +99,17 @@ export function VerifyEmailPage() {
             : t("emailVerification.action")}
         </Button>
       </form>
+      <Button
+        type="button"
+        variant="outline"
+        className="mt-3 w-full"
+        disabled={busy || resending}
+        onClick={resend}
+      >
+        {resending
+          ? t("emailVerification.resending")
+          : t("emailVerification.resend")}
+      </Button>
     </AuthShell>
   );
 }

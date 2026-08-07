@@ -7,6 +7,8 @@ Umbravia Forge is a modular gym-management application for classes, bookings, wa
 ## Current capabilities
 
 - Account registration and persistent, revocable sessions.
+- Versioned legal acknowledgements and six-digit email verification with a
+  provider-neutral SMTP transport.
 - Member, trainer and administrator permissions enforced by the API.
 - Class calendar, capacity, bookings and FIFO waitlist promotion.
 - Member, trainer and administrator dashboards.
@@ -83,7 +85,10 @@ Development mode seeds demonstration accounts and classes. Demo credentials are 
   or authentication data without a separately approved migration procedure.
 - Commercial trials still use a single shared centre and remain disabled by
   default in production until tenant isolation is implemented.
-- Password recovery, email verification and optional two-factor authentication are pending.
+- Password recovery remains pending. Email verification is implemented through
+  SMTP and production fails closed until a relay or local mail transfer agent is
+  configured. Optional two-factor authentication remains available as a
+  separate account-security capability.
 - Payments, subscriptions and refunds are not implemented.
 - Legal pages are drafts and still require real contact, tax and business information plus professional review.
 - Notifications and real-time updates are not implemented.

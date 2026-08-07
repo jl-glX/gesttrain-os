@@ -10,6 +10,12 @@ import { recordSecurityEvent } from "./security-events.js";
 const CHALLENGE_DURATION_MS = 15 * 60 * 1000;
 const MAX_ATTEMPTS = 5;
 
+export type PendingEmailVerificationProfile = {
+  email: string;
+  name: string;
+  locale: "es" | "en" | "de" | "de-CH";
+};
+
 function hashCode(
   code: string,
   salt = randomBytes(16).toString("hex"),
@@ -48,6 +54,25 @@ export async function createEmailVerificationChallenge(
     })
     .execute();
   return code;
+}
+
+export async function getPendingEmailVerificationProfile(
+  userId: string,
+): Promise<PendingEmailVerificationProfile | null> {
+  const user = await db
+    .selectFrom("users")
+    .select(["email", "name", "locale", "accountStatus"])
+    .where("id", "=", userId)
+    .executeTakeFirst();
+  if (!user || user.accountStatus !== "pending_verification") return null;
+  const locale = ["es", "en", "de", "de-CH"].includes(user.locale)
+    ? (user.locale as PendingEmailVerificationProfile["locale"])
+    : "es";
+  return {
+    email: user.email,
+    name: user.name,
+    locale,
+  };
 }
 
 export async function verifyEmailCode(
@@ -90,4 +115,13 @@ export async function verifyEmailCode(
   });
   await recordSecurityEvent("email_verified", userId);
   return true;
+}
+
+export async function discardPendingSignup(userId: string): Promise<void> {
+  await db
+    .deleteFrom("users")
+    .where("id", "=", userId)
+    .where("accountStatus", "=", "pending_verification")
+    .where("emailVerifiedAt", "is", null)
+    .execute();
 }

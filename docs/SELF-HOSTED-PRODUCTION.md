@@ -98,6 +98,13 @@ WEBAUTHN_ORIGIN=https://<dominio>
 WEBAUTHN_RP_ID=<dominio sin protocolo>
 TURNSTILE_SECRET_KEY=<secreto>
 MFA_ENCRYPTION_KEY=<clave aleatoria segura>
+SMTP_HOST=<relay SMTP o 127.0.0.1>
+SMTP_PORT=<puerto SMTP>
+SMTP_SECURE=<true para TLS implicito>
+SMTP_REQUIRE_TLS=<true para exigir STARTTLS>
+SMTP_USER=<opcional; siempre junto a SMTP_PASSWORD>
+SMTP_PASSWORD=<secreto opcional>
+EMAIL_FROM=<remitente verificado>
 SEED_DEMO_DATA=false
 COMMERCIAL_TRIALS_ENABLED=false
 ```
@@ -107,6 +114,25 @@ limitado a `localhost`. Si la base está en otra máquina, debe usarse TLS con
 verificación de certificado. La clave pública `VITE_TURNSTILE_SITE_KEY` se
 inyecta durante `npm run deploy:package`; la clave privada nunca se incorpora al
 cliente.
+
+## Verificacion de correo
+
+Produccion no admite registros hasta disponer de un canal SMTP completo. La
+aplicacion genera un codigo de seis cifras, conserva solo su derivado mediante
+`scrypt`, limita los reenvios y elimina el alta incompleta si el primer mensaje
+no puede ser aceptado por el transporte.
+
+Hay dos configuraciones compatibles:
+
+- relay externo: puerto 587 con `SMTP_REQUIRE_TLS=true` y credenciales;
+- MTA propio: Postfix en `127.0.0.1:25`, sin autenticacion y sin TLS en el salto
+  de loopback. Postfix se responsabiliza de la cola, reintentos, TLS saliente y
+  entrega.
+
+El segundo modelo no elimina los requisitos operativos del correo publico. Se
+necesitan dominio propio, PTR/rDNS, SPF, DKIM, DMARC, puerto saliente 25,
+gestion de rebotes, lista de supresion, monitorizacion y reputacion de IP. El
+relay local nunca debe escuchar como relay abierto en una interfaz publica.
 
 Antes del despliegue puede revisarse la configuración sin conectar:
 

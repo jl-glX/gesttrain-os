@@ -8,6 +8,7 @@ import {
 } from "../services/auth.js";
 import {
   authenticationLimiter,
+  emailVerificationLimiter,
   loginLimiter,
   signupLimiter,
 } from "../middleware/security.js";
@@ -43,8 +44,14 @@ import type { AuthenticationResponseJSON } from "@simplewebauthn/server";
 import { getWebauthnContext } from "../lib/request-origin.js";
 import {
   createEmailVerificationChallenge,
+  discardPendingSignup,
+  getPendingEmailVerificationProfile,
   verifyEmailCode,
 } from "../services/email-verification.js";
+import {
+  EmailDeliveryUnavailableError,
+  sendEmailVerificationCode,
+} from "../services/email-delivery.js";
 import { requireCaptcha } from "../middleware/captcha.js";
 import { captchaIsConfigured } from "../services/captcha.js";
 import { getRecoveryCapabilities } from "../services/account-recovery.js";
@@ -103,6 +110,7 @@ authRouter.post(
   signupValidation,
   requireCaptcha("signup"),
   async (req: express.Request, res: express.Response) => {
+    let createdUserId: string | null = null;
     try {
       const {
         email,
@@ -127,18 +135,79 @@ authRouter.post(
           acceptedPrivacy,
         },
       );
+      createdUserId = user.id;
       const verificationCode = await createEmailVerificationChallenge(user.id);
+      const delivery = await sendEmailVerificationCode({
+        email: user.email,
+        name: user.name,
+        code: verificationCode,
+        locale,
+      });
       setSessionCookie(res, sessionToken);
       res.status(201).json({
         user,
         verificationRequired: true,
+        verificationEmailSent: delivery.delivered,
         demoVerificationCode:
           process.env.NODE_ENV === "production" ? undefined : verificationCode,
       });
     } catch (error) {
+      if (createdUserId) {
+        try {
+          await discardPendingSignup(createdUserId);
+        } catch {
+          console.error("[Auth] Incomplete signup cleanup failed");
+        }
+      }
       console.error("[Auth] Signup failed");
-      res.status(400).json({
-        error: error instanceof Error ? error.message : "Signup failed",
+      const deliveryUnavailable =
+        error instanceof EmailDeliveryUnavailableError;
+      res.status(deliveryUnavailable ? 503 : 400).json(
+        deliveryUnavailable
+          ? {
+              code: "EMAIL_DELIVERY_UNAVAILABLE",
+              error:
+                "Verification email could not be sent. Please try again later.",
+            }
+          : {
+              error: error instanceof Error ? error.message : "Signup failed",
+            },
+      );
+    }
+  },
+);
+
+authRouter.post(
+  "/resend-verification",
+  authenticateAccountSession,
+  emailVerificationLimiter,
+  async (_req: express.Request, res: express.Response) => {
+    try {
+      const { userId } = getAuthenticatedUser(res);
+      const profile = await getPendingEmailVerificationProfile(userId);
+      if (!profile) {
+        res.status(204).end();
+        return;
+      }
+      const code = await createEmailVerificationChallenge(userId);
+      const delivery = await sendEmailVerificationCode({ ...profile, code });
+      res.status(202).json({
+        sent: delivery.delivered,
+        demoVerificationCode:
+          process.env.NODE_ENV === "production" ? undefined : code,
+      });
+    } catch (error) {
+      if (error instanceof EmailDeliveryUnavailableError) {
+        res.status(503).json({
+          code: "EMAIL_DELIVERY_UNAVAILABLE",
+          error:
+            "Verification email could not be sent. Please try again later.",
+        });
+        return;
+      }
+      res.status(500).json({
+        code: "EMAIL_VERIFICATION_FAILED",
+        error: "Verification email could not be prepared.",
       });
     }
   },

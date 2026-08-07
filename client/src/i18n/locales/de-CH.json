@@ -124,7 +124,7 @@
     "preferredLanguage": "Bevorzugte Sprache",
     "acceptTermsPrefix": "Ich akzeptiere die",
     "acceptPrivacy": "Ich bestätige, dass ich die Datenschutzerklärung gelesen habe",
-    "emailVerificationPending": "Die echte E-Mail-Verifizierung ist noch nicht verbunden. Das Konto bleibt in dieser Demo als ausstehend markiert.",
+    "emailVerificationPending": "Wir senden einen temporären Code, um zu bestätigen, dass Sie die angegebene E-Mail-Adresse kontrollieren.",
     "cannotAccess": "Ich kann nicht auf mein Konto zugreifen",
     "countries": {
       "ES": "Spanien",
@@ -1376,7 +1376,11 @@
     "code": "Sechsstelliger Code",
     "action": "E-Mail verifizieren",
     "verifying": "Wird verifiziert...",
-    "invalid": "Der Code ist ungültig oder abgelaufen."
+    "invalid": "Der Code ist ungültig oder abgelaufen.",
+    "resend": "Neuen Code senden",
+    "resending": "Wird gesendet...",
+    "resent": "Wir haben einen neuen Code gesendet. Prüfen Sie bitte auch den Spam-Ordner.",
+    "resendFailed": "Es konnte kein neuer Code gesendet werden. Bitte versuchen Sie es später erneut."
   },
   "recovery": {
     "eyebrow": "Zugang und Wiederherstellung",

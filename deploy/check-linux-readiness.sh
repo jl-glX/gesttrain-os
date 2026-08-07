@@ -93,6 +93,28 @@ if [ -f "$ENV_FILE" ]; then
   else
     pass "$ENV_FILE no contiene marcadores conocidos"
   fi
+
+  for REQUIRED_ENV in SMTP_HOST SMTP_PORT EMAIL_FROM; do
+    if grep -Eq "^${REQUIRED_ENV}=.+" "$ENV_FILE"; then
+      pass "$REQUIRED_ENV configurado"
+    else
+      fail "$REQUIRED_ENV ausente para la verificacion de correo"
+    fi
+  done
+
+  SMTP_USER_PRESENT=0
+  SMTP_PASSWORD_PRESENT=0
+  if grep -Eq '^SMTP_USER=.+' "$ENV_FILE"; then
+    SMTP_USER_PRESENT=1
+  fi
+  if grep -Eq '^SMTP_PASSWORD=.+' "$ENV_FILE"; then
+    SMTP_PASSWORD_PRESENT=1
+  fi
+  if [ "$SMTP_USER_PRESENT" -eq "$SMTP_PASSWORD_PRESENT" ]; then
+    pass "credenciales SMTP coherentes"
+  else
+    fail "SMTP_USER y SMTP_PASSWORD deben configurarse juntos"
+  fi
 else
   fail "$ENV_FILE no existe"
 fi

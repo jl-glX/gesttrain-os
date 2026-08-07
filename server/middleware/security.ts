@@ -78,6 +78,24 @@ export const signupLimiter = rateLimit({
   },
 });
 
+export const emailVerificationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: parsePositiveInteger(
+    process.env.EMAIL_VERIFICATION_RATE_LIMIT_MAX_REQUESTS,
+    3,
+  ),
+  message: {
+    error: "Too many verification messages requested. Please try again later.",
+    code: "EMAIL_VERIFICATION_RATE_LIMITED",
+  },
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  validate: {
+    trustProxy: false,
+    xForwardedForHeader: false,
+  },
+});
+
 export const feedbackLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   limit: 5,

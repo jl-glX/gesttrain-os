@@ -36,23 +36,30 @@ orientation response; the actual interface remains on the frontend URL.
 
 Copy `.env.example` to `.env` to override defaults.
 
-| Variable                           | Purpose                                                          |
-| ---------------------------------- | ---------------------------------------------------------------- |
-| `NODE_ENV`                         | Runtime mode. Production enables stricter cookies, CSP and HSTS. |
-| `PORT`                             | Express API port. Defaults to `3001`.                            |
-| `CLIENT_ORIGIN`                    | Required HTTPS browser origin(s) in production.                  |
-| `WEBAUTHN_ORIGIN`                  | Public trusted origin used for passkey verification.             |
-| `WEBAUTHN_RP_ID`                   | Relying-party domain bound to passkey credentials.               |
-| `MAX_REQUEST_SIZE`                 | Maximum JSON and form body size.                                 |
-| `RATE_LIMIT_WINDOW_MINUTES`        | Rate-limit window.                                               |
-| `RATE_LIMIT_MAX_REQUESTS`          | General API request limit.                                       |
-| `AUTH_RATE_LIMIT_MAX_REQUESTS`     | Sensitive authentication action limit.                           |
-| `LOGIN_RATE_LIMIT_MAX_REQUESTS`    | Failed login attempt limit per 15-minute window.                 |
-| `SIGNUP_RATE_LIMIT_WINDOW_MINUTES` | Signup rate-limit window.                                        |
-| `SIGNUP_RATE_LIMIT_MAX_REQUESTS`   | Signup attempts allowed in that window.                          |
-| `SEED_DEMO_DATA`                   | Reserved for local demos; production rejects a `true` value.     |
-| `VITE_TURNSTILE_SITE_KEY`          | Public Turnstile widget key embedded by the client build.        |
-| `TURNSTILE_SECRET_KEY`             | Private server key used only for Siteverify validation.          |
+| Variable                                     | Purpose                                                          |
+| -------------------------------------------- | ---------------------------------------------------------------- |
+| `NODE_ENV`                                   | Runtime mode. Production enables stricter cookies, CSP and HSTS. |
+| `PORT`                                       | Express API port. Defaults to `3001`.                            |
+| `CLIENT_ORIGIN`                              | Required HTTPS browser origin(s) in production.                  |
+| `WEBAUTHN_ORIGIN`                            | Public trusted origin used for passkey verification.             |
+| `WEBAUTHN_RP_ID`                             | Relying-party domain bound to passkey credentials.               |
+| `MAX_REQUEST_SIZE`                           | Maximum JSON and form body size.                                 |
+| `RATE_LIMIT_WINDOW_MINUTES`                  | Rate-limit window.                                               |
+| `RATE_LIMIT_MAX_REQUESTS`                    | General API request limit.                                       |
+| `AUTH_RATE_LIMIT_MAX_REQUESTS`               | Sensitive authentication action limit.                           |
+| `LOGIN_RATE_LIMIT_MAX_REQUESTS`              | Failed login attempt limit per 15-minute window.                 |
+| `SIGNUP_RATE_LIMIT_WINDOW_MINUTES`           | Signup rate-limit window.                                        |
+| `SIGNUP_RATE_LIMIT_MAX_REQUESTS`             | Signup attempts allowed in that window.                          |
+| `EMAIL_VERIFICATION_RATE_LIMIT_MAX_REQUESTS` | Verification email resend limit per 15 minutes.                  |
+| `SEED_DEMO_DATA`                             | Reserved for local demos; production rejects a `true` value.     |
+| `VITE_TURNSTILE_SITE_KEY`                    | Public Turnstile widget key embedded by the client build.        |
+| `TURNSTILE_SECRET_KEY`                       | Private server key used only for Siteverify validation.          |
+| `SMTP_HOST`                                  | SMTP relay or local mail transfer agent host.                    |
+| `SMTP_PORT`                                  | SMTP submission port.                                            |
+| `SMTP_SECURE`                                | Enables implicit TLS, normally on port 465.                      |
+| `SMTP_REQUIRE_TLS`                           | Requires STARTTLS for a non-implicit TLS connection.             |
+| `SMTP_USER` / `SMTP_PASSWORD`                | Optional SMTP credentials; configure both or neither.            |
+| `EMAIL_FROM`                                 | Verified sender displayed on account emails.                     |
 
 Local development uses Cloudflare's official always-pass test pair when both
 Turnstile values are empty. Production requires real keys, a managed widget and
@@ -61,6 +68,14 @@ rejected. Use distinct widgets for development, staging and production, and
 rotate secrets through the provider rather than committing them.
 
 Never commit `.env`, databases, tokens or real customer data.
+
+Account verification uses a provider-neutral SMTP client. Development and test
+may omit SMTP and receive the demonstration code in the API response. A
+production-like profile requires a complete email channel. External relays must
+use implicit TLS or STARTTLS. A local Postfix instance may listen only on the
+loopback interface without authentication for the application-to-MTA hop; its
+Internet-facing delivery, DNS identity, queue, retries and abuse controls remain
+separate operational responsibilities.
 
 ## Project layout
 

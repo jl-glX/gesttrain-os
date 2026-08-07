@@ -3,6 +3,7 @@ import {
   resolveDeploymentProfile,
   type DeploymentProfile,
 } from "./deployment-profile.js";
+import { resolveEmailDeliveryConfiguration } from "../services/email-delivery.js";
 
 type ProductionConfiguration = {
   deploymentProfile: DeploymentProfile;
@@ -69,7 +70,14 @@ export function validateProductionConfiguration(
   required(environment, "DATABASE_URL");
   const turnstileSecret = required(environment, "TURNSTILE_SECRET_KEY");
   requireMfaEncryptionKey(environment);
+  const emailDelivery = resolveEmailDeliveryConfiguration(environment);
   const host = environment.HOST?.trim() || "127.0.0.1";
+
+  if (!emailDelivery) {
+    throw new Error(
+      "SMTP_HOST, SMTP_PORT and EMAIL_FROM are required for email verification in production",
+    );
+  }
 
   if (!isLoopbackHost(host)) {
     throw new Error(

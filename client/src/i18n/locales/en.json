@@ -497,7 +497,7 @@
     "preferredLanguage": "Preferred language",
     "acceptTermsPrefix": "I accept the",
     "acceptPrivacy": "I confirm that I have read the privacy policy",
-    "emailVerificationPending": "Real email verification is not connected yet. This demo will mark the account as pending verification.",
+    "emailVerificationPending": "We will send a temporary code to confirm that you control the email address provided.",
     "cannotAccess": "I cannot access my account",
     "countries": {
       "ES": "Spain",
@@ -1389,7 +1389,11 @@
     "code": "Six-digit code",
     "action": "Verify email",
     "verifying": "Verifying...",
-    "invalid": "The code is invalid or has expired."
+    "invalid": "The code is invalid or has expired.",
+    "resend": "Send a new code",
+    "resending": "Sending...",
+    "resent": "We sent a new code. Please also check your spam folder.",
+    "resendFailed": "Another code could not be sent. Please try again later."
   },
   "recovery": {
     "eyebrow": "Access and recovery",

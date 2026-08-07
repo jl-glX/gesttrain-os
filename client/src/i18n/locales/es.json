@@ -501,7 +501,7 @@
     "preferredLanguage": "Idioma preferido",
     "acceptTermsPrefix": "Acepto los",
     "acceptPrivacy": "Confirmo que he leído la política de privacidad",
-    "emailVerificationPending": "La verificación real por correo todavía no está conectada. La cuenta quedará pendiente de verificación en esta demostración.",
+    "emailVerificationPending": "Te enviaremos un código temporal para confirmar que controlas la dirección de correo indicada.",
     "cannotAccess": "No puedo acceder a mi cuenta",
     "countries": {
       "ES": "España",
@@ -1399,7 +1399,11 @@
     "code": "Código de seis cifras",
     "action": "Verificar correo",
     "verifying": "Verificando...",
-    "invalid": "El código no es válido o ha caducado."
+    "invalid": "El código no es válido o ha caducado.",
+    "resend": "Enviar un código nuevo",
+    "resending": "Enviando...",
+    "resent": "Hemos enviado un código nuevo. Revisa también la carpeta de correo no deseado.",
+    "resendFailed": "No se ha podido enviar otro código. Inténtalo de nuevo más tarde."
   },
   "recovery": {
     "eyebrow": "Acceso y recuperación",

@@ -30,5 +30,11 @@ describe("systemd deployment service", () => {
     expect(readiness).toContain("CADDY_VALIDATION_LOG=$(mktemp");
     expect(readiness).toContain('UMBRAVIA_CADDY_LOG="$CADDY_VALIDATION_LOG"');
     expect(readiness).toContain('rm -f "$CADDY_VALIDATION_LOG"');
+    expect(readiness).toContain(
+      "for REQUIRED_ENV in SMTP_HOST SMTP_PORT EMAIL_FROM",
+    );
+    expect(readiness).toContain(
+      "SMTP_USER y SMTP_PASSWORD deben configurarse juntos",
+    );
   });
 });
