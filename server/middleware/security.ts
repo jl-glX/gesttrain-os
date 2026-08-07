@@ -41,6 +41,43 @@ export const authenticationLimiter = rateLimit({
   },
 });
 
+export const loginLimiter = rateLimit({
+  windowMs,
+  limit: parsePositiveInteger(
+    process.env.LOGIN_RATE_LIMIT_MAX_REQUESTS,
+    parsePositiveInteger(process.env.AUTH_RATE_LIMIT_MAX_REQUESTS, 10),
+  ),
+  skipSuccessfulRequests: true,
+  message: {
+    error: "Too many login attempts. Please try again later.",
+    code: "AUTH_RATE_LIMITED",
+  },
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  validate: {
+    trustProxy: false,
+    xForwardedForHeader: false,
+  },
+});
+
+export const signupLimiter = rateLimit({
+  windowMs:
+    parsePositiveInteger(process.env.SIGNUP_RATE_LIMIT_WINDOW_MINUTES, 60) *
+    60 *
+    1000,
+  limit: parsePositiveInteger(process.env.SIGNUP_RATE_LIMIT_MAX_REQUESTS, 5),
+  message: {
+    error: "Too many signup attempts. Please try again later.",
+    code: "SIGNUP_RATE_LIMITED",
+  },
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  validate: {
+    trustProxy: false,
+    xForwardedForHeader: false,
+  },
+});
+
 export const feedbackLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   limit: 5,

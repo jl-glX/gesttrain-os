@@ -67,6 +67,10 @@ npm run deploy:package
 npm ci --omit=dev --prefix .deployment-package
 ```
 
+`deploy:package` se detiene si la compilación no recibe una clave pública real
+de Turnstile. Puede proporcionarse mediante `VITE_TURNSTILE_SITE_KEY` en el
+entorno de compilación o en un `.env.production` local que nunca se versiona.
+
 El paquete resultante queda en `.deployment-package`. No contiene `.env`, datos
 SQLite ni secretos. Debe copiarse a una nueva versión del servidor y activarse
 mediante un enlace o cambio atómico que permita volver a la versión anterior.
@@ -80,7 +84,7 @@ PORT=3001
 HOST=127.0.0.1
 DATABASE_PROVIDER=postgresql
 DATABASE_URL=<secreto de PostgreSQL>
-DATABASE_SSL=true
+DATABASE_SSL=false
 DATABASE_SSL_REJECT_UNAUTHORIZED=true
 CLIENT_ORIGIN=https://<dominio>
 WEBAUTHN_ORIGIN=https://<dominio>
@@ -90,6 +94,12 @@ MFA_ENCRYPTION_KEY=<clave aleatoria segura>
 SEED_DEMO_DATA=false
 COMMERCIAL_TRIALS_ENABLED=false
 ```
+
+`DATABASE_SSL=false` solo corresponde a PostgreSQL en el mismo servidor y
+limitado a `localhost`. Si la base está en otra máquina, debe usarse TLS con
+verificación de certificado. La clave pública `VITE_TURNSTILE_SITE_KEY` se
+inyecta durante `npm run deploy:package`; la clave privada nunca se incorpora al
+cliente.
 
 Antes del despliegue puede revisarse la configuración sin conectar:
 
@@ -107,6 +117,11 @@ npm run db:postgres:validate-config
 - Configurar HTTPS, HSTS y renovación automática de certificados en el proxy.
 - Enviar al proceso Node.js un único salto de proxy de confianza.
 - Restringir SSH por clave, usuario sin privilegios y firewall.
+
+Los archivos aplicables están en `deploy/Caddyfile` y
+`deploy/umbravia-forge.service`. La guía de instalación y verificación está en
+`deploy/README.md`. El `Caddyfile` requiere Caddy 2.10 o posterior por el límite
+exterior de cuerpo; siempre debe ejecutarse `caddy validate` antes de recargar.
 
 ## PostgreSQL
 
@@ -164,3 +179,11 @@ staging nunca se convierten en datos de producción.
 
 No se deben procesar datos reales ni abrir tráfico comercial antes de completar
 estas comprobaciones.
+
+## Evolución futura del perímetro
+
+Cuando exista un dominio propio, la posible incorporación de Cloudflare WAF/CDN
+se evaluará con el borrador
+[`FUTURE-CLOUDFLARE-EDGE.md`](./FUTURE-CLOUDFLARE-EDGE.md). Esa fase no forma
+parte del despliegue actual y no sustituirá los controles de Caddy, Express ni
+Turnstile.

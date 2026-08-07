@@ -14,6 +14,9 @@ await cp(
   path.join(output, "scripts", "start-production.mjs"),
 );
 await cp(path.join(root, "package.json"), path.join(output, "package.json"));
+await cp(path.join(root, "deploy"), path.join(output, "deploy"), {
+  recursive: true,
+});
 await cp(
   path.join(root, "package-lock.json"),
   path.join(output, "package-lock.json"),

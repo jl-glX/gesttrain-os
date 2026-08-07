@@ -127,6 +127,20 @@ describe("API security baseline", () => {
     expect(limitedStatus).toBe(429);
   });
 
+  it("limits signup independently and rejects scanner paths before the SPA", async () => {
+    let signupResponse: request.Response | undefined;
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      signupResponse = await request(app).post("/api/auth/signup").send({});
+    }
+
+    expect(signupResponse?.status).toBe(429);
+    expect(signupResponse?.body.code).toBe("SIGNUP_RATE_LIMITED");
+
+    const probe = await request(app).get("/.env.production").expect(404);
+    expect(probe.body.code).toBe("NOT_FOUND");
+    expect(probe.headers["cache-control"]).toBe("no-store");
+  });
+
   it("enables transport and content protections in production", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("CLIENT_ORIGIN", "https://umbravia-forge.example");

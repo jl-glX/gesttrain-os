@@ -56,6 +56,7 @@ import {
 } from "./services/account-lifecycle-scheduler.js";
 import { validateProductionConfiguration } from "./lib/production-config.js";
 import { parseServerPort } from "./lib/server-endpoint.js";
+import { rejectAutomatedProbe } from "./middleware/probe-protection.js";
 
 dotenv.config();
 
@@ -94,6 +95,11 @@ app.use(
       process.env.NODE_ENV === "production" ? undefined : false,
   }),
 );
+
+// Reject paths used by generic Internet scanners before they can fall through
+// to the SPA. Caddy applies the same policy at the edge; this is the fallback
+// when the application is reached directly from the local host.
+app.use(rejectAutomatedProbe);
 
 app.use("/api", apiSecurityHeaders);
 app.use("/api", enforceTrustedMutationOrigin);

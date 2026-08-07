@@ -1,0 +1,42 @@
+[Unit]
+Description=Umbravia Forge web application
+Documentation=https://github.com/jl-glX/umbravia-forge
+Wants=network-online.target
+After=network-online.target postgresql.service
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=umbravia
+Group=umbravia
+WorkingDirectory=/opt/umbravia-forge/current
+EnvironmentFile=/etc/umbravia-forge/umbravia-forge.env
+ExecStart=/usr/bin/node scripts/start-production.mjs
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+KillSignal=SIGTERM
+UMask=0077
+
+StateDirectory=umbravia-forge
+RuntimeDirectory=umbravia-forge
+ReadWritePaths=/var/lib/umbravia-forge
+
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectSystem=strict
+LockPersonality=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=
+AmbientCapabilities=
+
+[Install]
+WantedBy=multi-user.target

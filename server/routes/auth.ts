@@ -6,7 +6,11 @@ import {
   logoutAll,
   signup,
 } from "../services/auth.js";
-import { authenticationLimiter } from "../middleware/security.js";
+import {
+  authenticationLimiter,
+  loginLimiter,
+  signupLimiter,
+} from "../middleware/security.js";
 import {
   loginValidation,
   mfaCodeValidation,
@@ -94,7 +98,7 @@ authRouter.get("/recovery/capabilities", (_req, res) => {
 
 authRouter.post(
   "/signup",
-  authenticationLimiter,
+  signupLimiter,
   observeSecurityRisk("signup"),
   signupValidation,
   requireCaptcha("signup"),
@@ -157,7 +161,7 @@ authRouter.post(
 
 authRouter.post(
   "/login",
-  authenticationLimiter,
+  loginLimiter,
   observeSecurityRisk("password_login"),
   loginValidation,
   requireCaptcha("login"),

@@ -1,0 +1,40 @@
+{$UMBRAVIA_DOMAIN:umbravia-forge.duckdns.org} {
+	encode zstd gzip
+
+	@automated_probes {
+		path /.env* /.git* /.hg* /.svn* /config.json /wp-login.php /wp-admin* /wp-content* /xmlrpc.php /phpmyadmin* /adminer.php /server-status
+	}
+	respond @automated_probes 404
+
+	# Caddy 2.10 or newer. Express keeps stricter per-route limits as the
+	# authoritative second layer (32 KiB normally and 768 KiB for images).
+	request_body {
+		max_size 1MB
+	}
+
+	header {
+		-Server
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+
+	log {
+		output file /var/log/caddy/umbravia-forge-access.log {
+			roll_size 25MiB
+			roll_keep 10
+			roll_keep_for 720h
+		}
+		format json
+	}
+
+	reverse_proxy 127.0.0.1:3001 {
+		health_uri /api/health/live
+		health_interval 30s
+		health_timeout 5s
+		transport http {
+			dial_timeout 3s
+			response_header_timeout 30s
+		}
+	}
+}

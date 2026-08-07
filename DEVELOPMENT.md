@@ -36,20 +36,23 @@ orientation response; the actual interface remains on the frontend URL.
 
 Copy `.env.example` to `.env` to override defaults.
 
-| Variable                       | Purpose                                                          |
-| ------------------------------ | ---------------------------------------------------------------- |
-| `NODE_ENV`                     | Runtime mode. Production enables stricter cookies, CSP and HSTS. |
-| `PORT`                         | Express API port. Defaults to `3001`.                            |
-| `CLIENT_ORIGIN`                | Required HTTPS browser origin(s) in production.                  |
-| `WEBAUTHN_ORIGIN`              | Public trusted origin used for passkey verification.             |
-| `WEBAUTHN_RP_ID`               | Relying-party domain bound to passkey credentials.               |
-| `MAX_REQUEST_SIZE`             | Maximum JSON and form body size.                                 |
-| `RATE_LIMIT_WINDOW_MINUTES`    | Rate-limit window.                                               |
-| `RATE_LIMIT_MAX_REQUESTS`      | General API request limit.                                       |
-| `AUTH_RATE_LIMIT_MAX_REQUESTS` | Login and signup attempt limit.                                  |
-| `SEED_DEMO_DATA`               | Reserved for local demos; production rejects a `true` value.     |
-| `VITE_TURNSTILE_SITE_KEY`      | Public Turnstile widget key embedded by the client build.        |
-| `TURNSTILE_SECRET_KEY`         | Private server key used only for Siteverify validation.          |
+| Variable                           | Purpose                                                          |
+| ---------------------------------- | ---------------------------------------------------------------- |
+| `NODE_ENV`                         | Runtime mode. Production enables stricter cookies, CSP and HSTS. |
+| `PORT`                             | Express API port. Defaults to `3001`.                            |
+| `CLIENT_ORIGIN`                    | Required HTTPS browser origin(s) in production.                  |
+| `WEBAUTHN_ORIGIN`                  | Public trusted origin used for passkey verification.             |
+| `WEBAUTHN_RP_ID`                   | Relying-party domain bound to passkey credentials.               |
+| `MAX_REQUEST_SIZE`                 | Maximum JSON and form body size.                                 |
+| `RATE_LIMIT_WINDOW_MINUTES`        | Rate-limit window.                                               |
+| `RATE_LIMIT_MAX_REQUESTS`          | General API request limit.                                       |
+| `AUTH_RATE_LIMIT_MAX_REQUESTS`     | Sensitive authentication action limit.                           |
+| `LOGIN_RATE_LIMIT_MAX_REQUESTS`    | Failed login attempt limit per 15-minute window.                 |
+| `SIGNUP_RATE_LIMIT_WINDOW_MINUTES` | Signup rate-limit window.                                        |
+| `SIGNUP_RATE_LIMIT_MAX_REQUESTS`   | Signup attempts allowed in that window.                          |
+| `SEED_DEMO_DATA`                   | Reserved for local demos; production rejects a `true` value.     |
+| `VITE_TURNSTILE_SITE_KEY`          | Public Turnstile widget key embedded by the client build.        |
+| `TURNSTILE_SECRET_KEY`             | Private server key used only for Siteverify validation.          |
 
 Local development uses Cloudflare's official always-pass test pair when both
 Turnstile values are empty. Production requires real keys, a managed widget and

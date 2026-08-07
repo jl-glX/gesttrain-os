@@ -9,7 +9,8 @@ const validEnvironment = {
   DATABASE_PROVIDER: "postgresql",
   DATABASE_URL: "postgresql://example.invalid/umbravia_forge",
   TURNSTILE_SECRET_KEY: "turnstile-secret",
-  MFA_ENCRYPTION_KEY: "mfa-encryption-key",
+  MFA_ENCRYPTION_KEY: Buffer.alloc(32, 7).toString("base64"),
+  HOST: "127.0.0.1",
   SEED_DEMO_DATA: "false",
 };
 
@@ -64,5 +65,32 @@ describe("production configuration", () => {
         SEED_DEMO_DATA: "true",
       }),
     ).toThrow(/SEED_DEMO_DATA/);
+  });
+
+  it("rejects a public Node binding, placeholders and invalid MFA keys", () => {
+    expect(() =>
+      validateProductionConfiguration({
+        ...validEnvironment,
+        HOST: "0.0.0.0",
+      }),
+    ).toThrow(/loopback/i);
+    expect(() =>
+      validateProductionConfiguration({
+        ...validEnvironment,
+        TURNSTILE_SECRET_KEY: "replace-me",
+      }),
+    ).toThrow(/placeholder/i);
+    expect(() =>
+      validateProductionConfiguration({
+        ...validEnvironment,
+        TURNSTILE_SECRET_KEY: "1x0000000000000000000000000000000AA",
+      }),
+    ).toThrow(/test key/i);
+    expect(() =>
+      validateProductionConfiguration({
+        ...validEnvironment,
+        MFA_ENCRYPTION_KEY: "not-a-valid-key",
+      }),
+    ).toThrow(/32 random bytes/i);
   });
 });
