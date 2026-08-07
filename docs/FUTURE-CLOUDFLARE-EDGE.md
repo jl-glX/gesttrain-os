@@ -36,7 +36,7 @@ Internet -> Cloudflare WAF/CDN -> Caddy :443 -> Node 127.0.0.1:3001
    (`.env`, `.git`, WordPress, phpMyAdmin y equivalentes).
 5. Aplicar límites distintos a login, registro, recuperación, CAPTCHA y API
    general, manteniendo también los límites internos de Express.
-6. Mantener Turnstile con validación Siteverify en el servidor; el WAF no
+6. Mantener reCAPTCHA v3 con validación en el servidor; el WAF no
    sustituye esa comprobación.
 7. Cachear únicamente recursos estáticos versionados. No cachear API, HTML
    autenticado, cookies, datos de cuenta ni respuestas de error sensibles.
@@ -45,7 +45,7 @@ Internet -> Cloudflare WAF/CDN -> Caddy :443 -> Node 127.0.0.1:3001
    revisarse: Cloudflare añadirá otra capa delante de Caddy.
 9. Restringir el firewall del origen a las redes publicadas por Cloudflare, sin
    perder un acceso administrativo y una vía de reversión probados.
-10. Crear alertas sobre bloqueos, picos de 401/403/429/5xx, fallos de Turnstile
+10. Crear alertas sobre bloqueos, picos de 401/403/429/5xx, fallos de reCAPTCHA
     y cambios de disponibilidad del origen.
 
 ## Criterios de aceptación
@@ -53,7 +53,7 @@ Internet -> Cloudflare WAF/CDN -> Caddy :443 -> Node 127.0.0.1:3001
 - no es posible alcanzar el origen público evitando Cloudflare;
 - Caddy y Node conservan la IP real sin confiar en cabeceras arbitrarias;
 - las rutas de autenticación no se almacenan en caché;
-- las reglas no bloquean WebAuthn, Turnstile ni operaciones legítimas;
+- las reglas no bloquean WebAuthn, reCAPTCHA ni operaciones legítimas;
 - existe una prueba de carga moderada y una prueba de reglas en staging;
 - el cambio se puede revertir a DNS directo de forma documentada;
 - los logs no contienen contraseñas, tokens, cookies ni secretos.

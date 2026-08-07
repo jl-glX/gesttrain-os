@@ -15,6 +15,8 @@ describe("progressive account signup", () => {
     directory = await mkdtemp(join(tmpdir(), "umbravia-forge-signup-flow-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
+    vi.stubEnv("RECAPTCHA_SECRET_KEY", "unit-test-secret");
+    vi.stubEnv("EMAIL_VERIFICATION_ENABLED", "true");
     vi.resetModules();
     database = await import("../db/client.js");
     await database.initializeDatabase();
@@ -198,6 +200,52 @@ describe("progressive account signup", () => {
         acceptedPrivacy: false,
       })
       .expect(400);
+  });
+
+  it("activates new accounts without claiming email ownership when email verification is disabled", async () => {
+    vi.stubEnv("EMAIL_VERIFICATION_ENABLED", "false");
+    try {
+      const signup = await request(app)
+        .post("/api/auth/signup")
+        .send({
+          email: "recaptcha-activation@example.com",
+          name: "Recaptcha",
+          lastName: "Activation",
+          password: "ProgressivePassword123",
+          countryCode: "ES",
+          locale: "es",
+          acceptedTerms: true,
+          acceptedPrivacy: true,
+        })
+        .expect(201);
+      expect(signup.body).toMatchObject({
+        verificationRequired: false,
+        verificationEmailSent: false,
+        activationMethod: "recaptcha_v3",
+        user: { accountStatus: "active" },
+      });
+      expect(signup.body).not.toHaveProperty("demoVerificationCode");
+
+      const stored = await database.db
+        .selectFrom("users")
+        .select(["accountStatus", "emailVerifiedAt"])
+        .where("email", "=", "recaptcha-activation@example.com")
+        .executeTakeFirstOrThrow();
+      expect(stored).toEqual({
+        accountStatus: "active",
+        emailVerifiedAt: null,
+      });
+
+      await request(app)
+        .post("/api/auth/resend-verification")
+        .set("Cookie", signup.headers["set-cookie"][0])
+        .expect(410, {
+          code: "EMAIL_VERIFICATION_DISABLED",
+          error: "Email verification is temporarily disabled",
+        });
+    } finally {
+      vi.stubEnv("EMAIL_VERIFICATION_ENABLED", "true");
+    }
   });
 
   it("removes an incomplete account when the verification message cannot be accepted", async () => {

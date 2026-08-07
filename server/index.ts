@@ -89,9 +89,17 @@ app.use(
       process.env.NODE_ENV === "production"
         ? {
             directives: {
-              scriptSrc: ["'self'", "https://challenges.cloudflare.com"],
-              frameSrc: ["'self'", "https://challenges.cloudflare.com"],
-              connectSrc: ["'self'", "https://challenges.cloudflare.com"],
+              scriptSrc: [
+                "'self'",
+                "https://www.google.com/recaptcha/",
+                "https://www.gstatic.com/recaptcha/",
+              ],
+              frameSrc: [
+                "'self'",
+                "https://www.google.com/recaptcha/",
+                "https://recaptcha.google.com/recaptcha/",
+              ],
+              connectSrc: ["'self'", "https://www.google.com/recaptcha/"],
             },
           }
         : false,

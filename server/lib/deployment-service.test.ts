@@ -31,8 +31,16 @@ describe("systemd deployment service", () => {
     expect(readiness).toContain('UMBRAVIA_CADDY_LOG="$CADDY_VALIDATION_LOG"');
     expect(readiness).toContain('rm -f "$CADDY_VALIDATION_LOG"');
     expect(readiness).toContain(
+      "for REQUIRED_RECAPTCHA_ENV in RECAPTCHA_SECRET_KEY",
+    );
+    expect(readiness).toContain(
+      "EMAIL_VERIFICATION_ENABLED debe ser true o false",
+    );
+    expect(readiness).toContain(
       "for REQUIRED_ENV in SMTP_HOST SMTP_PORT EMAIL_FROM",
     );
+    expect(readiness).toContain("EMAIL_VERIFICATION_ENABLED=true");
+    expect(readiness).toContain("SMTP no es obligatorio");
     expect(readiness).toContain(
       "SMTP_USER y SMTP_PASSWORD deben configurarse juntos",
     );

@@ -28,7 +28,8 @@ import {
   rememberAccount,
   type SavedAccount,
 } from "../lib/saved-accounts";
-import { CaptchaWidget } from "../components/CaptchaWidget";
+import { RecaptchaGate } from "../components/RecaptchaGate";
+import { executeRecaptcha } from "../lib/recaptcha";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -45,8 +46,6 @@ export function LoginPage() {
   const [mfaCode, setMfaCode] = useState("");
   const [showAlternativeSignIn, setShowAlternativeSignIn] = useState(false);
   const [savedAccounts, setSavedAccounts] = useState(getSavedAccounts);
-  const [captchaToken, setCaptchaToken] = useState("");
-  const [captchaResetSignal, setCaptchaResetSignal] = useState(0);
   const { t } = useTranslation();
   const displayedError =
     error === "INVALID_CREDENTIALS" ? t("auth.invalidCredentials") : error;
@@ -98,12 +97,8 @@ export function LoginPage() {
       setValidationError(t("auth.credentialsRequired"));
       return;
     }
-    if (!captchaToken) {
-      setValidationError(t("auth.verificationRequired"));
-      return;
-    }
-
     try {
+      const captchaToken = await executeRecaptcha("login");
       const result = await login(
         identifier,
         password,
@@ -136,7 +131,6 @@ export function LoginPage() {
             : "/classes",
       );
     } catch (err) {
-      setCaptchaResetSignal((value) => value + 1);
       console.error("Login error:", err);
     }
   };
@@ -188,12 +182,9 @@ export function LoginPage() {
       setValidationError(t("auth.passkeyIdentifierRequired"));
       return;
     }
-    if (!captchaToken) {
-      setValidationError(t("auth.verificationRequired"));
-      return;
-    }
     let platformAuthenticatorAvailable = true;
     try {
+      const captchaToken = await executeRecaptcha("login");
       platformAuthenticatorAvailable = await platformAuthenticatorIsAvailable();
       const signedInUser = await loginWithPasskey(
         identifier,
@@ -204,7 +195,6 @@ export function LoginPage() {
       setSavedAccounts(rememberAccount(signedInUser, identifier));
       navigateForRole(signedInUser.role, signedInUser.accountStatus);
     } catch (err) {
-      setCaptchaResetSignal((value) => value + 1);
       const errorCode = err instanceof Error ? err.message : "";
       if (errorCode === "PASSKEY_NOT_CONFIGURED") {
         setValidationError(
@@ -276,19 +266,6 @@ export function LoginPage() {
         </div>
       )}
 
-      {!mfaRequired && (
-        <div className="mb-5 rounded-2xl border border-blue-200 bg-blue-50 p-4">
-          <p className="mb-3 text-sm font-medium text-blue-950">
-            {t("auth.verificationRequired")}
-          </p>
-          <CaptchaWidget
-            action="login"
-            onToken={setCaptchaToken}
-            resetSignal={captchaResetSignal}
-          />
-        </div>
-      )}
-
       {mfaRequired ? (
         <form onSubmit={handleMfaSubmit} className="space-y-5">
           <div className="space-y-2">
@@ -343,136 +320,138 @@ export function LoginPage() {
             </p>
           )}
         </form>
-      ) : captchaToken ? (
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="space-y-2">
-            <Label htmlFor="identifier" className="text-slate-700">
-              {accessPortal === "member"
-                ? t("auth.emailAddress")
-                : t("auth.centerIdentifier")}
-            </Label>
-            <Input
-              id="identifier"
-              type={accessPortal === "member" ? "email" : "text"}
-              autoComplete="username"
-              placeholder={
-                accessPortal === "member"
-                  ? "juan@example.com"
-                  : "centro@umbravia-forge.com / +34 953 000 000"
-              }
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              disabled={isLoading}
-              className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-slate-700">
-              {t("common.password")}
-            </Label>
-            <PasswordInput
-              id="password"
-              placeholder="••••••••"
-              value={password}
-              maxLength={72}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={isLoading}
-              className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
-            />
-          </div>
-
-          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
-            <input
-              type="checkbox"
-              checked={rememberDevice}
-              onChange={(event) => setRememberDevice(event.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-            />
-            <span>
-              <span className="block font-semibold">
-                {t("auth.rememberDevice")}
-              </span>
-              <span className="mt-0.5 block text-xs leading-relaxed text-slate-500">
-                {t("auth.rememberDeviceHelp")}
-              </span>
-            </span>
-          </label>
-
-          <Button
-            type="submit"
-            className="h-11 w-full rounded-xl bg-blue-600 shadow-md shadow-blue-600/15 hover:bg-blue-700"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              t("auth.signingIn")
-            ) : (
-              <>
-                <span>{t("auth.signIn")}</span>
-                <ArrowRight />
-              </>
-            )}
-          </Button>
-
-          <Button
-            type="button"
-            variant="ghost"
-            className="h-11 w-full rounded-xl text-slate-700"
-            aria-expanded={showAlternativeSignIn}
-            aria-controls="alternative-sign-in"
-            onClick={() => setShowAlternativeSignIn((current) => !current)}
-          >
-            {showAlternativeSignIn
-              ? t("auth.hideAlternativeSignIn")
-              : t("auth.alternativeSignIn")}
-            <ChevronDown
-              className={`transition ${showAlternativeSignIn ? "rotate-180" : ""}`}
-            />
-          </Button>
-
-          {showAlternativeSignIn && (
-            <div
-              id="alternative-sign-in"
-              className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4"
-            >
-              <div className="space-y-2">
-                <Label
-                  htmlFor="alternative-code"
-                  className="flex items-center gap-2 text-slate-700"
-                >
-                  <KeyRound size={16} /> {t("auth.verificationCode")}
-                </Label>
-                <Input
-                  id="alternative-code"
-                  inputMode="text"
-                  autoCapitalize="characters"
-                  autoComplete="one-time-code"
-                  value={mfaCode}
-                  onChange={(event) => setMfaCode(event.target.value)}
-                  placeholder={t("auth.verificationCodePlaceholder")}
-                  disabled={isLoading}
-                  className="h-11 rounded-xl border-slate-200 bg-white px-3"
-                />
-                <p className="text-xs leading-relaxed text-slate-500">
-                  {t("auth.alternativeCodeHelp")}
-                </p>
-              </div>
-
-              {browserSupportsWebAuthn() && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-11 w-full rounded-xl border-slate-300 bg-white"
-                  disabled={isLoading}
-                  onClick={handlePasskeyLogin}
-                >
-                  <Fingerprint /> {t("auth.signInWithPasskey")}
-                </Button>
-              )}
+      ) : (
+        <RecaptchaGate>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="identifier" className="text-slate-700">
+                {accessPortal === "member"
+                  ? t("auth.emailAddress")
+                  : t("auth.centerIdentifier")}
+              </Label>
+              <Input
+                id="identifier"
+                type={accessPortal === "member" ? "email" : "text"}
+                autoComplete="username"
+                placeholder={
+                  accessPortal === "member"
+                    ? "juan@example.com"
+                    : "centro@umbravia-forge.com / +34 953 000 000"
+                }
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                disabled={isLoading}
+                className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
+              />
             </div>
-          )}
-        </form>
-      ) : null}
+
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-slate-700">
+                {t("common.password")}
+              </Label>
+              <PasswordInput
+                id="password"
+                placeholder="••••••••"
+                value={password}
+                maxLength={72}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
+                className="h-11 rounded-xl border-slate-200 bg-slate-50 px-3 focus-visible:bg-white"
+              />
+            </div>
+
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={rememberDevice}
+                onChange={(event) => setRememberDevice(event.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span>
+                <span className="block font-semibold">
+                  {t("auth.rememberDevice")}
+                </span>
+                <span className="mt-0.5 block text-xs leading-relaxed text-slate-500">
+                  {t("auth.rememberDeviceHelp")}
+                </span>
+              </span>
+            </label>
+
+            <Button
+              type="submit"
+              className="h-11 w-full rounded-xl bg-blue-600 shadow-md shadow-blue-600/15 hover:bg-blue-700"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                t("auth.signingIn")
+              ) : (
+                <>
+                  <span>{t("auth.signIn")}</span>
+                  <ArrowRight />
+                </>
+              )}
+            </Button>
+
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-11 w-full rounded-xl text-slate-700"
+              aria-expanded={showAlternativeSignIn}
+              aria-controls="alternative-sign-in"
+              onClick={() => setShowAlternativeSignIn((current) => !current)}
+            >
+              {showAlternativeSignIn
+                ? t("auth.hideAlternativeSignIn")
+                : t("auth.alternativeSignIn")}
+              <ChevronDown
+                className={`transition ${showAlternativeSignIn ? "rotate-180" : ""}`}
+              />
+            </Button>
+
+            {showAlternativeSignIn && (
+              <div
+                id="alternative-sign-in"
+                className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4"
+              >
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="alternative-code"
+                    className="flex items-center gap-2 text-slate-700"
+                  >
+                    <KeyRound size={16} /> {t("auth.verificationCode")}
+                  </Label>
+                  <Input
+                    id="alternative-code"
+                    inputMode="text"
+                    autoCapitalize="characters"
+                    autoComplete="one-time-code"
+                    value={mfaCode}
+                    onChange={(event) => setMfaCode(event.target.value)}
+                    placeholder={t("auth.verificationCodePlaceholder")}
+                    disabled={isLoading}
+                    className="h-11 rounded-xl border-slate-200 bg-white px-3"
+                  />
+                  <p className="text-xs leading-relaxed text-slate-500">
+                    {t("auth.alternativeCodeHelp")}
+                  </p>
+                </div>
+
+                {browserSupportsWebAuthn() && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-11 w-full rounded-xl border-slate-300 bg-white"
+                    disabled={isLoading}
+                    onClick={handlePasskeyLogin}
+                  >
+                    <Fingerprint /> {t("auth.signInWithPasskey")}
+                  </Button>
+                )}
+              </div>
+            )}
+          </form>
+        </RecaptchaGate>
+      )}
 
       {accessPortal === "member" && (
         <div className="mt-6 space-y-2 text-center">

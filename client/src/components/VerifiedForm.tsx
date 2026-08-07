@@ -7,7 +7,9 @@ import {
 import { LoaderCircle, ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { authFetch } from "../lib/api";
-import { CaptchaWidget } from "./CaptchaWidget";
+import { executeRecaptcha } from "../lib/recaptcha";
+import { RecaptchaGate } from "./RecaptchaGate";
+import { Button } from "./ui/button";
 
 type VerifiedFormProps = ComponentProps<"form"> & {
   verificationFallback?: ReactNode;
@@ -22,7 +24,6 @@ export function VerifiedForm({
   const [status, setStatus] = useState<"loading" | "verified" | "required">(
     "loading",
   );
-  const [resetSignal, setResetSignal] = useState(0);
   const [error, setError] = useState("");
   const [validUntil, setValidUntil] = useState(0);
 
@@ -54,15 +55,14 @@ export function VerifiedForm({
     const timeout = window.setTimeout(() => {
       setStatus("required");
       setValidUntil(0);
-      setResetSignal((value) => value + 1);
     }, validUntil - Date.now());
     return () => window.clearTimeout(timeout);
   }, [status, validUntil]);
 
-  const verify = async (captchaToken: string) => {
-    if (!captchaToken) return;
+  const verify = async () => {
     setError("");
     try {
+      const captchaToken = await executeRecaptcha("form_access");
       const response = await authFetch("/api/auth/form-verification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -77,7 +77,6 @@ export function VerifiedForm({
       setStatus("verified");
     } catch {
       setError(t("formVerification.error"));
-      setResetSignal((value) => value + 1);
     }
   };
 
@@ -109,11 +108,11 @@ export function VerifiedForm({
                 </p>
               )}
               <div className="mt-4">
-                <CaptchaWidget
-                  action="form_access"
-                  onToken={(token) => void verify(token)}
-                  resetSignal={resetSignal}
-                />
+                <RecaptchaGate>
+                  <Button type="button" onClick={() => void verify()}>
+                    {t("formVerification.verify")}
+                  </Button>
+                </RecaptchaGate>
               </div>
             </div>
           </div>

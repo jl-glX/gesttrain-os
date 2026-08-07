@@ -200,11 +200,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           user?: AuthUser;
           error?: string;
           demoVerificationCode?: string;
+          verificationRequired?: boolean;
         };
         if (!response.ok || !data.user)
           throw new Error(data.error ?? "Signup failed");
         setUser(data.user);
-        return { demoVerificationCode: data.demoVerificationCode };
+        return {
+          user: data.user,
+          verificationRequired: Boolean(data.verificationRequired),
+          demoVerificationCode: data.demoVerificationCode,
+        };
       } catch (cause) {
         const message =
           cause instanceof Error ? cause.message : "Signup failed";

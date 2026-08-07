@@ -141,6 +141,7 @@ export async function signup(
     acceptedTerms: true,
     acceptedPrivacy: true,
   },
+  options: { requireEmailVerification?: boolean } = {},
 ): Promise<AuthResult> {
   if (!isStrongPassword(password)) {
     throw new Error("Password does not meet the security requirements");
@@ -160,6 +161,7 @@ export async function signup(
   }
 
   const createdAt = Date.now();
+  const requireEmailVerification = options.requireEmailVerification ?? true;
 
   const user = {
     id: `user-${randomBytes(8).toString("hex")}`,
@@ -169,7 +171,9 @@ export async function signup(
     lastName: profile.lastName,
     countryCode: profile.countryCode,
     locale: profile.locale,
-    accountStatus: "pending_verification" as const,
+    accountStatus: requireEmailVerification
+      ? ("pending_verification" as const)
+      : ("active" as const),
     emailVerifiedAt: null,
     termsVersion: CURRENT_TERMS_VERSION,
     termsAcceptedAt: createdAt,

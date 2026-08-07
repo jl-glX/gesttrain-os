@@ -94,26 +94,40 @@ if [ -f "$ENV_FILE" ]; then
     pass "$ENV_FILE no contiene marcadores conocidos"
   fi
 
-  for REQUIRED_ENV in SMTP_HOST SMTP_PORT EMAIL_FROM; do
-    if grep -Eq "^${REQUIRED_ENV}=.+" "$ENV_FILE"; then
-      pass "$REQUIRED_ENV configurado"
+  for REQUIRED_RECAPTCHA_ENV in RECAPTCHA_SECRET_KEY; do
+    if grep -Eq "^${REQUIRED_RECAPTCHA_ENV}=.{20,}$" "$ENV_FILE"; then
+      pass "$REQUIRED_RECAPTCHA_ENV configurado"
     else
-      fail "$REQUIRED_ENV ausente para la verificacion de correo"
+      fail "$REQUIRED_RECAPTCHA_ENV ausente o demasiado corto"
     fi
   done
 
-  SMTP_USER_PRESENT=0
-  SMTP_PASSWORD_PRESENT=0
-  if grep -Eq '^SMTP_USER=.+' "$ENV_FILE"; then
-    SMTP_USER_PRESENT=1
-  fi
-  if grep -Eq '^SMTP_PASSWORD=.+' "$ENV_FILE"; then
-    SMTP_PASSWORD_PRESENT=1
-  fi
-  if [ "$SMTP_USER_PRESENT" -eq "$SMTP_PASSWORD_PRESENT" ]; then
-    pass "credenciales SMTP coherentes"
+  if grep -Eq '^EMAIL_VERIFICATION_ENABLED=(true|false)$' "$ENV_FILE"; then
+    pass "EMAIL_VERIFICATION_ENABLED configurado"
   else
-    fail "SMTP_USER y SMTP_PASSWORD deben configurarse juntos"
+    fail "EMAIL_VERIFICATION_ENABLED debe ser true o false"
+  fi
+
+  if grep -Eq '^EMAIL_VERIFICATION_ENABLED=true$' "$ENV_FILE"; then
+    for REQUIRED_ENV in SMTP_HOST SMTP_PORT EMAIL_FROM; do
+      if grep -Eq "^${REQUIRED_ENV}=.+" "$ENV_FILE"; then
+        pass "$REQUIRED_ENV configurado"
+      else
+        fail "$REQUIRED_ENV ausente para la verificacion de correo"
+      fi
+    done
+
+    SMTP_USER_PRESENT=0
+    SMTP_PASSWORD_PRESENT=0
+    if grep -Eq '^SMTP_USER=.+' "$ENV_FILE"; then SMTP_USER_PRESENT=1; fi
+    if grep -Eq '^SMTP_PASSWORD=.+' "$ENV_FILE"; then SMTP_PASSWORD_PRESENT=1; fi
+    if [ "$SMTP_USER_PRESENT" -eq "$SMTP_PASSWORD_PRESENT" ]; then
+      pass "credenciales SMTP coherentes"
+    else
+      fail "SMTP_USER y SMTP_PASSWORD deben configurarse juntos"
+    fi
+  else
+    pass "verificacion por correo neutralizada; SMTP no es obligatorio"
   fi
 else
   fail "$ENV_FILE no existe"

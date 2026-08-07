@@ -41,8 +41,8 @@ documenta en `LINUX.md`.
 2. Copiar una versión construida a
    `/opt/umbravia-forge/releases/<version>` y crear el enlace
    `/opt/umbravia-forge/current`.
-   `npm run deploy:package` exige una clave pública real de Turnstile mediante
-   `VITE_TURNSTILE_SITE_KEY` o un `.env.production` local no versionado; así se
+   `npm run deploy:package` exige una clave pública real de reCAPTCHA v3 mediante
+   `VITE_RECAPTCHA_SITE_KEY` o un `.env.production` local no versionado; así se
    evita construir una interfaz de producción que no pueda verificar usuarios.
    El paquete no contiene `node_modules`: dentro de la versión copiada debe
    ejecutarse `npm ci --omit=dev`. Esto es obligatorio aunque el paquete se
@@ -118,7 +118,7 @@ sudo install -m 0640 -o root -g root \
   deploy/umbravia-forge-update.env.template /etc/umbravia-forge/update.env
 ```
 
-Antes de activarlo hay que sustituir la clave pública de Turnstile y la URL de
+Antes de activarlo hay que sustituir la clave pública de reCAPTCHA v3 y la URL de
 salud pública en `update.env`. Después se ejecuta una comprobación manual:
 
 ```text
@@ -133,6 +133,16 @@ El intervalo predeterminado es de 15 minutos. Se cambia mediante un override de
 `systemd` sobre `OnUnitActiveSec`; no es necesario modificar el script ni la
 aplicación. La ejecución usa un bloqueo exclusivo, por lo que una compilación
 lenta nunca se solapa con la siguiente comprobación.
+
+Para volver temporalmente a despliegues manuales, ejecute como root:
+
+```text
+sudo deploy/disable-automatic-updates.sh
+```
+
+El script desactiva y retira únicamente el temporizador y el área de trabajo
+del actualizador. Conserva la release activa, el servicio principal, Caddy, la
+base de datos y los archivos de entorno.
 
 Los escaneos de Internet no se pueden impedir por completo. La defensa busca
 que sean inofensivos y observables: Caddy corta las sondas conocidas, Express

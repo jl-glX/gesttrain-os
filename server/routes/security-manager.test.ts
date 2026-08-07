@@ -138,7 +138,8 @@ describe("security manager API", () => {
 
     expect(response.body).toEqual({
       available: true,
-      execution: "manual",
+      provider: "recaptcha_v3",
+      execution: "automatic",
       browserVerification: true,
       serverValidation: true,
     });

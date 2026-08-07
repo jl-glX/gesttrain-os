@@ -125,6 +125,7 @@
     "acceptTermsPrefix": "Ich akzeptiere die",
     "acceptPrivacy": "Ich bestätige, dass ich die Datenschutzerklärung gelesen habe",
     "emailVerificationPending": "Wir senden einen temporären Code, um zu bestätigen, dass Sie die angegebene E-Mail-Adresse kontrollieren.",
+    "recaptchaTemporaryActivation": "In dieser Phase schützt reCAPTCHA v3 die Registrierung vor Automatisierung. Das Konto wird aktiviert, ohne die E-Mail-Adresse als verifiziert zu kennzeichnen.",
     "cannotAccess": "Ich kann nicht auf mein Konto zugreifen",
     "countries": {
       "ES": "Spanien",
@@ -1573,7 +1574,9 @@
   "captcha": {
     "start": "Bestätigen, dass ich ein Mensch bin",
     "verifying": "Browser wird geprüft…",
-    "blockingError": "Fehler Nr. {{number}}: Aktivieren Sie CAPTCHA, um auf diese Seite zuzugreifen",
+    "blockingError": "Aktivieren Sie reCAPTCHA, um auf diese Seite zuzugreifen",
+    "loading": "Automatischer Schutz wird vorbereitet…",
+    "protected": "Der automatische reCAPTCHA-Schutz ist aktiv.",
     "label": "Bestätigung durch eine Person",
     "help": "Diese Prüfung schützt Anmeldung und Registrierung vor missbräuchlicher Automatisierung.",
     "loadFailed": "Die Überprüfung konnte nicht geladen werden. Prüfe die Verbindung und versuche es erneut."
@@ -1582,7 +1585,8 @@
     "title": "Die Verifizierung ist erforderlich",
     "description": "Bestätigen Sie vor dem Zugriff auf dieses Formular, dass Sie ein Mensch sind. Die Freigabe gilt für diese Sitzung; die API lehnt ungeprüfte Übermittlungen ab.",
     "checking": "Formularverifizierung wird geprüft…",
-    "error": "Das Formular konnte nicht freigegeben werden. Wiederholen Sie die Verifizierung."
+    "error": "Das Formular konnte nicht freigegeben werden. Wiederholen Sie die Verifizierung.",
+    "verify": "Formular freigeben"
   },
   "community": {
     "eyebrow": "Sportgemeinschaft",

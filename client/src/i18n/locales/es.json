@@ -502,6 +502,7 @@
     "acceptTermsPrefix": "Acepto los",
     "acceptPrivacy": "Confirmo que he leído la política de privacidad",
     "emailVerificationPending": "Te enviaremos un código temporal para confirmar que controlas la dirección de correo indicada.",
+    "recaptchaTemporaryActivation": "Durante esta fase, reCAPTCHA v3 protege el alta frente a automatizaciones. La cuenta se activa sin afirmar que el correo esté verificado.",
     "cannotAccess": "No puedo acceder a mi cuenta",
     "countries": {
       "ES": "España",
@@ -1570,7 +1571,9 @@
   "captcha": {
     "start": "Verificar que soy una persona",
     "verifying": "Comprobando el navegador…",
-    "blockingError": "Error nº {{number}}: habilite el CAPTCHA para poder acceder a la página",
+    "blockingError": "habilite reCAPTCHA para poder acceder a la página",
+    "loading": "Preparando la protección automática…",
+    "protected": "Protección automática mediante reCAPTCHA activa.",
     "label": "Verificación humana",
     "help": "Esta comprobación protege el acceso y el registro frente a automatizaciones abusivas.",
     "loadFailed": "No se pudo cargar la verificación. Revisa la conexión e inténtalo de nuevo."
@@ -1579,7 +1582,8 @@
     "title": "La verificación es obligatoria",
     "description": "Verifica que eres una persona antes de acceder a este formulario. La autorización se mantiene durante esta sesión y la API rechazará cualquier envío no verificado.",
     "checking": "Comprobando la verificación del formulario…",
-    "error": "No se ha podido autorizar el formulario. Repite la verificación."
+    "error": "No se ha podido autorizar el formulario. Repite la verificación.",
+    "verify": "Autorizar formulario"
   },
   "community": {
     "eyebrow": "Comunidad deportiva",

@@ -1,15 +1,15 @@
-import { randomUUID } from "node:crypto";
-
-const SITEVERIFY_URL =
-  "https://challenges.cloudflare.com/turnstile/v0/siteverify";
-const DEVELOPMENT_SECRET = "1x0000000000000000000000000000000AA";
-const TEST_SITE_KEY = "1x00000000000000000000AA";
+const SITEVERIFY_URL = "https://www.google.com/recaptcha/api/siteverify";
 const REQUEST_TIMEOUT_MS = 8_000;
+const DEFAULT_MINIMUM_SCORE = 0.5;
+const MAX_CHALLENGE_AGE_MS = 3 * 60 * 1000;
+const MAX_CLOCK_SKEW_MS = 60 * 1000;
 
-interface TurnstileResponse {
+interface RecaptchaResponse {
   success: boolean;
+  score?: number;
   hostname?: string;
   action?: string;
+  challenge_ts?: string;
   "error-codes"?: string[];
 }
 
@@ -22,26 +22,31 @@ export type CaptchaVerificationReason =
   | "token_too_long"
   | "provider_unavailable"
   | "provider_rejected"
+  | "score_too_low"
   | "action_mismatch"
-  | "hostname_mismatch";
+  | "hostname_mismatch"
+  | "challenge_expired";
 
 export interface CaptchaVerificationResult {
   success: boolean;
   reason: CaptchaVerificationReason;
+  score?: number;
 }
 
 function configuredSecret(): string | null {
-  const secret = process.env.TURNSTILE_SECRET_KEY?.trim();
-  if (secret) {
-    if (
-      process.env.NODE_ENV === "production" &&
-      secret === DEVELOPMENT_SECRET
-    ) {
-      return null;
-    }
-    return secret;
+  return process.env.RECAPTCHA_SECRET_KEY?.trim() || null;
+}
+
+export function recaptchaMinimumScore(
+  environment: NodeJS.ProcessEnv = process.env,
+): number {
+  const raw = environment.RECAPTCHA_MIN_SCORE?.trim();
+  if (!raw) return DEFAULT_MINIMUM_SCORE;
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < 0 || value > 1) {
+    throw new Error("RECAPTCHA_MIN_SCORE must be a number between 0 and 1");
   }
-  return process.env.NODE_ENV === "production" ? null : DEVELOPMENT_SECRET;
+  return value;
 }
 
 function allowedHostnames(): Set<string> {
@@ -61,10 +66,12 @@ function allowedHostnames(): Set<string> {
 }
 
 export function captchaIsConfigured(): boolean {
+  // Automated tests must not depend on Google or on a developer secret. The
+  // production paths below are still exercised explicitly with NODE_ENV set
+  // to production in the CAPTCHA test suite.
+  if (process.env.NODE_ENV === "test") return true;
   return configuredSecret() !== null;
 }
-
-export const DEVELOPMENT_CAPTCHA_SITE_KEY = TEST_SITE_KEY;
 
 export async function verifyCaptcha(
   token: string,
@@ -92,7 +99,6 @@ export async function verifyCaptchaDetailed(
   const body = new URLSearchParams({
     secret,
     response: token,
-    idempotency_key: randomUUID(),
   });
   if (remoteIp) body.set("remoteip", remoteIp);
 
@@ -106,22 +112,31 @@ export async function verifyCaptchaDetailed(
     if (!response.ok) {
       return { success: false, reason: "provider_unavailable" };
     }
-    const result = (await response.json()) as TurnstileResponse;
-    if (!result.success) {
+    const result = (await response.json()) as RecaptchaResponse;
+    if (!result.success || (result["error-codes"]?.length ?? 0) > 0) {
       return { success: false, reason: "provider_rejected" };
-    }
-
-    // Official development keys do not represent a production hostname/action.
-    if (secret === DEVELOPMENT_SECRET) {
-      return { success: true, reason: "verified" };
     }
     if (result.action !== action) {
       return { success: false, reason: "action_mismatch" };
     }
     const hostnames = allowedHostnames();
-    return result.hostname && hostnames.has(result.hostname)
-      ? { success: true, reason: "verified" }
-      : { success: false, reason: "hostname_mismatch" };
+    if (!result.hostname || !hostnames.has(result.hostname)) {
+      return { success: false, reason: "hostname_mismatch" };
+    }
+    const score = result.score;
+    if (!Number.isFinite(score) || score! < recaptchaMinimumScore()) {
+      return { success: false, reason: "score_too_low", score };
+    }
+    const challengeTime = Date.parse(result.challenge_ts ?? "");
+    const age = Date.now() - challengeTime;
+    if (
+      !Number.isFinite(challengeTime) ||
+      age > MAX_CHALLENGE_AGE_MS ||
+      age < -MAX_CLOCK_SKEW_MS
+    ) {
+      return { success: false, reason: "challenge_expired", score };
+    }
+    return { success: true, reason: "verified", score };
   } catch {
     return { success: false, reason: "provider_unavailable" };
   }

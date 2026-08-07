@@ -8,7 +8,9 @@ const validEnvironment = {
   WEBAUTHN_RP_ID: "demo.umbravia-forge.example",
   DATABASE_PROVIDER: "postgresql",
   DATABASE_URL: "postgresql://example.invalid/umbravia_forge",
-  TURNSTILE_SECRET_KEY: "turnstile-secret",
+  RECAPTCHA_SECRET_KEY: "recaptcha-production-secret-123456789",
+  RECAPTCHA_MIN_SCORE: "0.5",
+  EMAIL_VERIFICATION_ENABLED: "false",
   MFA_ENCRYPTION_KEY: Buffer.alloc(32, 7).toString("base64"),
   SMTP_HOST: "smtp.example.invalid",
   SMTP_PORT: "587",
@@ -65,10 +67,24 @@ describe("production configuration", () => {
     ).toThrow(/HTTPS/);
   });
 
-  it("rejects production without a complete email delivery channel", () => {
+  it("does not require SMTP while email verification is neutralized", () => {
     expect(() =>
       validateProductionConfiguration({
         ...validEnvironment,
+        SMTP_HOST: "",
+        SMTP_PORT: "",
+        SMTP_USER: "",
+        SMTP_PASSWORD: "",
+        EMAIL_FROM: "",
+      }),
+    ).not.toThrow();
+  });
+
+  it("requires a complete email channel when the draft is enabled", () => {
+    expect(() =>
+      validateProductionConfiguration({
+        ...validEnvironment,
+        EMAIL_VERIFICATION_ENABLED: "true",
         SMTP_HOST: "",
         SMTP_PORT: "",
         SMTP_SECURE: "",
@@ -81,6 +97,7 @@ describe("production configuration", () => {
     expect(() =>
       validateProductionConfiguration({
         ...validEnvironment,
+        EMAIL_VERIFICATION_ENABLED: "true",
         SMTP_PASSWORD: "",
       }),
     ).toThrow(/configured together/i);
@@ -105,15 +122,15 @@ describe("production configuration", () => {
     expect(() =>
       validateProductionConfiguration({
         ...validEnvironment,
-        TURNSTILE_SECRET_KEY: "replace-me",
+        RECAPTCHA_SECRET_KEY: "replace-me",
       }),
     ).toThrow(/placeholder/i);
     expect(() =>
       validateProductionConfiguration({
         ...validEnvironment,
-        TURNSTILE_SECRET_KEY: "1x0000000000000000000000000000000AA",
+        RECAPTCHA_MIN_SCORE: "1.5",
       }),
-    ).toThrow(/test key/i);
+    ).toThrow(/between 0 and 1/i);
     expect(() =>
       validateProductionConfiguration({
         ...validEnvironment,

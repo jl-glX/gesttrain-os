@@ -68,7 +68,7 @@ npm ci --omit=dev --prefix .deployment-package
 ```
 
 `deploy:package` se detiene si la compilación no recibe una clave pública real
-de Turnstile. Puede proporcionarse mediante `VITE_TURNSTILE_SITE_KEY` en el
+de reCAPTCHA v3. Puede proporcionarse mediante `VITE_RECAPTCHA_SITE_KEY` en el
 entorno de compilación o en un `.env.production` local que nunca se versiona.
 
 El paquete resultante queda en `.deployment-package`. No contiene ningún
@@ -96,8 +96,10 @@ DATABASE_SSL_REJECT_UNAUTHORIZED=true
 CLIENT_ORIGIN=https://<dominio>
 WEBAUTHN_ORIGIN=https://<dominio>
 WEBAUTHN_RP_ID=<dominio sin protocolo>
-TURNSTILE_SECRET_KEY=<secreto>
+RECAPTCHA_SECRET_KEY=<secreto>
+RECAPTCHA_MIN_SCORE=0.5
 MFA_ENCRYPTION_KEY=<clave aleatoria segura>
+EMAIL_VERIFICATION_ENABLED=false
 SMTP_HOST=<relay SMTP o 127.0.0.1>
 SMTP_PORT=<puerto SMTP>
 SMTP_SECURE=<true para TLS implicito>
@@ -111,16 +113,22 @@ COMMERCIAL_TRIALS_ENABLED=false
 
 `DATABASE_SSL=false` solo corresponde a PostgreSQL en el mismo servidor y
 limitado a `localhost`. Si la base está en otra máquina, debe usarse TLS con
-verificación de certificado. La clave pública `VITE_TURNSTILE_SITE_KEY` se
+verificación de certificado. La clave pública `VITE_RECAPTCHA_SITE_KEY` se
 inyecta durante `npm run deploy:package`; la clave privada nunca se incorpora al
 cliente.
 
-## Verificacion de correo
+## Borrador neutralizado de verificacion de correo
 
-Produccion no admite registros hasta disponer de un canal SMTP completo. La
-aplicacion genera un codigo de seis cifras, conserva solo su derivado mediante
-`scrypt`, limita los reenvios y elimina el alta incompleta si el primer mensaje
-no puede ser aceptado por el transporte.
+`EMAIL_VERIFICATION_ENABLED=false` es el modo temporal: SMTP no bloquea el
+arranque y las cuentas nuevas se activan tras superar reCAPTCHA v3, pero
+`emailVerifiedAt` permanece vacio. reCAPTCHA reduce automatizaciones; no prueba
+la propiedad del correo. El generador de codigos, su almacenamiento mediante
+`scrypt`, las rutas y el transporte SMTP se conservan completos y sin efecto.
+
+Al cambiar el indicador a `true`, produccion vuelve a exigir un canal SMTP
+completo y las altas quedan pendientes hasta completar el codigo. Antes de
+reactivarlo deben probarse entrega, rebotes, recuperacion y reputacion del
+remitente.
 
 Hay dos configuraciones compatibles:
 
@@ -222,4 +230,4 @@ Cuando exista un dominio propio, la posible incorporación de Cloudflare WAF/CDN
 se evaluará con el borrador
 [`FUTURE-CLOUDFLARE-EDGE.md`](./FUTURE-CLOUDFLARE-EDGE.md). Esa fase no forma
 parte del despliegue actual y no sustituirá los controles de Caddy, Express ni
-Turnstile.
+reCAPTCHA.

@@ -25,7 +25,11 @@ export interface AuthContextValue {
     acceptedTerms: boolean;
     acceptedPrivacy: boolean;
     captchaToken: string;
-  }) => Promise<{ demoVerificationCode?: string }>;
+  }) => Promise<{
+    user: AuthUser;
+    verificationRequired: boolean;
+    demoVerificationCode?: string;
+  }>;
   login: (
     identifier: string,
     password: string,

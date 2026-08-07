@@ -498,6 +498,7 @@
     "acceptTermsPrefix": "I accept the",
     "acceptPrivacy": "I confirm that I have read the privacy policy",
     "emailVerificationPending": "We will send a temporary code to confirm that you control the email address provided.",
+    "recaptchaTemporaryActivation": "During this phase, reCAPTCHA v3 protects signup from automation. The account is activated without claiming that the email address is verified.",
     "cannotAccess": "I cannot access my account",
     "countries": {
       "ES": "Spain",
@@ -1560,7 +1561,9 @@
   "captcha": {
     "start": "Verify that I am human",
     "verifying": "Checking the browser…",
-    "blockingError": "Error no. {{number}}: enable CAPTCHA to access this page",
+    "blockingError": "enable reCAPTCHA to access this page",
+    "loading": "Preparing automatic protection…",
+    "protected": "Automatic reCAPTCHA protection is active.",
     "label": "Human verification",
     "help": "This check protects sign-in and registration from abusive automation.",
     "loadFailed": "Verification could not be loaded. Check your connection and try again."
@@ -1569,7 +1572,8 @@
     "title": "Verification is required",
     "description": "Verify that you are human before accessing this form. Authorization remains valid for this session and the API rejects unverified submissions.",
     "checking": "Checking form verification…",
-    "error": "The form could not be authorized. Complete verification again."
+    "error": "The form could not be authorized. Complete verification again.",
+    "verify": "Authorize form"
   },
   "community": {
     "eyebrow": "Sports community",

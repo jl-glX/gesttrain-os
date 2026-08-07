@@ -52,8 +52,10 @@ Copy `.env.example` to `.env` to override defaults.
 | `SIGNUP_RATE_LIMIT_MAX_REQUESTS`             | Signup attempts allowed in that window.                          |
 | `EMAIL_VERIFICATION_RATE_LIMIT_MAX_REQUESTS` | Verification email resend limit per 15 minutes.                  |
 | `SEED_DEMO_DATA`                             | Reserved for local demos; production rejects a `true` value.     |
-| `VITE_TURNSTILE_SITE_KEY`                    | Public Turnstile widget key embedded by the client build.        |
-| `TURNSTILE_SECRET_KEY`                       | Private server key used only for Siteverify validation.          |
+| `VITE_RECAPTCHA_SITE_KEY`                    | Public reCAPTCHA v3 key embedded by the client build.            |
+| `RECAPTCHA_SECRET_KEY`                       | Private reCAPTCHA v3 key used only by the API.                   |
+| `RECAPTCHA_MIN_SCORE`                        | Minimum accepted v3 score, from 0 to 1; defaults to 0.5.         |
+| `EMAIL_VERIFICATION_ENABLED`                 | Reactivates the dormant email challenge when explicitly true.    |
 | `SMTP_HOST`                                  | SMTP relay or local mail transfer agent host.                    |
 | `SMTP_PORT`                                  | SMTP submission port.                                            |
 | `SMTP_SECURE`                                | Enables implicit TLS, normally on port 465.                      |
@@ -61,21 +63,18 @@ Copy `.env.example` to `.env` to override defaults.
 | `SMTP_USER` / `SMTP_PASSWORD`                | Optional SMTP credentials; configure both or neither.            |
 | `EMAIL_FROM`                                 | Verified sender displayed on account emails.                     |
 
-Local development uses Cloudflare's official always-pass test pair when both
-Turnstile values are empty. Production requires real keys, a managed widget and
-hostname restrictions matching `CLIENT_ORIGIN`; the known test secret is
-rejected. Use distinct widgets for development, staging and production, and
-rotate secrets through the provider rather than committing them.
+reCAPTCHA v3 needs a real key pair for each environment. Register localhost on
+the development key and the public hostname on the production key. The API
+validates action, hostname, challenge age and score; missing or unavailable
+verification fails closed. Never commit either private key.
 
 Never commit `.env`, databases, tokens or real customer data.
 
-Account verification uses a provider-neutral SMTP client. Development and test
-may omit SMTP and receive the demonstration code in the API response. A
-production-like profile requires a complete email channel. External relays must
-use implicit TLS or STARTTLS. A local Postfix instance may listen only on the
-loopback interface without authentication for the application-to-MTA hop; its
-Internet-facing delivery, DNS identity, queue, retries and abuse controls remain
-separate operational responsibilities.
+The provider-neutral SMTP client, challenge generator and routes remain as a
+functional draft, but `EMAIL_VERIFICATION_ENABLED=false` neutralizes them. In
+that temporary mode new accounts are active after reCAPTCHA without setting
+`emailVerifiedAt`; reCAPTCHA does not prove ownership of an email address. When
+the flag is later enabled, production again requires a complete SMTP channel.
 
 ## Project layout
 

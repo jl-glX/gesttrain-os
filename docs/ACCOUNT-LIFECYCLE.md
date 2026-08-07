@@ -30,9 +30,8 @@ The current implementation can demonstrate:
   challenges, marks the account for review and rotates the support alias;
 - a minimal recovery centre that exposes real passkey access and labels future
   email, code and support-assisted methods as unavailable.
-- Cloudflare Turnstile protection for signup, password login and passkey login,
-  with mandatory server-side validation of the token, expected action and
-  production hostname.
+- reCAPTCHA v3 protection for signup, password login and passkey login, with
+  mandatory server-side validation of token, action, hostname, age and score.
 
 The demo deliberately does not:
 
@@ -50,9 +49,8 @@ The demo deliberately does not:
 - complete password reset or support-assisted recovery;
 - automatically remove passkeys after a reported compromise.
 
-Development uses Cloudflare's official test keys. Production fails closed when
-the Turnstile secret is missing or is a known test secret. The public site key
-is supplied as `VITE_TURNSTILE_SITE_KEY`; `TURNSTILE_SECRET_KEY` remains on the
+Each environment uses its own reCAPTCHA v3 key pair. The public site key is
+supplied as `VITE_RECAPTCHA_SITE_KEY`; `RECAPTCHA_SECRET_KEY` remains on the
 server. Provider outages reject protected authentication attempts instead of
 silently bypassing verification.
 
@@ -60,13 +58,17 @@ silently bypassing verification.
 
 Personal account creation remains separate from joining or creating a sports
 centre. The server stores the selected jurisdiction and locale together with
-the exact draft versions acknowledged at signup. New accounts remain
-`pending_verification` until the six-digit challenge is completed.
+the exact draft versions acknowledged at signup. While
+`EMAIL_VERIFICATION_ENABLED=false`, a successful reCAPTCHA-protected signup
+creates an active account but leaves `emailVerifiedAt` empty. reCAPTCHA does not
+verify ownership of the address.
 
-Verification codes are stored only as a deterministic hash scoped to the user,
-expire after 15 minutes and stop accepting attempts after five failures. The
-plain code is returned only outside production so the local demo remains
-testable before an email provider exists.
+The email challenge, hashed code storage, SMTP delivery and routes remain a
+functional, reactivatable draft. They have no effect until
+`EMAIL_VERIFICATION_ENABLED=true`; then new accounts remain
+`pending_verification` until the challenge is completed. Codes are scoped to
+the user, expire after 15 minutes and stop after five failures. Existing pending
+accounts are never activated silently by changing this flag.
 
 ## Reported account compromise
 

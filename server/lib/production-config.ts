@@ -4,6 +4,8 @@ import {
   type DeploymentProfile,
 } from "./deployment-profile.js";
 import { resolveEmailDeliveryConfiguration } from "../services/email-delivery.js";
+import { emailVerificationIsEnabled } from "./account-verification-mode.js";
+import { recaptchaMinimumScore } from "../services/captcha.js";
 
 type ProductionConfiguration = {
   deploymentProfile: DeploymentProfile;
@@ -11,12 +13,6 @@ type ProductionConfiguration = {
   webauthnOrigin: URL;
   webauthnRpId: string;
 };
-
-const TURNSTILE_TEST_SECRETS = new Set([
-  "1x0000000000000000000000000000000AA",
-  "2x0000000000000000000000000000000AA",
-  "3x0000000000000000000000000000000AA",
-]);
 
 function required(environment: NodeJS.ProcessEnv, name: string): string {
   const value = environment[name]?.trim();
@@ -68,12 +64,16 @@ export function validateProductionConfiguration(
   const webauthnRpId = required(environment, "WEBAUTHN_RP_ID");
   const databaseProvider = required(environment, "DATABASE_PROVIDER");
   required(environment, "DATABASE_URL");
-  const turnstileSecret = required(environment, "TURNSTILE_SECRET_KEY");
+  const recaptchaSecret = required(environment, "RECAPTCHA_SECRET_KEY");
+  recaptchaMinimumScore(environment);
   requireMfaEncryptionKey(environment);
-  const emailDelivery = resolveEmailDeliveryConfiguration(environment);
+  const emailVerificationEnabled = emailVerificationIsEnabled(environment);
+  const emailDelivery = emailVerificationEnabled
+    ? resolveEmailDeliveryConfiguration(environment)
+    : null;
   const host = environment.HOST?.trim() || "127.0.0.1";
 
-  if (!emailDelivery) {
+  if (emailVerificationEnabled && !emailDelivery) {
     throw new Error(
       "SMTP_HOST, SMTP_PORT and EMAIL_FROM are required for email verification in production",
     );
@@ -85,11 +85,11 @@ export function validateProductionConfiguration(
     );
   }
   if (
-    TURNSTILE_TEST_SECRETS.has(turnstileSecret) ||
-    /replace|change|example/i.test(turnstileSecret)
+    recaptchaSecret.length < 20 ||
+    /replace|change|example|test-secret/i.test(recaptchaSecret)
   ) {
     throw new Error(
-      "TURNSTILE_SECRET_KEY must be a real production secret, not a test key or placeholder",
+      "RECAPTCHA_SECRET_KEY must be a real secret, not a test value or placeholder",
     );
   }
 

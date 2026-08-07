@@ -60,13 +60,15 @@ import {
   getFormVerificationStatus,
   markFormSessionVerified,
 } from "../services/form-verification.js";
+import { emailVerificationIsEnabled } from "../lib/account-verification-mode.js";
 
 export const authRouter = express.Router();
 
 authRouter.get("/captcha-status", (_req, res) => {
   res.json({
     available: captchaIsConfigured(),
-    execution: "manual",
+    provider: "recaptcha_v3",
+    execution: "automatic",
     browserVerification: true,
     serverValidation: true,
   });
@@ -112,6 +114,7 @@ authRouter.post(
   async (req: express.Request, res: express.Response) => {
     let createdUserId: string | null = null;
     try {
+      const requireEmailVerification = emailVerificationIsEnabled();
       const {
         email,
         name,
@@ -134,22 +137,31 @@ authRouter.post(
           acceptedTerms,
           acceptedPrivacy,
         },
+        { requireEmailVerification },
       );
       createdUserId = user.id;
-      const verificationCode = await createEmailVerificationChallenge(user.id);
-      const delivery = await sendEmailVerificationCode({
-        email: user.email,
-        name: user.name,
-        code: verificationCode,
-        locale,
-      });
+      let verificationCode: string | undefined;
+      let verificationEmailSent = false;
+      if (requireEmailVerification) {
+        verificationCode = await createEmailVerificationChallenge(user.id);
+        const delivery = await sendEmailVerificationCode({
+          email: user.email,
+          name: user.name,
+          code: verificationCode,
+          locale,
+        });
+        verificationEmailSent = delivery.delivered;
+      }
       setSessionCookie(res, sessionToken);
       res.status(201).json({
         user,
-        verificationRequired: true,
-        verificationEmailSent: delivery.delivered,
+        verificationRequired: requireEmailVerification,
+        verificationEmailSent,
+        activationMethod: requireEmailVerification ? "email" : "recaptcha_v3",
         demoVerificationCode:
-          process.env.NODE_ENV === "production" ? undefined : verificationCode,
+          requireEmailVerification && process.env.NODE_ENV !== "production"
+            ? verificationCode
+            : undefined,
       });
     } catch (error) {
       if (createdUserId) {
@@ -182,6 +194,13 @@ authRouter.post(
   authenticateAccountSession,
   emailVerificationLimiter,
   async (_req: express.Request, res: express.Response) => {
+    if (!emailVerificationIsEnabled()) {
+      res.status(410).json({
+        code: "EMAIL_VERIFICATION_DISABLED",
+        error: "Email verification is temporarily disabled",
+      });
+      return;
+    }
     try {
       const { userId } = getAuthenticatedUser(res);
       const profile = await getPendingEmailVerificationProfile(userId);
@@ -219,6 +238,13 @@ authRouter.post(
   authenticationLimiter,
   emailVerificationValidation,
   async (req: express.Request, res: express.Response) => {
+    if (!emailVerificationIsEnabled()) {
+      res.status(410).json({
+        code: "EMAIL_VERIFICATION_DISABLED",
+        error: "Email verification is temporarily disabled",
+      });
+      return;
+    }
     const auth = getAuthenticatedUser(res);
     if (!(await verifyEmailCode(auth.userId, req.body.code))) {
       res.status(400).json({ error: "Invalid or expired verification code" });

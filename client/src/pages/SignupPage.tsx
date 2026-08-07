@@ -9,7 +9,8 @@ import { PasswordInput } from "../components/PasswordInput";
 import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { isPasswordWithinHashLimit } from "../lib/passwordPolicy";
-import { CaptchaWidget } from "../components/CaptchaWidget";
+import { RecaptchaGate } from "../components/RecaptchaGate";
+import { executeRecaptcha } from "../lib/recaptcha";
 
 export function SignupPage() {
   const navigate = useNavigate();
@@ -24,11 +25,9 @@ export function SignupPage() {
     locale: "es" as "es" | "en" | "de" | "de-CH",
     acceptedTerms: false,
     acceptedPrivacy: false,
-    captchaToken: "",
   });
   const [step, setStep] = useState<1 | 2>(1);
   const [validationError, setValidationError] = useState("");
-  const [captchaResetSignal, setCaptchaResetSignal] = useState(0);
   const { t, i18n } = useTranslation();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,8 +64,7 @@ export function SignupPage() {
       !formData.countryCode ||
       !formData.locale ||
       !formData.acceptedTerms ||
-      !formData.acceptedPrivacy ||
-      !formData.captchaToken
+      !formData.acceptedPrivacy
     ) {
       setValidationError(t("auth.allRequired"));
       return;
@@ -89,6 +87,7 @@ export function SignupPage() {
     }
 
     try {
+      const captchaToken = await executeRecaptcha("signup");
       const verification = await signup({
         email: formData.email,
         name: formData.name,
@@ -98,15 +97,17 @@ export function SignupPage() {
         locale: formData.locale,
         acceptedTerms: formData.acceptedTerms,
         acceptedPrivacy: formData.acceptedPrivacy,
-        captchaToken: formData.captchaToken,
+        captchaToken,
       });
       await i18n.changeLanguage(formData.locale);
-      navigate("/verify-email", {
-        state: { demoVerificationCode: verification.demoVerificationCode },
-      });
+      if (verification.verificationRequired) {
+        navigate("/verify-email", {
+          state: { demoVerificationCode: verification.demoVerificationCode },
+        });
+      } else {
+        navigate("/classes");
+      }
     } catch (err) {
-      setFormData((current) => ({ ...current, captchaToken: "" }));
-      setCaptchaResetSignal((value) => value + 1);
       console.error("Signup error:", err);
     }
   };
@@ -123,20 +124,7 @@ export function SignupPage() {
         </div>
       )}
 
-      <div className="mb-5 rounded-2xl border border-blue-200 bg-blue-50 p-4">
-        <p className="mb-3 text-sm font-medium text-blue-950">
-          {t("auth.verificationRequired")}
-        </p>
-        <CaptchaWidget
-          action="signup"
-          onToken={(captchaToken) =>
-            setFormData((current) => ({ ...current, captchaToken }))
-          }
-          resetSignal={captchaResetSignal}
-        />
-      </div>
-
-      {formData.captchaToken ? (
+      <RecaptchaGate>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-700">
             <span>{t("auth.signupStep", { step, total: 2 })}</span>
@@ -324,8 +312,8 @@ export function SignupPage() {
                 />
                 <span>{t("auth.acceptPrivacy")}</span>
               </label>
-              <p className="rounded-xl bg-amber-50 p-3 text-xs leading-5 text-amber-900">
-                {t("auth.emailVerificationPending")}
+              <p className="rounded-xl bg-blue-50 p-3 text-xs leading-5 text-blue-900">
+                {t("auth.recaptchaTemporaryActivation")}
               </p>
               <div className="flex gap-2">
                 <Button
@@ -344,7 +332,7 @@ export function SignupPage() {
             </>
           )}
         </form>
-      ) : null}
+      </RecaptchaGate>
 
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-600">

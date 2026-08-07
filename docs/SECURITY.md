@@ -50,19 +50,14 @@ an account's role or permissions.
 
 ## Human verification
 
-Signup, password login and the start of passkey login are protected by
-Cloudflare Turnstile. The widget token is never trusted by the browser alone:
-the API validates it through Siteverify before performing authentication work.
-Production validation checks the expected action and an allowed hostname;
-tokens are provider-managed, expire after five minutes and are single-use.
+Signup, password login and the start of passkey login are protected by Google
+reCAPTCHA v3. The client requests a token immediately before the protected
+action; the API validates success, expected action, allowed hostname, challenge
+age and minimum score before performing authentication work.
 
-- After a successful challenge, the visible widget remains for 10 seconds so
-  the user can see the result and is then collapsed. It becomes visible again
-  if the challenge expires, fails or the form requests a reset.
-
-The secret remains server-side in `TURNSTILE_SECRET_KEY`. The public browser key
-is `VITE_TURNSTILE_SITE_KEY`. Production rejects missing configuration and the
-official always-pass development secret. Authentication remains rate-limited
+The secret remains server-side in `RECAPTCHA_SECRET_KEY`. The public browser key
+is `VITE_RECAPTCHA_SITE_KEY`; `RECAPTCHA_MIN_SCORE` defaults to 0.5.
+Authentication remains rate-limited
 before provider verification so the CAPTCHA endpoint cannot become an
 unbounded amplification path. Provider errors fail closed with a controlled
 response.
@@ -84,9 +79,7 @@ response.
 - Passkey challenges bound to configured trusted origins and RP IDs.
 - API and authentication rate limits.
 - Server-validated CAPTCHA on signup, password login and passkey initiation.
-- The CAPTCHA widget follows the active application language (`es`, `en` or
-  `de`; Swiss German uses Cloudflare's German interface). Provider-owned test
-  banners can remain in English when the official development key is active.
+- reCAPTCHA v3 executes at submission time and keeps the provider badge visible.
 - Small configurable request bodies and centralized error handling.
 - Input validation and automated security tests.
 - Local databases and environment files excluded from version control.
@@ -95,9 +88,10 @@ response.
 
 ## Production work still required
 
-- Real email delivery and complete account recovery.
-- Production Turnstile widget, restricted hostnames and operational key
-  rotation in the Cloudflare account.
+- Reactivation of the preserved email-verification draft after reliable SMTP
+  delivery and recovery are operationally validated.
+- Production reCAPTCHA v3 keys restricted to their hostnames and a measured
+  score threshold.
 - Optional enforcement of 2FA or passkeys for privileged roles.
 - Physical verification of passkeys on representative Android, iOS and macOS devices.
 - CSRF review if cross-site deployment requirements change.
