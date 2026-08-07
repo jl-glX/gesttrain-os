@@ -71,9 +71,16 @@ npm ci --omit=dev --prefix .deployment-package
 de Turnstile. Puede proporcionarse mediante `VITE_TURNSTILE_SITE_KEY` en el
 entorno de compilación o en un `.env.production` local que nunca se versiona.
 
-El paquete resultante queda en `.deployment-package`. No contiene `.env`, datos
-SQLite ni secretos. Debe copiarse a una nueva versión del servidor y activarse
-mediante un enlace o cambio atómico que permita volver a la versión anterior.
+El paquete resultante queda en `.deployment-package`. No contiene ningún
+archivo `.env`, datos SQLite ni secretos. La plantilla neutral permanece bajo
+`deploy/umbravia-forge.env.template` y se copia fuera de la versión antes de
+introducir los secretos. El paquete debe copiarse a una nueva versión del
+servidor y activarse mediante un enlace o cambio atómico que permita volver a
+la versión anterior.
+Nunca se deben copiar los `node_modules` generados en Windows: la instalación
+`npm ci --omit=dev` se repite en Linux para obtener dependencias compatibles con
+el servidor. Antes de activar la versión se ejecuta
+`deploy/check-linux-readiness.sh` con el archivo de entorno definitivo.
 
 ## Variables mínimas
 
@@ -122,6 +129,9 @@ Los archivos aplicables están en `deploy/Caddyfile` y
 `deploy/umbravia-forge.service`. La guía de instalación y verificación está en
 `deploy/README.md`. El `Caddyfile` requiere Caddy 2.10 o posterior por el límite
 exterior de cuerpo; siempre debe ejecutarse `caddy validate` antes de recargar.
+Las defensas no dependen de un hostname fijo: el dominio se configura en Caddy
+y debe coincidir con los orígenes confiables y el RP ID de WebAuthn. La
+aplicación sigue escuchando exclusivamente en loopback.
 
 ## PostgreSQL
 

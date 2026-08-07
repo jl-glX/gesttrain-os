@@ -257,7 +257,7 @@ const hostHeader = baseUrl.host;
 const traceStatus = await rawTcpRequest(
   `TRACE /api/health HTTP/1.1\r\nHost: ${hostHeader}\r\nConnection: close\r\n\r\n`,
 );
-record("TRACE is unavailable", / 404 /.test(traceStatus), traceStatus);
+record("TRACE is unavailable", / 405 /.test(traceStatus), traceStatus);
 
 const ambiguousFramingStatus = await rawTcpRequest(
   `POST /api/auth/login HTTP/1.1\r\nHost: ${hostHeader}\r\nContent-Length: 4\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n0\r\n\r\n`,

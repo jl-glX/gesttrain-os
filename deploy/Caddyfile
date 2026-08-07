@@ -1,10 +1,15 @@
+# UMBRAVIA_DOMAIN selects the public hostname; every protection below remains
+# identical when the hostname changes.
 {$UMBRAVIA_DOMAIN:umbravia-forge.duckdns.org} {
 	encode zstd gzip
 
 	@automated_probes {
-		path /.env* /.git* /.hg* /.svn* /config.json /wp-login.php /wp-admin* /wp-content* /xmlrpc.php /phpmyadmin* /adminer.php /server-status
+		path /.env* /.git* /.hg* /.svn* /.aws* /.ssh* /.npmrc /.yarnrc /.htaccess /.htpasswd /config.json /package.json /package-lock.json /pnpm-lock.yaml /yarn.lock /composer.json /docker-compose* /Dockerfile /Caddyfile /web.config /appsettings.json /id_rsa /id_ed25519 /wp-login.php /wp-admin* /wp-content* /xmlrpc.php /phpmyadmin* /adminer.php /server-status /vendor/phpunit* /cgi-bin* /actuator*
 	}
 	respond @automated_probes 404
+
+	@dangerous_methods method CONNECT TRACE TRACK
+	respond @dangerous_methods 405
 
 	# Caddy 2.10 or newer. Express keeps stricter per-route limits as the
 	# authoritative second layer (32 KiB normally and 768 KiB for images).

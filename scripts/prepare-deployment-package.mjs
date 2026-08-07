@@ -21,14 +21,5 @@ await cp(
   path.join(root, "package-lock.json"),
   path.join(output, "package-lock.json"),
 );
-await cp(path.join(root, ".env.example"), path.join(output, ".env.example"));
-await cp(
-  path.join(root, ".env.staging.example"),
-  path.join(output, ".env.staging.example"),
-);
-await cp(
-  path.join(root, ".env.production.example"),
-  path.join(output, ".env.production.example"),
-);
 
 console.log(`Deployment package prepared at ${output}`);

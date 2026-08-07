@@ -56,7 +56,12 @@ import {
 } from "./services/account-lifecycle-scheduler.js";
 import { validateProductionConfiguration } from "./lib/production-config.js";
 import { parseServerPort } from "./lib/server-endpoint.js";
-import { rejectAutomatedProbe } from "./middleware/probe-protection.js";
+import {
+  rejectAbusiveRequestShape,
+  rejectAutomatedProbe,
+  rejectUnsupportedHttpMethod,
+} from "./middleware/probe-protection.js";
+import { configureHttpServerSecurity } from "./lib/http-server-security.js";
 
 dotenv.config();
 
@@ -99,6 +104,8 @@ app.use(
 // Reject paths used by generic Internet scanners before they can fall through
 // to the SPA. Caddy applies the same policy at the edge; this is the fallback
 // when the application is reached directly from the local host.
+app.use(rejectUnsupportedHttpMethod);
+app.use(rejectAbusiveRequestShape);
 app.use(rejectAutomatedProbe);
 
 app.use("/api", apiSecurityHeaders);
@@ -198,6 +205,7 @@ export async function startServer(
         console.log(`API Server running at http://${host}:${resolvedPort}`);
         resolve(server);
       });
+      configureHttpServerSecurity(server);
       server.once("error", reject);
     });
   } catch (err) {

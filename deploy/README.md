@@ -7,6 +7,9 @@ Internet -> Caddy :443 -> Node 127.0.0.1:3001 -> PostgreSQL 127.0.0.1:5432
 ```
 
 Solo Caddy queda expuesto. Node y PostgreSQL permanecen en la interfaz local.
+El paquete se orienta a distribuciones Linux con `systemd`; Ubuntu Server 24.04
+es el primer entorno objetivo, no una dependencia. La secuencia portable se
+documenta en `LINUX.md`.
 
 ## Archivos
 
@@ -14,6 +17,8 @@ Solo Caddy queda expuesto. Node y PostgreSQL permanecen en la interfaz local.
   de cuerpo, registro JSON rotado y proxy con comprobación de salud.
 - `umbravia-forge.service`: servicio `systemd` sin privilegios, con reinicio
   limitado, cierre mediante `SIGTERM` y aislamiento del sistema de archivos.
+- `audit-deployment-package.mjs`: impide empaquetar por accidente repositorios,
+  secretos, claves privadas o bases de datos locales.
 
 ## Instalación resumida
 
@@ -32,12 +37,18 @@ Solo Caddy queda expuesto. Node y PostgreSQL permanecen en la interfaz local.
    `npm run deploy:package` exige una clave pública real de Turnstile mediante
    `VITE_TURNSTILE_SITE_KEY` o un `.env.production` local no versionado; así se
    evita construir una interfaz de producción que no pueda verificar usuarios.
-3. Copiar `.env.production.example` a
+   El paquete no contiene `node_modules`: dentro de la versión copiada debe
+   ejecutarse `npm ci --omit=dev`. Esto es obligatorio aunque el paquete se
+   haya construido en Windows, porque las dependencias nativas deben instalarse
+   para Linux y desde el `package-lock.json` validado.
+3. Copiar `deploy/umbravia-forge.env.template` a
    `/etc/umbravia-forge/umbravia-forge.env`, sustituir todos los marcadores y
    aplicar permisos `0640` con grupo `umbravia`.
 4. Copiar el servicio a `/etc/systemd/system/umbravia-forge.service`.
-5. Copiar el `Caddyfile` a `/etc/caddy/Caddyfile`. Si se cambia el hostname,
-   sustituirlo en el archivo o definir `UMBRAVIA_DOMAIN` para el servicio Caddy.
+5. Copiar el `Caddyfile` a `/etc/caddy/Caddyfile`. El dominio no forma parte de
+   las reglas de seguridad: puede sustituirse en el archivo o proporcionarse
+   con `UMBRAVIA_DOMAIN` al servicio Caddy. Al cambiarlo también deben ajustarse
+   `CLIENT_ORIGIN`, `WEBAUTHN_ORIGIN` y `WEBAUTHN_RP_ID`.
 6. Validar antes de activar:
 
    ```text
@@ -49,18 +60,39 @@ Solo Caddy queda expuesto. Node y PostgreSQL permanecen en la interfaz local.
    sudo systemctl reload caddy
    ```
 
-7. Comprobar desde el servidor y desde el exterior:
+   Después de instalar las dependencias y el archivo de entorno, ejecutar:
+
+   ```text
+   chmod +x deploy/check-linux-readiness.sh
+   sudo UMBRAVIA_ENV_FILE=/etc/umbravia-forge/umbravia-forge.env \
+     ./deploy/check-linux-readiness.sh
+   ```
+
+   El comprobador exige Linux, Node 24, npm 11, Caddy, `systemd`, los artefactos
+   compilados, dependencias de producción instaladas, configuración sin
+   marcadores y permisos `0600` o `0640` para los secretos. Si algo falla, la
+   versión no debe activarse.
+
+7. Comprobar la salud desde el servidor y mediante el dominio configurado:
 
    ```text
    curl --fail http://127.0.0.1:3001/api/health/live
    curl --fail http://127.0.0.1:3001/api/health
-   curl --fail https://umbravia-forge.duckdns.org/api/health
-   curl -i https://umbravia-forge.duckdns.org/.env
+   curl --fail https://<dominio-configurado>/api/health
    ```
 
-La última petición debe devolver `404`; nunca debe mostrar un archivo ni la
-interfaz React. Los logs se consultan con `journalctl -u umbravia-forge` y en
+Las comprobaciones ofensivas del perímetro se harán más adelante sobre una
+preproducción pública controlada. Los logs se consultan con
+`journalctl -u umbravia-forge` y en
 `/var/log/caddy/umbravia-forge-access.log`.
+
+Los escaneos de Internet no se pueden impedir por completo. La defensa busca
+que sean inofensivos y observables: Caddy corta las sondas conocidas, Express
+normaliza y rechaza variantes codificadas o anidadas, limita métodos, tamaño de
+URL, cuerpo, cabeceras, tiempos y reutilización de conexiones, y el paquete no
+permite publicar archivos sensibles. Estas barreras se aplican igual con
+cualquier dominio configurado. Peticiones legítimas a rutas inexistentes
+siguen recibiendo la superficie genérica `404`.
 
 ## Red y base de datos
 
