@@ -17,4 +17,18 @@ describe("systemd deployment service", () => {
       /^ExecStart=\/(?:usr\/local\/bin|usr\/bin)\/node\b/m,
     );
   });
+
+  it("validates Caddy without taking ownership of its production log", async () => {
+    const [caddyfile, readiness] = await Promise.all([
+      readFile(path.resolve("deploy", "Caddyfile"), "utf8"),
+      readFile(path.resolve("deploy", "check-linux-readiness.sh"), "utf8"),
+    ]);
+
+    expect(caddyfile).toContain(
+      "{$UMBRAVIA_CADDY_LOG:/var/log/caddy/umbravia-forge-access.log}",
+    );
+    expect(readiness).toContain("CADDY_VALIDATION_LOG=$(mktemp");
+    expect(readiness).toContain('UMBRAVIA_CADDY_LOG="$CADDY_VALIDATION_LOG"');
+    expect(readiness).toContain('rm -f "$CADDY_VALIDATION_LOG"');
+  });
 });

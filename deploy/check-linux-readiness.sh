@@ -98,11 +98,16 @@ else
 fi
 
 if command -v caddy >/dev/null 2>&1; then
-  if caddy validate --config "$PROJECT_ROOT/deploy/Caddyfile" >/dev/null; then
+  CADDY_VALIDATION_LOG=$(mktemp "${TMPDIR:-/tmp}/umbravia-caddy-validation.XXXXXX")
+  trap 'rm -f "$CADDY_VALIDATION_LOG"' EXIT HUP INT TERM
+  if UMBRAVIA_CADDY_LOG="$CADDY_VALIDATION_LOG" \
+    caddy validate --config "$PROJECT_ROOT/deploy/Caddyfile" >/dev/null; then
     pass "Caddyfile valido"
   else
     fail "Caddyfile no valido"
   fi
+  rm -f "$CADDY_VALIDATION_LOG"
+  trap - EXIT HUP INT TERM
 fi
 
 if command -v systemd-analyze >/dev/null 2>&1; then
