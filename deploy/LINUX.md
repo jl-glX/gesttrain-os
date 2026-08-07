@@ -18,7 +18,9 @@ automáticamente: cada fase se valida antes de abrir tráfico.
 
 No se debe ejecutar Node como `root`. El paquete tampoco debe contener
 `node_modules` creados en otro sistema: se instalan nuevamente en el Linux de
-destino.
+destino. La unidad localiza Node mediante un `PATH` explícito que admite tanto
+`/usr/local/bin/node` como `/usr/bin/node`; no se deben crear enlaces globales
+para adaptar el servidor al servicio.
 
 ## 2. Perímetro de red
 

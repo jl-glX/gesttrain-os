@@ -12,7 +12,10 @@ User=umbravia
 Group=umbravia
 WorkingDirectory=/opt/umbravia-forge/current
 EnvironmentFile=/etc/umbravia-forge/umbravia-forge.env
-ExecStart=/usr/bin/node scripts/start-production.mjs
+# Node puede proceder de los paquetes de la distribución o de una instalación
+# oficial bajo /usr/local. /usr/bin/env evita fijar una de las dos rutas.
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/env node scripts/start-production.mjs
 Restart=on-failure
 RestartSec=5
 TimeoutStopSec=30

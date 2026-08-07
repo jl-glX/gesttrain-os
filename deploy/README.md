@@ -16,7 +16,8 @@ documenta en `LINUX.md`.
 - `Caddyfile`: HTTPS, rechazo temprano de sondas automáticas, límite exterior
   de cuerpo, registro JSON rotado y proxy con comprobación de salud.
 - `umbravia-forge.service`: servicio `systemd` sin privilegios, con reinicio
-  limitado, cierre mediante `SIGTERM` y aislamiento del sistema de archivos.
+  limitado, cierre mediante `SIGTERM`, resolución portable de Node desde
+  `/usr/local/bin` o `/usr/bin` y aislamiento del sistema de archivos.
 - `audit-deployment-package.mjs`: impide empaquetar por accidente repositorios,
   secretos, claves privadas o bases de datos locales.
 
