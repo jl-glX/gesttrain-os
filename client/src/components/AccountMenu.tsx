@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronDown, LogOut, Settings, UserRound, X } from "lucide-react";
+import {
+  ChevronDown,
+  LifeBuoy,
+  LogOut,
+  Settings,
+  UserRound,
+  X,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../hooks/useAuth";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -122,6 +129,16 @@ export function AccountMenu() {
           >
             <Settings size={18} />
             {t("accountMenu.manage")}
+          </Link>
+
+          <Link
+            role="menuitem"
+            to="/support"
+            onClick={() => setIsOpen(false)}
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-orange-200 px-4 py-2.5 text-sm font-semibold text-orange-700 transition hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+          >
+            <LifeBuoy size={18} />
+            {t("accountMenu.support")}
           </Link>
 
           <div className="my-3 border-t border-slate-100" />

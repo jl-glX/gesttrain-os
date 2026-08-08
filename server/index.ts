@@ -38,6 +38,7 @@ import { capabilityRoadmapRouter } from "./routes/capability-roadmap.js";
 import { commercialRouter } from "./routes/commercial.js";
 import { communityRouter } from "./routes/community.js";
 import { moderationRouter } from "./routes/moderation.js";
+import { supportRouter } from "./routes/support.js";
 import {
   apiLimiter,
   apiSecurityHeaders,
@@ -78,7 +79,12 @@ app.use(
   cors({
     origin: clientOrigins.length ? clientOrigins : false,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-File-Name",
+      "X-Message-Id",
+    ],
     credentials: true,
     maxAge: 600,
   }),
@@ -89,17 +95,9 @@ app.use(
       process.env.NODE_ENV === "production"
         ? {
             directives: {
-              scriptSrc: [
-                "'self'",
-                "https://www.google.com/recaptcha/",
-                "https://www.gstatic.com/recaptcha/",
-              ],
-              frameSrc: [
-                "'self'",
-                "https://www.google.com/recaptcha/",
-                "https://recaptcha.google.com/recaptcha/",
-              ],
-              connectSrc: ["'self'", "https://www.google.com/recaptcha/"],
+              scriptSrc: ["'self'", "https://challenges.cloudflare.com"],
+              frameSrc: ["'self'", "https://challenges.cloudflare.com"],
+              connectSrc: ["'self'", "https://challenges.cloudflare.com"],
             },
           }
         : false,
@@ -155,6 +153,7 @@ app.use("/api/admin/capability-roadmap", capabilityRoadmapRouter);
 app.use("/api/commercial", commercialRouter);
 app.use("/api/community", communityRouter);
 app.use("/api/moderation", moderationRouter);
+app.use("/api/support", supportRouter);
 
 if (process.env.NODE_ENV !== "production") {
   app.get("/", (_req, res) => {

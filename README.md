@@ -21,6 +21,10 @@ Umbravia Forge is a modular gym-management application for classes, bookings, wa
   retention policies for demonstration.
 - Product-first commercial foundation with an editable 31-day trial and a
   non-destructive data-classification draft.
+- Forge Support tickets with private conversations, staff-only notes, SLA
+  targets, protected attachments, a knowledge base and auditable triage.
+- A first-party transactional queue with encrypted payloads, bounded retries,
+  delivery tracing and coordinated maintenance.
 
 ## Technology
 
@@ -70,6 +74,8 @@ npm run security:password-resilience # synthetic bcrypt laboratory check
 - [Legal readiness checklist](./docs/LEGAL-READINESS.md)
 - [Commercial foundation audit](./docs/COMMERCIAL-FOUNDATION-AUDIT.md)
 - [Self-hosted production readiness](./docs/SELF-HOSTED-PRODUCTION.md)
+- [Forge Notify and transactional email](./docs/FORGE-NOTIFY.md)
+- [Forge Support](./docs/FORGE-SUPPORT.md)
 
 ## Demo data
 
@@ -86,12 +92,13 @@ Development mode seeds demonstration accounts and classes. Demo credentials are 
 - Commercial trials still use a single shared centre and remain disabled by
   default in production until tenant isolation is implemented.
 - Password recovery remains pending. Email verification is implemented through
-  SMTP and production fails closed until a relay or local mail transfer agent is
-  configured. Optional two-factor authentication remains available as a
-  separate account-security capability.
+  the encrypted Forge Notify queue and SMTP; production fails closed until a
+  relay or local mail transfer agent is configured. Optional two-factor
+  authentication remains a separate account-security capability.
 - Payments, subscriptions and refunds are not implemented.
 - Legal pages are drafts and still require real contact, tax and business information plus professional review.
-- Notifications and real-time updates are not implemented.
+- Forge Notify currently covers transactional account and support email. Push,
+  SMS, inbound email parsing and real-time support updates are not implemented.
 
 ## Ownership and licence
 

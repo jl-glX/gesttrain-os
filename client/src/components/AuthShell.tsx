@@ -2,8 +2,7 @@ import type { ReactNode } from "react";
 import { CalendarDays, ShieldCheck, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "./LanguageSwitcher";
-import { BrandLogo } from "./BrandLogo";
-import { BrandWordmark } from "./BrandWordmark";
+import { BrandLockup } from "./BrandLockup";
 
 interface AuthShellProps {
   eyebrow: string;
@@ -33,9 +32,8 @@ export function AuthShell({
         <div className="absolute -left-40 top-1/3 h-96 w-96 rounded-full bg-blue-600/25 blur-3xl" />
         <div className="absolute -right-32 -top-20 h-80 w-80 rounded-full bg-cyan-400/15 blur-3xl" />
 
-        <div className="relative flex items-center gap-3 text-xl font-bold tracking-tight">
-          <BrandLogo className="h-11 w-11 rounded-xl shadow-lg shadow-blue-500/20" />
-          <BrandWordmark subtitleClassName="text-blue-300" />
+        <div className="relative inline-flex w-fit rounded-2xl bg-white px-3 py-2 shadow-xl shadow-black/20">
+          <BrandLockup className="h-14 w-auto max-w-64" />
         </div>
 
         <div className="relative max-w-xl">
@@ -75,12 +73,8 @@ export function AuthShell({
               <LanguageSwitcher />
               {utilityMenu}
             </div>
-            <div className="mb-8 flex items-center gap-3 lg:hidden">
-              <BrandLogo className="h-11 w-11 rounded-xl shadow-lg shadow-blue-600/20" />
-              <BrandWordmark
-                className="text-xl font-bold tracking-tight text-slate-950"
-                subtitleClassName="text-blue-600"
-              />
+            <div className="mb-8 lg:hidden">
+              <BrandLockup className="h-14 w-auto max-w-64" />
             </div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-600">
               {eyebrow}

@@ -30,19 +30,34 @@ describe("systemd deployment service", () => {
     expect(readiness).toContain("CADDY_VALIDATION_LOG=$(mktemp");
     expect(readiness).toContain('UMBRAVIA_CADDY_LOG="$CADDY_VALIDATION_LOG"');
     expect(readiness).toContain('rm -f "$CADDY_VALIDATION_LOG"');
+    expect(readiness).toContain("TURNSTILE_SECRET_KEY");
+    expect(readiness).toContain("EMAIL_QUEUE_ENCRYPTION_KEY");
     expect(readiness).toContain(
-      "for REQUIRED_RECAPTCHA_ENV in RECAPTCHA_SECRET_KEY",
-    );
-    expect(readiness).toContain(
-      "EMAIL_VERIFICATION_ENABLED debe ser true o false",
+      "EMAIL_VERIFICATION_ENABLED debe ser true en produccion",
     );
     expect(readiness).toContain(
       "for REQUIRED_ENV in SMTP_HOST SMTP_PORT EMAIL_FROM",
     );
     expect(readiness).toContain("EMAIL_VERIFICATION_ENABLED=true");
-    expect(readiness).toContain("SMTP no es obligatorio");
+    expect(readiness).toContain("ausente para la verificacion de correo");
     expect(readiness).toContain(
       "SMTP_USER y SMTP_PASSWORD deben configurarse juntos",
+    );
+  });
+
+  it("keeps persistent security environment files outside release cleanup", async () => {
+    const [updater, disableUpdates] = await Promise.all([
+      readFile(path.resolve("deploy", "auto-update.sh"), "utf8"),
+      readFile(path.resolve("deploy", "disable-automatic-updates.sh"), "utf8"),
+    ]);
+
+    for (const script of [updater, disableUpdates]) {
+      expect(script).not.toMatch(
+        /rm\s+(?:-[^\s]+\s+)*[^\n]*(?:update\.env|umbravia-forge\.env)/,
+      );
+    }
+    expect(updater).toContain(
+      "UMBRAVIA_APP_ENV_FILE:=/etc/umbravia-forge/umbravia-forge.env",
     );
   });
 });

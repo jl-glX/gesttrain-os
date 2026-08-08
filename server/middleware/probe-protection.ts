@@ -53,6 +53,25 @@ const ALLOWED_HTTP_METHODS = new Set([
 const MAX_REQUEST_TARGET_LENGTH = 4_096;
 const MAX_DECLARED_BODY_BYTES = 1_048_576;
 
+function declaredBodyLimit(req: Request): number {
+  if (
+    req.method === "POST" &&
+    /^\/api\/support\/tickets\/[^/]+\/attachments\/?(?:\?.*)?$/.test(
+      req.originalUrl,
+    )
+  ) {
+    const configured = Number.parseInt(
+      process.env.SUPPORT_ATTACHMENT_MAX_BYTES ?? "5242880",
+      10,
+    );
+    if (Number.isInteger(configured)) {
+      return Math.min(Math.max(configured, 1024), 10 * 1024 * 1024);
+    }
+    return 5 * 1024 * 1024;
+  }
+  return MAX_DECLARED_BODY_BYTES;
+}
+
 function containsControlCharacter(value: string): boolean {
   for (const character of value) {
     const code = character.charCodeAt(0);
@@ -138,7 +157,7 @@ export function rejectAbusiveRequestShape(
   const declaredLength = req.get("Content-Length");
   if (declaredLength && /^\d+$/.test(declaredLength)) {
     const bytes = Number(declaredLength);
-    if (!Number.isSafeInteger(bytes) || bytes > MAX_DECLARED_BODY_BYTES) {
+    if (!Number.isSafeInteger(bytes) || bytes > declaredBodyLimit(req)) {
       res.setHeader("Cache-Control", "no-store");
       res.setHeader("Connection", "close");
       res.status(413).json({

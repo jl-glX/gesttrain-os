@@ -42,12 +42,22 @@ export const migrationTableGroups = {
   retained: ["dataRetentionPolicies", "dataRetentionRecords", "billingRecords"],
   security: [
     "emailVerificationChallenges",
+    "emailDeliveries",
+    "antiAutomationChallenges",
     "sessions",
     "mfaCredentials",
     "authChallenges",
     "passkeyCredentials",
     "webauthnChallenges",
     "securityEvents",
+  ],
+  support: [
+    "supportTickets",
+    "supportAgents",
+    "supportMessages",
+    "supportAttachments",
+    "supportEvents",
+    "supportKnowledgeArticles",
   ],
   feedback: ["feedback"],
 } as const;
@@ -130,7 +140,11 @@ export function inspectSqliteDatabase(
       groupCounts,
       totalRows,
       containsSensitiveData:
-        groupCounts.identity + groupCounts.retained + groupCounts.security > 0,
+        groupCounts.identity +
+          groupCounts.retained +
+          groupCounts.security +
+          groupCounts.support >
+        0,
     };
   } finally {
     source.close();
@@ -155,9 +169,17 @@ export function buildSqliteToPostgresMigrationPlan(
       "sessions",
       "authChallenges",
       "emailVerificationChallenges",
+      "emailDeliveries",
+      "antiAutomationChallenges",
       "webauthnChallenges",
       "mfaCredentials",
       "passkeyCredentials",
+      "supportTickets",
+      "supportAgents",
+      "supportMessages",
+      "supportAttachments",
+      "supportEvents",
+      "supportKnowledgeArticles",
     ],
   };
 }

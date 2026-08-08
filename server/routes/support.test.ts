@@ -1,0 +1,328 @@
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import request from "supertest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+
+describe("Forge Support API", () => {
+  let directory: string;
+  let database: typeof import("../db/client.js");
+  let app: typeof import("../index.js").app;
+  let adminCookie: string;
+  let memberCookie: string;
+  let peerCookie: string;
+  let agentCookie: string;
+  let ticketId: string;
+
+  beforeAll(async () => {
+    directory = await mkdtemp(join(tmpdir(), "umbravia-support-"));
+    vi.stubEnv("DATA_DIRECTORY", directory);
+    vi.stubEnv("NODE_ENV", "test");
+    vi.resetModules();
+    database = await import("../db/client.js");
+    const auth = await import("../services/auth.js");
+    await database.initializeDatabase();
+    await database.db
+      .insertInto("users")
+      .values([
+        {
+          id: "support-admin",
+          email: "support-admin@example.com",
+          phone: null,
+          name: "Support Admin",
+          avatarDataUrl: "",
+          password: await auth.hashPassword("SupportAdmin123"),
+          role: "admin",
+          sessionIdleTimeoutMinutes: 10080,
+          createdAt: Date.now(),
+        },
+        {
+          id: "support-member",
+          email: "support-member@example.com",
+          phone: null,
+          name: "Support Member",
+          avatarDataUrl: "",
+          password: await auth.hashPassword("SupportMember123"),
+          role: "member",
+          sessionIdleTimeoutMinutes: 10080,
+          createdAt: Date.now(),
+        },
+        {
+          id: "support-peer",
+          email: "support-peer@example.com",
+          phone: null,
+          name: "Support Peer",
+          avatarDataUrl: "",
+          password: await auth.hashPassword("SupportPeer123"),
+          role: "member",
+          sessionIdleTimeoutMinutes: 10080,
+          createdAt: Date.now(),
+        },
+        {
+          id: "support-agent",
+          email: "support-agent@example.com",
+          phone: null,
+          name: "Support Agent",
+          avatarDataUrl: "",
+          password: await auth.hashPassword("SupportAgent123"),
+          role: "member",
+          sessionIdleTimeoutMinutes: 10080,
+          createdAt: Date.now(),
+        },
+      ])
+      .execute();
+    await database.db
+      .insertInto("supportAgents")
+      .values({
+        id: "support-agent-membership",
+        facilityId: "primary",
+        userId: "support-agent",
+        role: "agent",
+        active: 1,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      })
+      .execute();
+    app = (await import("../index.js")).app;
+    const login = async (
+      identifier: string,
+      password: string,
+      portal: "member" | "staff",
+    ) =>
+      (
+        await request(app).post("/api/auth/login").send({
+          identifier,
+          password,
+          accessPortal: portal,
+          rememberDevice: false,
+        })
+      ).headers["set-cookie"][0];
+    adminCookie = await login(
+      "support-admin@example.com",
+      "SupportAdmin123",
+      "staff",
+    );
+    memberCookie = await login(
+      "support-member@example.com",
+      "SupportMember123",
+      "member",
+    );
+    peerCookie = await login(
+      "support-peer@example.com",
+      "SupportPeer123",
+      "member",
+    );
+    agentCookie = await login(
+      "support-agent@example.com",
+      "SupportAgent123",
+      "member",
+    );
+  }, 30_000);
+
+  afterAll(async () => {
+    database.closeDatabase();
+    vi.unstubAllEnvs();
+    await rm(directory, { recursive: true, force: true });
+  });
+
+  it("creates a private, auditable ticket and rejects unknown fields", async () => {
+    await request(app)
+      .post("/api/support/tickets")
+      .set("Cookie", memberCookie)
+      .send({
+        subject: "No puedo confirmar una reserva",
+        message: "La reserva permanece pendiente después de confirmar.",
+        category: "reservations",
+        priority: "high",
+        arbitrary: "must be rejected",
+      })
+      .expect(400);
+
+    const created = await request(app)
+      .post("/api/support/tickets")
+      .set("Cookie", memberCookie)
+      .send({
+        subject: "No puedo confirmar una reserva",
+        message: "La reserva permanece pendiente después de confirmar.",
+        category: "reservations",
+        priority: "high",
+        context: { route: "/my-bookings", release: "test" },
+      })
+      .expect(201);
+    ticketId = created.body.ticket.id;
+    expect(created.body.ticket.publicId).toMatch(/^UFS-[A-F0-9]{10}$/);
+
+    await request(app)
+      .get(`/api/support/tickets/${ticketId}`)
+      .set("Cookie", peerCookie)
+      .expect(403);
+
+    const own = await request(app)
+      .get(`/api/support/tickets/${ticketId}`)
+      .set("Cookie", memberCookie)
+      .expect(200);
+    expect(own.body.ticket.messages).toHaveLength(1);
+    expect(own.body.ticket.context.route).toBe("/my-bookings");
+  });
+
+  it("lets staff triage tickets while hiding internal notes", async () => {
+    const capabilities = await request(app)
+      .get("/api/support/capabilities")
+      .set("Cookie", agentCookie)
+      .expect(200);
+    expect(capabilities.body.capabilities).toMatchObject({
+      staff: true,
+      administrator: false,
+      supportRole: "agent",
+      canManageKnowledge: true,
+      canManageTeam: false,
+    });
+    await request(app)
+      .get("/api/support/agents")
+      .set("Cookie", agentCookie)
+      .expect(200);
+
+    await request(app)
+      .patch(`/api/support/tickets/${ticketId}`)
+      .set("Cookie", adminCookie)
+      .send({
+        status: "in_progress",
+        priority: "urgent",
+        assigneeUserId: "support-admin",
+      })
+      .expect(200);
+
+    await request(app)
+      .post(`/api/support/tickets/${ticketId}/messages`)
+      .set("Cookie", adminCookie)
+      .send({
+        body: "Revisar la transición de estado.",
+        visibility: "internal",
+      })
+      .expect(201);
+
+    await request(app)
+      .post(`/api/support/tickets/${ticketId}/messages`)
+      .set("Cookie", memberCookie)
+      .send({ body: "Intento de nota interna.", visibility: "internal" })
+      .expect(403);
+
+    const memberView = await request(app)
+      .get(`/api/support/tickets/${ticketId}`)
+      .set("Cookie", memberCookie)
+      .expect(200);
+    expect(memberView.body.ticket.messages).toHaveLength(1);
+
+    const staffView = await request(app)
+      .get(`/api/support/tickets/${ticketId}`)
+      .set("Cookie", adminCookie)
+      .expect(200);
+    expect(staffView.body.ticket.messages).toHaveLength(2);
+    expect(staffView.body.ticket.events.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("stores attachments outside the public tree and checks ticket access", async () => {
+    const uploaded = await request(app)
+      .post(`/api/support/tickets/${ticketId}/attachments`)
+      .set("Cookie", memberCookie)
+      .set("Content-Type", "text/plain")
+      .set("X-File-Name", "diagnostico.txt")
+      .send(Buffer.from("support diagnostic"))
+      .expect(201);
+
+    await request(app)
+      .get(
+        `/api/support/tickets/${ticketId}/attachments/${uploaded.body.attachment.id}`,
+      )
+      .set("Cookie", peerCookie)
+      .expect(403);
+
+    const downloaded = await request(app)
+      .get(
+        `/api/support/tickets/${ticketId}/attachments/${uploaded.body.attachment.id}`,
+      )
+      .set("Cookie", memberCookie)
+      .expect(200);
+    expect(downloaded.text).toBe("support diagnostic");
+    expect(downloaded.headers["content-disposition"]).toContain(
+      "diagnostico.txt",
+    );
+
+    const staffView = await request(app)
+      .get(`/api/support/tickets/${ticketId}`)
+      .set("Cookie", adminCookie)
+      .expect(200);
+    const internalMessage = staffView.body.ticket.messages.find(
+      (message: { visibility: string }) => message.visibility === "internal",
+    );
+    const internalUpload = await request(app)
+      .post(`/api/support/tickets/${ticketId}/attachments`)
+      .set("Cookie", adminCookie)
+      .set("Content-Type", "text/plain")
+      .set("X-File-Name", "nota-interna.txt")
+      .set("X-Message-Id", internalMessage.id)
+      .send(Buffer.from("staff only"))
+      .expect(201);
+    await request(app)
+      .get(
+        `/api/support/tickets/${ticketId}/attachments/${internalUpload.body.attachment.id}`,
+      )
+      .set("Cookie", memberCookie)
+      .expect(403);
+
+    const memberView = await request(app)
+      .get(`/api/support/tickets/${ticketId}`)
+      .set("Cookie", memberCookie)
+      .expect(200);
+    expect(memberView.body.ticket.attachments).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: internalUpload.body.attachment.id }),
+      ]),
+    );
+  });
+
+  it("publishes searchable knowledge without exposing drafts", async () => {
+    await request(app)
+      .post("/api/support/knowledge")
+      .set("Cookie", adminCookie)
+      .send({
+        title: "Confirmar una reserva",
+        summary: "Pasos para confirmar la asistencia.",
+        body: "Abre Mis reservas y confirma la asistencia disponible.",
+        category: "reservations",
+        status: "published",
+      })
+      .expect(201);
+
+    await request(app)
+      .post("/api/support/knowledge")
+      .set("Cookie", adminCookie)
+      .send({
+        title: "Borrador privado",
+        summary: "No debe aparecer a socios.",
+        body: "Contenido interno de soporte.",
+        category: "internal",
+        status: "draft",
+      })
+      .expect(201);
+
+    const search = await request(app)
+      .get("/api/support/search?q=reserva")
+      .set("Cookie", memberCookie)
+      .expect(200);
+    expect(search.body.articles).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ title: "Confirmar una reserva" }),
+      ]),
+    );
+    expect(search.body.articles).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ title: "Borrador privado" }),
+      ]),
+    );
+    await request(app)
+      .get("/api/support/search?q=%25_")
+      .set("Cookie", memberCookie)
+      .expect(400);
+  });
+});

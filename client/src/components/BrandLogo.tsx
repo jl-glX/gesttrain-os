@@ -9,7 +9,7 @@ export function BrandLogo({
 }: BrandLogoProps) {
   return (
     <img
-      src="/umbravia-forge-logo.png"
+      src="/brand/umbravia-forge-app-icon-v2.png"
       alt={alt}
       className={`shrink-0 object-cover ${className}`}
     />

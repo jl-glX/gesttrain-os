@@ -310,6 +310,94 @@ async function initializeSqliteSchema(
     }
   }
 
+  if (!tableNames.includes("emailDeliveries")) {
+    console.log("Creating transactional email deliveries table...");
+    sqliteDb.exec(`
+      CREATE TABLE emailDeliveries (
+        id TEXT PRIMARY KEY,
+        userId TEXT,
+        kind TEXT NOT NULL CHECK(kind IN ('email_verification', 'support_update', 'security_notice')),
+        recipient TEXT NOT NULL,
+        locale TEXT NOT NULL,
+        payloadEncrypted TEXT NOT NULL,
+        status TEXT NOT NULL CHECK(status IN ('queued', 'processing', 'retry', 'sent', 'failed', 'superseded')),
+        attempts INTEGER NOT NULL DEFAULT 0,
+        maxAttempts INTEGER NOT NULL DEFAULT 5,
+        nextAttemptAt INTEGER NOT NULL,
+        messageId TEXT,
+        lastError TEXT,
+        createdAt INTEGER NOT NULL,
+        updatedAt INTEGER NOT NULL,
+        sentAt INTEGER,
+        expiresAt INTEGER NOT NULL,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE SET NULL
+      );
+      CREATE INDEX idx_emailDeliveries_due
+        ON emailDeliveries(status, nextAttemptAt);
+      CREATE INDEX idx_emailDeliveries_user
+        ON emailDeliveries(userId, createdAt);
+      CREATE INDEX idx_emailDeliveries_expiry
+        ON emailDeliveries(expiresAt);
+    `);
+  } else {
+    const deliveryDefinition = sqliteDb
+      .prepare(
+        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'emailDeliveries'",
+      )
+      .get() as { sql?: string } | undefined;
+    if (!deliveryDefinition?.sql?.includes("support_update")) {
+      console.log("Expanding transactional email delivery types...");
+      sqliteDb.exec(`
+        ALTER TABLE emailDeliveries RENAME TO emailDeliveriesLegacy;
+        CREATE TABLE emailDeliveries (
+          id TEXT PRIMARY KEY,
+          userId TEXT,
+          kind TEXT NOT NULL CHECK(kind IN ('email_verification', 'support_update', 'security_notice')),
+          recipient TEXT NOT NULL,
+          locale TEXT NOT NULL,
+          payloadEncrypted TEXT NOT NULL,
+          status TEXT NOT NULL CHECK(status IN ('queued', 'processing', 'retry', 'sent', 'failed', 'superseded')),
+          attempts INTEGER NOT NULL DEFAULT 0,
+          maxAttempts INTEGER NOT NULL DEFAULT 5,
+          nextAttemptAt INTEGER NOT NULL,
+          messageId TEXT,
+          lastError TEXT,
+          createdAt INTEGER NOT NULL,
+          updatedAt INTEGER NOT NULL,
+          sentAt INTEGER,
+          expiresAt INTEGER NOT NULL,
+          FOREIGN KEY(userId) REFERENCES users(id) ON DELETE SET NULL
+        );
+        INSERT INTO emailDeliveries
+          SELECT * FROM emailDeliveriesLegacy;
+        DROP TABLE emailDeliveriesLegacy;
+        CREATE INDEX idx_emailDeliveries_due
+          ON emailDeliveries(status, nextAttemptAt);
+        CREATE INDEX idx_emailDeliveries_user
+          ON emailDeliveries(userId, createdAt);
+        CREATE INDEX idx_emailDeliveries_expiry
+          ON emailDeliveries(expiresAt);
+      `);
+    }
+  }
+
+  if (!tableNames.includes("antiAutomationChallenges")) {
+    console.log("Creating first-party anti-automation challenges table...");
+    sqliteDb.exec(`
+      CREATE TABLE antiAutomationChallenges (
+        id TEXT PRIMARY KEY,
+        action TEXT NOT NULL CHECK(action IN ('login', 'signup', 'form_access', 'feedback')),
+        nonce TEXT NOT NULL,
+        difficulty INTEGER NOT NULL,
+        createdAt INTEGER NOT NULL,
+        expiresAt INTEGER NOT NULL,
+        consumedAt INTEGER
+      );
+      CREATE INDEX idx_antiAutomationChallenges_expiry
+        ON antiAutomationChallenges(expiresAt);
+    `);
+  }
+
   const usersWithoutSupportId = sqliteDb
     .prepare(
       `SELECT users.id
@@ -884,6 +972,109 @@ async function initializeSqliteSchema(
       );
       CREATE INDEX idx_feedback_userId ON feedback(userId);
       CREATE INDEX idx_feedback_createdAt ON feedback(createdAt);
+    `);
+  }
+
+  if (!tableNames.includes("supportTickets")) {
+    console.log("Creating Forge Support tables...");
+    sqliteDb.exec(`
+      CREATE TABLE supportTickets (
+        id TEXT PRIMARY KEY,
+        publicId TEXT NOT NULL UNIQUE,
+        facilityId TEXT NOT NULL DEFAULT 'primary',
+        requesterUserId TEXT NOT NULL,
+        assigneeUserId TEXT,
+        subject TEXT NOT NULL,
+        category TEXT NOT NULL CHECK(category IN ('account', 'billing', 'reservations', 'technical', 'safety', 'general')),
+        priority TEXT NOT NULL CHECK(priority IN ('low', 'normal', 'high', 'urgent')),
+        status TEXT NOT NULL CHECK(status IN ('open', 'in_progress', 'waiting_on_user', 'resolved', 'closed')),
+        source TEXT NOT NULL CHECK(source IN ('web', 'api', 'system')),
+        relatedType TEXT,
+        relatedId TEXT,
+        context TEXT NOT NULL DEFAULT '{}',
+        firstResponseDueAt INTEGER NOT NULL,
+        resolutionDueAt INTEGER NOT NULL,
+        firstRespondedAt INTEGER,
+        resolvedAt INTEGER,
+        closedAt INTEGER,
+        createdAt INTEGER NOT NULL,
+        updatedAt INTEGER NOT NULL,
+        FOREIGN KEY(requesterUserId) REFERENCES users(id) ON DELETE RESTRICT,
+        FOREIGN KEY(assigneeUserId) REFERENCES users(id) ON DELETE SET NULL
+      );
+      CREATE INDEX idx_supportTickets_requester ON supportTickets(requesterUserId, updatedAt DESC);
+      CREATE INDEX idx_supportTickets_queue ON supportTickets(facilityId, status, priority, updatedAt DESC);
+      CREATE INDEX idx_supportTickets_assignee ON supportTickets(assigneeUserId, status, updatedAt DESC);
+
+      CREATE TABLE supportAgents (
+        id TEXT PRIMARY KEY,
+        facilityId TEXT NOT NULL DEFAULT 'primary',
+        userId TEXT NOT NULL,
+        role TEXT NOT NULL CHECK(role IN ('agent', 'manager')),
+        active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0, 1)),
+        createdAt INTEGER NOT NULL,
+        updatedAt INTEGER NOT NULL,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE,
+        UNIQUE(facilityId, userId)
+      );
+      CREATE INDEX idx_supportAgents_active ON supportAgents(facilityId, active, role);
+
+      CREATE TABLE supportMessages (
+        id TEXT PRIMARY KEY,
+        ticketId TEXT NOT NULL,
+        authorUserId TEXT,
+        visibility TEXT NOT NULL CHECK(visibility IN ('requester', 'internal')),
+        body TEXT NOT NULL,
+        createdAt INTEGER NOT NULL,
+        FOREIGN KEY(ticketId) REFERENCES supportTickets(id) ON DELETE CASCADE,
+        FOREIGN KEY(authorUserId) REFERENCES users(id) ON DELETE SET NULL
+      );
+      CREATE INDEX idx_supportMessages_ticket ON supportMessages(ticketId, createdAt);
+
+      CREATE TABLE supportAttachments (
+        id TEXT PRIMARY KEY,
+        ticketId TEXT NOT NULL,
+        messageId TEXT,
+        uploadedByUserId TEXT NOT NULL,
+        fileName TEXT NOT NULL,
+        mimeType TEXT NOT NULL,
+        sizeBytes INTEGER NOT NULL,
+        storageKey TEXT NOT NULL UNIQUE,
+        checksumSha256 TEXT NOT NULL,
+        createdAt INTEGER NOT NULL,
+        FOREIGN KEY(ticketId) REFERENCES supportTickets(id) ON DELETE CASCADE,
+        FOREIGN KEY(messageId) REFERENCES supportMessages(id) ON DELETE SET NULL,
+        FOREIGN KEY(uploadedByUserId) REFERENCES users(id) ON DELETE RESTRICT
+      );
+      CREATE INDEX idx_supportAttachments_ticket ON supportAttachments(ticketId, createdAt);
+
+      CREATE TABLE supportEvents (
+        id TEXT PRIMARY KEY,
+        ticketId TEXT NOT NULL,
+        actorUserId TEXT,
+        type TEXT NOT NULL,
+        metadata TEXT NOT NULL DEFAULT '{}',
+        createdAt INTEGER NOT NULL,
+        FOREIGN KEY(ticketId) REFERENCES supportTickets(id) ON DELETE CASCADE,
+        FOREIGN KEY(actorUserId) REFERENCES users(id) ON DELETE SET NULL
+      );
+      CREATE INDEX idx_supportEvents_ticket ON supportEvents(ticketId, createdAt);
+
+      CREATE TABLE supportKnowledgeArticles (
+        id TEXT PRIMARY KEY,
+        slug TEXT NOT NULL UNIQUE,
+        title TEXT NOT NULL,
+        summary TEXT NOT NULL DEFAULT '',
+        body TEXT NOT NULL,
+        category TEXT NOT NULL DEFAULT 'general',
+        status TEXT NOT NULL CHECK(status IN ('draft', 'published', 'archived')),
+        authorUserId TEXT NOT NULL,
+        createdAt INTEGER NOT NULL,
+        updatedAt INTEGER NOT NULL,
+        publishedAt INTEGER,
+        FOREIGN KEY(authorUserId) REFERENCES users(id) ON DELETE RESTRICT
+      );
+      CREATE INDEX idx_supportKnowledge_status ON supportKnowledgeArticles(status, category, updatedAt DESC);
     `);
   }
 

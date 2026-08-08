@@ -8,6 +8,8 @@ import {
 import { cleanupStaleRuntimeRecords } from "../lib/runtime-registry.js";
 import { auditSourceHygiene } from "./source-hygiene.js";
 import { runEnvironmentReadinessAudit } from "./environment-manager.js";
+import { maintainEmailDeliveryQueue } from "./email-delivery.js";
+import { auditSupportSla } from "./support.js";
 import {
   getManagerCoordinationStatus,
   ManagerCoordinationConflictError,
@@ -95,6 +97,8 @@ const taskCoordinationScopes: Record<string, string[]> = {
   "source-hygiene-audit": ["source-tree"],
   "sqlite-query-planner": ["database-maintenance"],
   "environment-readiness-audit": ["database-maintenance"],
+  "email-delivery-maintenance": ["notification-delivery"],
+  "support-sla-audit": ["support-records", "notification-delivery"],
 };
 
 function runtimeCheckIntervalMs(): number {
@@ -210,6 +214,10 @@ async function cleanupExpiredAuthenticationData(): Promise<number> {
       .deleteFrom("emailVerificationChallenges")
       .where("expiresAt", "<", now)
       .executeTakeFirst(),
+    db
+      .deleteFrom("antiAutomationChallenges")
+      .where("expiresAt", "<", now)
+      .executeTakeFirst(),
   ]);
 
   return results.reduce(
@@ -231,6 +239,28 @@ registerTask({
   priority: "normal",
   enabledByDefault: true,
   run: cleanupExpiredAuthenticationData,
+});
+
+registerTask({
+  id: "email-delivery-maintenance",
+  name: "Transactional email delivery",
+  description:
+    "Retries queued transactional messages, recovers stale claims and purges terminal delivery records after 30 days.",
+  intervalMs: 60 * 1000,
+  priority: "critical",
+  enabledByDefault: true,
+  run: maintainEmailDeliveryQueue,
+});
+
+registerTask({
+  id: "support-sla-audit",
+  name: "Forge Support SLA audit",
+  description:
+    "Detects support tickets that have exceeded their first-response or resolution target without changing their state automatically.",
+  intervalMs: 15 * 60 * 1000,
+  priority: "normal",
+  enabledByDefault: true,
+  run: auditSupportSla,
 });
 
 registerTask({

@@ -1,6 +1,27 @@
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  randomBytes,
+  randomUUID,
+} from "node:crypto";
 import nodemailer from "nodemailer";
+import { db } from "../db/client.js";
+import { publishManagerSignal } from "./manager-coordinator.js";
+import { recordSecurityEvent } from "./security-events.js";
 
 type SupportedLocale = "es" | "en" | "de" | "de-CH";
+type EmailDeliveryPayload = {
+  email: string;
+  name?: string;
+  code?: string;
+  locale: SupportedLocale;
+  subject?: string;
+  text?: string;
+  html?: string;
+};
+type EmailDeliveryKind =
+  "email_verification" | "support_update" | "security_notice";
 
 export type EmailDeliveryConfiguration = {
   host: string;
@@ -113,6 +134,27 @@ export function emailDeliveryIsConfigured(
   return resolveEmailDeliveryConfiguration(environment) !== null;
 }
 
+export function resolveEmailQueueEncryptionKey(
+  environment: NodeJS.ProcessEnv = process.env,
+): Buffer {
+  const configured = environment.EMAIL_QUEUE_ENCRYPTION_KEY?.trim();
+  if (configured) {
+    const decoded = Buffer.from(configured, "base64");
+    if (decoded.length !== 32 || decoded.toString("base64") !== configured) {
+      throw new Error(
+        "EMAIL_QUEUE_ENCRYPTION_KEY must be exactly 32 random bytes encoded as base64",
+      );
+    }
+    return decoded;
+  }
+  if (environment.NODE_ENV === "production") {
+    throw new Error("EMAIL_QUEUE_ENCRYPTION_KEY is required in production");
+  }
+  return createHash("sha256")
+    .update("umbravia-forge-development-email-queue")
+    .digest();
+}
+
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (character) => {
     const entities: Record<string, string> = {
@@ -202,6 +244,25 @@ export async function sendEmailVerificationCode(input: {
   code: string;
   locale: SupportedLocale;
 }): Promise<{ delivered: boolean; messageId?: string }> {
+  const message = buildEmailVerificationMessage(
+    input.name,
+    input.code,
+    input.locale,
+  );
+  return sendTransactionalEmail({
+    email: input.email,
+    kind: "email_verification",
+    ...message,
+  });
+}
+
+export async function sendTransactionalEmail(input: {
+  email: string;
+  kind: EmailDeliveryKind;
+  subject: string;
+  text: string;
+  html: string;
+}): Promise<{ delivered: boolean; messageId?: string }> {
   const configuration = resolveEmailDeliveryConfiguration();
   if (!configuration) {
     if (process.env.NODE_ENV === "production") {
@@ -210,18 +271,17 @@ export async function sendEmailVerificationCode(input: {
     return { delivered: false };
   }
 
-  const message = buildEmailVerificationMessage(
-    input.name,
-    input.code,
-    input.locale,
-  );
   try {
     const result = await configuredTransport(configuration).sendMail({
       from: configuration.from,
       to: input.email,
-      subject: message.subject,
-      text: message.text,
-      html: message.html,
+      subject: input.subject,
+      text: input.text,
+      html: input.html,
+      headers: {
+        "X-Umbravia-Message-Type": input.kind.replace(/_/g, "-"),
+        "Auto-Submitted": "auto-generated",
+      },
     });
     return { delivered: true, messageId: result.messageId };
   } catch (cause) {
@@ -229,6 +289,336 @@ export async function sendEmailVerificationCode(input: {
       cause instanceof Error ? cause : undefined,
     );
   }
+}
+
+async function queueEncryptedDelivery(input: {
+  userId: string | null;
+  kind: EmailDeliveryKind;
+  recipient: string;
+  locale: SupportedLocale;
+  payload: EmailDeliveryPayload;
+  expiresAt: number;
+  supersedePending?: boolean;
+}): Promise<string> {
+  const now = Date.now();
+  const id = `email-delivery-${randomUUID()}`;
+  await db.transaction().execute(async (transaction) => {
+    if (input.supersedePending && input.userId) {
+      await transaction
+        .updateTable("emailDeliveries")
+        .set({ status: "superseded", payloadEncrypted: "", updatedAt: now })
+        .where("userId", "=", input.userId)
+        .where("kind", "=", input.kind)
+        .where("status", "in", ["queued", "retry", "processing"])
+        .execute();
+    }
+    await transaction
+      .insertInto("emailDeliveries")
+      .values({
+        id,
+        userId: input.userId,
+        kind: input.kind,
+        recipient: input.recipient,
+        locale: input.locale,
+        payloadEncrypted: encryptPayload(id, input.payload),
+        status: "queued",
+        attempts: 0,
+        maxAttempts: 5,
+        nextAttemptAt: now,
+        messageId: null,
+        lastError: null,
+        createdAt: now,
+        updatedAt: now,
+        sentAt: null,
+        expiresAt: input.expiresAt,
+      })
+      .execute();
+  });
+  return id;
+}
+
+function encryptPayload(id: string, payload: EmailDeliveryPayload): string {
+  const iv = randomBytes(12);
+  const cipher = createCipheriv(
+    "aes-256-gcm",
+    resolveEmailQueueEncryptionKey(),
+    iv,
+  );
+  cipher.setAAD(Buffer.from(id));
+  const ciphertext = Buffer.concat([
+    cipher.update(JSON.stringify(payload), "utf8"),
+    cipher.final(),
+  ]);
+  return [
+    "v1",
+    iv.toString("base64url"),
+    cipher.getAuthTag().toString("base64url"),
+    ciphertext.toString("base64url"),
+  ].join(".");
+}
+
+function decryptPayload(id: string, encrypted: string): EmailDeliveryPayload {
+  const [version, iv, tag, ciphertext] = encrypted.split(".");
+  if (version !== "v1" || !iv || !tag || !ciphertext) {
+    throw new Error("Unsupported email queue payload");
+  }
+  const decipher = createDecipheriv(
+    "aes-256-gcm",
+    resolveEmailQueueEncryptionKey(),
+    Buffer.from(iv, "base64url"),
+  );
+  decipher.setAAD(Buffer.from(id));
+  decipher.setAuthTag(Buffer.from(tag, "base64url"));
+  return JSON.parse(
+    Buffer.concat([
+      decipher.update(Buffer.from(ciphertext, "base64url")),
+      decipher.final(),
+    ]).toString("utf8"),
+  ) as EmailDeliveryPayload;
+}
+
+export async function queueEmailVerificationCode(input: {
+  userId: string;
+  email: string;
+  name: string;
+  code: string;
+  locale: SupportedLocale;
+  expiresAt: number;
+}): Promise<string> {
+  const id = await queueEncryptedDelivery({
+    userId: input.userId,
+    kind: "email_verification",
+    recipient: input.email,
+    locale: input.locale,
+    payload: input,
+    expiresAt: input.expiresAt,
+    supersedePending: true,
+  });
+  publishManagerSignal(
+    "notification",
+    "info",
+    "EMAIL_VERIFICATION_QUEUED",
+    "A verification message was queued for delivery.",
+  );
+  return id;
+}
+
+export async function queueSupportUpdateEmail(input: {
+  userId: string;
+  email: string;
+  locale: SupportedLocale;
+  ticketPublicId: string;
+  subject: string;
+  message: string;
+}): Promise<string> {
+  const title = `[${input.ticketPublicId}] ${input.subject}`;
+  const safeMessage = escapeHtml(input.message);
+  const id = await queueEncryptedDelivery({
+    userId: input.userId,
+    kind: "support_update",
+    recipient: input.email,
+    locale: input.locale,
+    expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000,
+    payload: {
+      email: input.email,
+      locale: input.locale,
+      subject: title,
+      text: `${input.ticketPublicId}\n\n${input.message}`,
+      html: `<p><strong>${escapeHtml(input.ticketPublicId)}</strong></p><p>${safeMessage.replace(/\n/g, "<br>")}</p>`,
+    },
+  });
+  publishManagerSignal(
+    "notification",
+    "info",
+    "SUPPORT_UPDATE_QUEUED",
+    "A support update was queued for delivery.",
+  );
+  return id;
+}
+
+export async function queueSupportStaffNotificationEmail(input: {
+  email: string;
+  ticketPublicId: string;
+  subject: string;
+  message: string;
+}): Promise<string> {
+  const title = `[${input.ticketPublicId}] ${input.subject}`;
+  const safeMessage = escapeHtml(input.message);
+  const id = await queueEncryptedDelivery({
+    userId: null,
+    kind: "support_update",
+    recipient: input.email,
+    locale: "es",
+    expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000,
+    payload: {
+      email: input.email,
+      locale: "es",
+      subject: title,
+      text: `${input.ticketPublicId}\n\n${input.message}`,
+      html: `<p><strong>${escapeHtml(input.ticketPublicId)}</strong></p><p>${safeMessage.replace(/\n/g, "<br>")}</p>`,
+    },
+  });
+  publishManagerSignal(
+    "notification",
+    "info",
+    "SUPPORT_STAFF_NOTIFICATION_QUEUED",
+    "A support queue notification was prepared for delivery.",
+  );
+  return id;
+}
+
+function retryDelay(attempt: number): number {
+  return Math.min(30 * 60 * 1000, 30_000 * 2 ** Math.max(0, attempt - 1));
+}
+
+export async function deliverQueuedEmail(deliveryId: string): Promise<boolean> {
+  const row = await db
+    .selectFrom("emailDeliveries")
+    .selectAll()
+    .where("id", "=", deliveryId)
+    .executeTakeFirst();
+  if (!row || !["queued", "retry"].includes(row.status)) return false;
+  const now = Date.now();
+  if (row.expiresAt <= now) {
+    await db
+      .updateTable("emailDeliveries")
+      .set({
+        status: "failed",
+        payloadEncrypted: "",
+        lastError: "expired_before_delivery",
+        updatedAt: now,
+      })
+      .where("id", "=", deliveryId)
+      .execute();
+    return false;
+  }
+  const claimed = await db
+    .updateTable("emailDeliveries")
+    .set({ status: "processing", updatedAt: now })
+    .where("id", "=", deliveryId)
+    .where("status", "in", ["queued", "retry"])
+    .executeTakeFirst();
+  if (Number(claimed.numUpdatedRows) !== 1) return false;
+
+  try {
+    const payload = decryptPayload(row.id, row.payloadEncrypted);
+    const delivery =
+      row.kind === "email_verification"
+        ? await sendEmailVerificationCode({
+            email: payload.email,
+            name: payload.name ?? "",
+            code: payload.code ?? "",
+            locale: payload.locale,
+          })
+        : await sendTransactionalEmail({
+            email: payload.email,
+            kind: row.kind,
+            subject: payload.subject ?? "Umbravia Forge",
+            text: payload.text ?? "",
+            html: payload.html ?? "",
+          });
+    if (!delivery.delivered) throw new EmailDeliveryUnavailableError();
+    await db
+      .updateTable("emailDeliveries")
+      .set({
+        status: "sent",
+        attempts: row.attempts + 1,
+        messageId: delivery.messageId ?? null,
+        lastError: null,
+        payloadEncrypted: "",
+        sentAt: Date.now(),
+        updatedAt: Date.now(),
+      })
+      .where("id", "=", row.id)
+      .where("status", "=", "processing")
+      .execute();
+    if (row.kind === "email_verification") {
+      await recordSecurityEvent("verification_email_sent", row.userId, {
+        deliveryId: row.id,
+      });
+    }
+    return true;
+  } catch (error) {
+    const attempts = row.attempts + 1;
+    const nextAttemptAt = Date.now() + retryDelay(attempts);
+    const terminal =
+      attempts >= row.maxAttempts || nextAttemptAt >= row.expiresAt;
+    await db
+      .updateTable("emailDeliveries")
+      .set({
+        status: terminal ? "failed" : "retry",
+        attempts,
+        nextAttemptAt,
+        payloadEncrypted: terminal ? "" : row.payloadEncrypted,
+        lastError:
+          error instanceof EmailDeliveryUnavailableError
+            ? "smtp_unavailable"
+            : "delivery_processing_failed",
+        updatedAt: Date.now(),
+      })
+      .where("id", "=", row.id)
+      .where("status", "=", "processing")
+      .execute();
+    publishManagerSignal(
+      "notification",
+      terminal ? "warning" : "info",
+      terminal ? "EMAIL_DELIVERY_FAILED" : "EMAIL_DELIVERY_RETRY",
+      terminal
+        ? "A verification message exhausted its delivery attempts."
+        : "A verification message will be retried.",
+    );
+    return false;
+  }
+}
+
+export async function processPendingEmailDeliveries(
+  limit = 20,
+): Promise<{ processed: number; delivered: number }> {
+  const rows = await db
+    .selectFrom("emailDeliveries")
+    .select("id")
+    .where("status", "in", ["queued", "retry"])
+    .where("nextAttemptAt", "<=", Date.now())
+    .orderBy("nextAttemptAt", "asc")
+    .limit(Math.min(Math.max(limit, 1), 100))
+    .execute();
+  let delivered = 0;
+  for (const row of rows) {
+    if (await deliverQueuedEmail(row.id)) delivered += 1;
+  }
+  return { processed: rows.length, delivered };
+}
+
+export async function maintainEmailDeliveryQueue(): Promise<{
+  count: number;
+  summary: string;
+}> {
+  const now = Date.now();
+  const recovered = await db
+    .updateTable("emailDeliveries")
+    .set({
+      status: "retry",
+      nextAttemptAt: now,
+      lastError: "recovered_stale_processing_claim",
+      updatedAt: now,
+    })
+    .where("status", "=", "processing")
+    .where("updatedAt", "<", now - 5 * 60 * 1000)
+    .executeTakeFirst();
+  const result = await processPendingEmailDeliveries();
+  const purged = await db
+    .deleteFrom("emailDeliveries")
+    .where("status", "in", ["sent", "failed", "superseded"])
+    .where("updatedAt", "<", now - 30 * 24 * 60 * 60 * 1000)
+    .executeTakeFirst();
+  const count =
+    Number(recovered.numUpdatedRows) +
+    result.processed +
+    Number(purged.numDeletedRows);
+  return {
+    count,
+    summary: `${result.delivered}/${result.processed} email(s) delivered; ${Number(recovered.numUpdatedRows)} stale claim(s) recovered; ${Number(purged.numDeletedRows)} old record(s) purged.`,
+  };
 }
 
 export function resetEmailTransportForTests(): void {

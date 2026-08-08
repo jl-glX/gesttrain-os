@@ -58,11 +58,104 @@
     "admin": "Administración",
     "analytics": "Analítica",
     "security": "Seguridad",
+    "support": "Soporte",
     "logout": "Cerrar sesión"
   },
   "accountMenu": {
     "open": "Abrir menú de cuenta",
-    "manage": "Abrir área de cuenta"
+    "manage": "Abrir área de cuenta",
+    "support": "Abrir Forge Support"
+  },
+  "support": {
+    "eyebrow": "Atención y conocimiento",
+    "description": "Un espacio propio para solicitar ayuda, seguir incidencias y consultar respuestas sin salir de Umbravia Forge.",
+    "tabs": {
+      "tickets": "Solicitudes",
+      "knowledge": "Conocimiento",
+      "team": "Equipo"
+    },
+    "searchPlaceholder": "Buscar por ID, asunto o contenido…",
+    "search": "Buscar",
+    "allStatuses": "Todos los estados",
+    "queue": "Cola de soporte",
+    "myTickets": "Mis solicitudes",
+    "ticketCount": "{{count}} solicitudes",
+    "newTicket": "Nueva solicitud",
+    "emptyTickets": "Todavía no hay solicitudes que mostrar.",
+    "createTitle": "Solicitar ayuda",
+    "createDescription": "Describe una situación concreta para que pueda revisarse y seguirse de principio a fin.",
+    "subject": "Asunto",
+    "categoryLabel": "Categoría",
+    "priorityLabel": "Prioridad",
+    "message": "Descripción",
+    "createAction": "Crear solicitud",
+    "welcomeTitle": "Tu canal directo con soporte",
+    "welcomeDescription": "Selecciona una solicitud existente o crea una nueva. Cada cambio queda vinculado a un historial privado y auditable.",
+    "statusLabel": "Estado",
+    "assignee": "Responsable",
+    "unassigned": "Sin asignar",
+    "slaOverdue": "Objetivo de atención superado",
+    "systemAuthor": "Sistema",
+    "internalNote": "Nota interna",
+    "attachments": "Archivos adjuntos",
+    "addAttachment": "Adjuntar archivo",
+    "reply": "Respuesta",
+    "sendReply": "Enviar respuesta",
+    "knowledgeTitle": "Base de conocimiento",
+    "knowledgeDescription": "Respuestas mantenidas por el equipo y localizables desde Forge Search.",
+    "emptyKnowledge": "Todavía no hay artículos disponibles.",
+    "articleCreate": "Nuevo artículo",
+    "articleTitle": "Título",
+    "articleSummary": "Resumen",
+    "articleBody": "Contenido",
+    "articleDraft": "Borrador",
+    "articlePublished": "Publicado",
+    "articleSave": "Guardar artículo",
+    "teamTitle": "Equipo de soporte",
+    "teamDescription": "Agentes autorizados para revisar solicitudes y notas internas.",
+    "emptyTeam": "Todavía no se ha asignado ningún agente.",
+    "addAgent": "Añadir agente",
+    "addAgentDescription": "Introduce el ID interno de una cuenta existente. La cuenta no recibe permisos administrativos generales.",
+    "userId": "ID interno del usuario",
+    "agentRole": "Agente",
+    "managerRole": "Responsable de soporte",
+    "status": {
+      "open": "Abierta",
+      "in_progress": "En curso",
+      "waiting_on_user": "Esperando al usuario",
+      "resolved": "Resuelta",
+      "closed": "Cerrada"
+    },
+    "priority": {
+      "low": "Baja",
+      "normal": "Normal",
+      "high": "Alta",
+      "urgent": "Urgente"
+    },
+    "category": {
+      "account": "Cuenta",
+      "billing": "Facturación",
+      "reservations": "Reservas",
+      "technical": "Técnica",
+      "safety": "Seguridad",
+      "general": "General"
+    },
+    "notices": {
+      "created": "Solicitud {{id}} creada.",
+      "replySaved": "La respuesta se ha guardado.",
+      "attachmentSaved": "El archivo se ha guardado de forma privada.",
+      "articleSaved": "El artículo se ha guardado.",
+      "agentSaved": "El agente se ha guardado."
+    },
+    "errors": {
+      "load": "No se ha podido cargar Forge Support.",
+      "create": "No se ha podido crear la solicitud.",
+      "reply": "No se ha podido guardar la respuesta.",
+      "update": "No se ha podido actualizar la solicitud.",
+      "attachment": "No se ha podido guardar el archivo.",
+      "article": "No se ha podido guardar el artículo.",
+      "agent": "No se ha podido guardar el agente."
+    }
   },
   "navigationControls": {
     "label": "Navegación de la aplicación",
@@ -502,7 +595,6 @@
     "acceptTermsPrefix": "Acepto los",
     "acceptPrivacy": "Confirmo que he leído la política de privacidad",
     "emailVerificationPending": "Te enviaremos un código temporal para confirmar que controlas la dirección de correo indicada.",
-    "recaptchaTemporaryActivation": "Durante esta fase, reCAPTCHA v3 protege el alta frente a automatizaciones. La cuenta se activa sin afirmar que el correo esté verificado.",
     "cannotAccess": "No puedo acceder a mi cuenta",
     "countries": {
       "ES": "España",
@@ -1571,9 +1663,9 @@
   "captcha": {
     "start": "Verificar que soy una persona",
     "verifying": "Comprobando el navegador…",
-    "blockingError": "habilite reCAPTCHA para poder acceder a la página",
+    "blockingError": "la protección automática del navegador no está disponible",
     "loading": "Preparando la protección automática…",
-    "protected": "Protección automática mediante reCAPTCHA activa.",
+    "protected": "Verificación de Cloudflare Turnstile activa.",
     "label": "Verificación humana",
     "help": "Esta comprobación protege el acceso y el registro frente a automatizaciones abusivas.",
     "loadFailed": "No se pudo cargar la verificación. Revisa la conexión e inténtalo de nuevo."

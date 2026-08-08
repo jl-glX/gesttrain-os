@@ -155,6 +155,10 @@ const ModerationPage = lazyPage(
   () => import("./pages/ModerationPage"),
   "ModerationPage",
 );
+const SupportPage = lazyPage(
+  () => import("./pages/SupportPage"),
+  "SupportPage",
+);
 
 type UserRole = "member" | "trainer" | "admin";
 
@@ -281,6 +285,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <CommunityPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/support"
+            element={
+              <ProtectedRoute>
+                <SupportPage />
               </ProtectedRoute>
             }
           />

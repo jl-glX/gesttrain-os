@@ -8,9 +8,9 @@ const validEnvironment = {
   WEBAUTHN_RP_ID: "demo.umbravia-forge.example",
   DATABASE_PROVIDER: "postgresql",
   DATABASE_URL: "postgresql://example.invalid/umbravia_forge",
-  RECAPTCHA_SECRET_KEY: "recaptcha-production-secret-123456789",
-  RECAPTCHA_MIN_SCORE: "0.5",
-  EMAIL_VERIFICATION_ENABLED: "false",
+  TURNSTILE_SECRET_KEY: "turnstile-production-secret-123456789",
+  EMAIL_VERIFICATION_ENABLED: "true",
+  EMAIL_QUEUE_ENCRYPTION_KEY: Buffer.alloc(32, 11).toString("base64"),
   MFA_ENCRYPTION_KEY: Buffer.alloc(32, 7).toString("base64"),
   SMTP_HOST: "smtp.example.invalid",
   SMTP_PORT: "587",
@@ -67,24 +67,19 @@ describe("production configuration", () => {
     ).toThrow(/HTTPS/);
   });
 
-  it("does not require SMTP while email verification is neutralized", () => {
+  it("requires email verification in production", () => {
     expect(() =>
       validateProductionConfiguration({
         ...validEnvironment,
-        SMTP_HOST: "",
-        SMTP_PORT: "",
-        SMTP_USER: "",
-        SMTP_PASSWORD: "",
-        EMAIL_FROM: "",
+        EMAIL_VERIFICATION_ENABLED: "false",
       }),
-    ).not.toThrow();
+    ).toThrow(/EMAIL_VERIFICATION_ENABLED/);
   });
 
-  it("requires a complete email channel when the draft is enabled", () => {
+  it("requires a complete email channel", () => {
     expect(() =>
       validateProductionConfiguration({
         ...validEnvironment,
-        EMAIL_VERIFICATION_ENABLED: "true",
         SMTP_HOST: "",
         SMTP_PORT: "",
         SMTP_SECURE: "",
@@ -97,7 +92,6 @@ describe("production configuration", () => {
     expect(() =>
       validateProductionConfiguration({
         ...validEnvironment,
-        EMAIL_VERIFICATION_ENABLED: "true",
         SMTP_PASSWORD: "",
       }),
     ).toThrow(/configured together/i);
@@ -112,7 +106,7 @@ describe("production configuration", () => {
     ).toThrow(/SEED_DEMO_DATA/);
   });
 
-  it("rejects a public Node binding, placeholders and invalid MFA keys", () => {
+  it("rejects public binding, Turnstile test data and invalid encryption keys", () => {
     expect(() =>
       validateProductionConfiguration({
         ...validEnvironment,
@@ -122,19 +116,25 @@ describe("production configuration", () => {
     expect(() =>
       validateProductionConfiguration({
         ...validEnvironment,
-        RECAPTCHA_SECRET_KEY: "replace-me",
+        TURNSTILE_SECRET_KEY: "replace-me",
       }),
     ).toThrow(/placeholder/i);
     expect(() =>
       validateProductionConfiguration({
         ...validEnvironment,
-        RECAPTCHA_MIN_SCORE: "1.5",
+        TURNSTILE_SECRET_KEY: "1x0000000000000000000000000000000AA",
       }),
-    ).toThrow(/between 0 and 1/i);
+    ).toThrow(/test key/i);
     expect(() =>
       validateProductionConfiguration({
         ...validEnvironment,
         MFA_ENCRYPTION_KEY: "not-a-valid-key",
+      }),
+    ).toThrow(/32 random bytes/i);
+    expect(() =>
+      validateProductionConfiguration({
+        ...validEnvironment,
+        EMAIL_QUEUE_ENCRYPTION_KEY: "not-a-valid-key",
       }),
     ).toThrow(/32 random bytes/i);
   });

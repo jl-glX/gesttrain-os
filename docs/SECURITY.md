@@ -19,6 +19,12 @@ recovery codes are stored as keyed hashes. Production deployments must provide
 a unique `MFA_ENCRYPTION_KEY`; it must not be committed or shared between
 unrelated environments.
 
+Security configuration is treated as protected persistent state. Environment
+files, provider keys, certificates and signing material must not be removed or
+replaced by source cleanup or release automation. Any justified rotation or
+migration requires an impact review, a recoverable protected copy and explicit
+validation of the replacement before the previous material is retired.
+
 The implementation uses browser standards and responsive web controls, so the
 same flow is available in current browsers on Windows, macOS, Android and iOS.
 Physical-device and native-app verification is still required before claiming
@@ -50,17 +56,17 @@ an account's role or permissions.
 
 ## Human verification
 
-Signup, password login and the start of passkey login are protected by Google
-reCAPTCHA v3. The client requests a token immediately before the protected
-action; the API validates success, expected action, allowed hostname, challenge
-age and minimum score before performing authentication work.
+Signup, password login, passkey initiation, feedback and generic protected
+forms use Cloudflare Turnstile. The browser renders the challenge explicitly
+and sends its short-lived token with the protected request. The API validates
+every token with Cloudflare and, in production, checks both the expected action
+and the configured trusted hostname.
 
-The secret remains server-side in `RECAPTCHA_SECRET_KEY`. The public browser key
-is `VITE_RECAPTCHA_SITE_KEY`; `RECAPTCHA_MIN_SCORE` defaults to 0.5.
-Authentication remains rate-limited
-before provider verification so the CAPTCHA endpoint cannot become an
-unbounded amplification path. Provider errors fail closed with a controlled
-response.
+`VITE_TURNSTILE_SITE_KEY` is public and belongs in the frontend build
+environment. `TURNSTILE_SECRET_KEY` is private and belongs only in the server
+environment. Production rejects missing, placeholder and official test keys.
+This control does not prove mailbox ownership: email verification, MFA,
+session controls, rate limiting and monitoring remain independent layers.
 
 ## Implemented baseline
 
@@ -78,8 +84,13 @@ response.
 - Server-side origin checks for state-changing API requests.
 - Passkey challenges bound to configured trusted origins and RP IDs.
 - API and authentication rate limits.
-- Server-validated CAPTCHA on signup, password login and passkey initiation.
-- reCAPTCHA v3 executes at submission time and keeps the provider badge visible.
+- Server-validated Cloudflare Turnstile on signup, password login, passkey
+  initiation, feedback and generic protected forms.
+- Hashed, expiring email-verification codes with bounded attempts.
+- AES-256-GCM encryption for pending transactional-email payloads, with
+  bounded retry, stale-job recovery and delivery tracing.
+- Forge Support authorization, private attachments, staff-only notes and an
+  auditable ticket event history.
 - Small configurable request bodies and centralized error handling.
 - Input validation and automated security tests.
 - Local databases and environment files excluded from version control.
@@ -88,16 +99,14 @@ response.
 
 ## Production work still required
 
-- Reactivation of the preserved email-verification draft after reliable SMTP
-  delivery and recovery are operationally validated.
-- Production reCAPTCHA v3 keys restricted to their hostnames and a measured
-  score threshold.
+- Operational validation of SMTP delivery, bounce handling, DKIM/SPF/DMARC,
+  suppression and sender reputation before inviting real users at scale.
 - Optional enforcement of 2FA or passkeys for privileged roles.
 - Physical verification of passkeys on representative Android, iOS and macOS devices.
 - CSRF review if cross-site deployment requirements change.
 - Deployment proxy and HTTPS configuration review.
 - Versioned database migrations, encrypted backups and retention rules.
-- Audit trail for sensitive administrative operations.
+- Expansion of audit coverage for every sensitive administrative operation.
 - Monitoring, alerting and a documented incident-response process.
 - Secret management outside local `.env` files.
 

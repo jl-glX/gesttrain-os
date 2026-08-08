@@ -3,9 +3,11 @@ import {
   resolveDeploymentProfile,
   type DeploymentProfile,
 } from "./deployment-profile.js";
-import { resolveEmailDeliveryConfiguration } from "../services/email-delivery.js";
+import {
+  resolveEmailDeliveryConfiguration,
+  resolveEmailQueueEncryptionKey,
+} from "../services/email-delivery.js";
 import { emailVerificationIsEnabled } from "./account-verification-mode.js";
-import { recaptchaMinimumScore } from "../services/captcha.js";
 
 type ProductionConfiguration = {
   deploymentProfile: DeploymentProfile;
@@ -13,6 +15,12 @@ type ProductionConfiguration = {
   webauthnOrigin: URL;
   webauthnRpId: string;
 };
+
+const TURNSTILE_TEST_SECRETS = new Set([
+  "1x0000000000000000000000000000000AA",
+  "2x0000000000000000000000000000000AA",
+  "3x0000000000000000000000000000000AA",
+]);
 
 function required(environment: NodeJS.ProcessEnv, name: string): string {
   const value = environment[name]?.trim();
@@ -64,16 +72,17 @@ export function validateProductionConfiguration(
   const webauthnRpId = required(environment, "WEBAUTHN_RP_ID");
   const databaseProvider = required(environment, "DATABASE_PROVIDER");
   required(environment, "DATABASE_URL");
-  const recaptchaSecret = required(environment, "RECAPTCHA_SECRET_KEY");
-  recaptchaMinimumScore(environment);
+  const turnstileSecret = required(environment, "TURNSTILE_SECRET_KEY");
   requireMfaEncryptionKey(environment);
   const emailVerificationEnabled = emailVerificationIsEnabled(environment);
-  const emailDelivery = emailVerificationEnabled
-    ? resolveEmailDeliveryConfiguration(environment)
-    : null;
+  const emailDelivery = resolveEmailDeliveryConfiguration(environment);
+  resolveEmailQueueEncryptionKey(environment);
   const host = environment.HOST?.trim() || "127.0.0.1";
 
-  if (emailVerificationEnabled && !emailDelivery) {
+  if (!emailVerificationEnabled) {
+    throw new Error("EMAIL_VERIFICATION_ENABLED must be true in production");
+  }
+  if (!emailDelivery) {
     throw new Error(
       "SMTP_HOST, SMTP_PORT and EMAIL_FROM are required for email verification in production",
     );
@@ -85,14 +94,13 @@ export function validateProductionConfiguration(
     );
   }
   if (
-    recaptchaSecret.length < 20 ||
-    /replace|change|example|test-secret/i.test(recaptchaSecret)
+    TURNSTILE_TEST_SECRETS.has(turnstileSecret) ||
+    /replace|change|example/i.test(turnstileSecret)
   ) {
     throw new Error(
-      "RECAPTCHA_SECRET_KEY must be a real secret, not a test value or placeholder",
+      "TURNSTILE_SECRET_KEY must be a real production secret, not a test key or placeholder",
     );
   }
-
   if (clientOrigin.origin !== webauthnOrigin.origin) {
     throw new Error(
       "CLIENT_ORIGIN and WEBAUTHN_ORIGIN must match for the initial deployment",

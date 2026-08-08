@@ -37,17 +37,17 @@ real sigue bloqueado hasta comprobar migraciones, persistencia y restauración.
 
 ## Perfiles de entorno
 
-| Perfil        | Uso                            | Datos                     | Protección obligatoria                             |
-| ------------- | ------------------------------ | ------------------------- | -------------------------------------------------- |
-| `development` | trabajo local                  | SQLite y datos demo       | configuración local                                |
-| `demo`        | MVP autocontenido y desechable | SQLite sin datos críticos | acceso restringido                                 |
-| `staging`     | ensayo previo al lanzamiento   | PostgreSQL independiente  | mismas barreras que producción                     |
-| `production`  | servicio real                  | PostgreSQL                | HTTPS, CAPTCHA, secretos y datos demo desactivados |
+| Perfil        | Uso                            | Datos                     | Protección obligatoria                                                  |
+| ------------- | ------------------------------ | ------------------------- | ----------------------------------------------------------------------- |
+| `development` | trabajo local                  | SQLite y datos demo       | configuración local                                                     |
+| `demo`        | MVP autocontenido y desechable | SQLite sin datos críticos | acceso restringido                                                      |
+| `staging`     | ensayo previo al lanzamiento   | PostgreSQL independiente  | mismas barreras que producción                                          |
+| `production`  | servicio real                  | PostgreSQL                | HTTPS, antiabuso, correo verificado, secretos y datos demo desactivados |
 
 Los perfiles se seleccionan con `APP_ENV`. `staging` y `production` comparten
 las mismas validaciones de seguridad para evitar que el lanzamiento dependa de
 corregir diferencias de última hora. Cada entorno debe tener base de datos,
-credenciales, dominio y CAPTCHA propios.
+credenciales, dominio, cola de correo y secretos propios.
 
 Las plantillas disponibles son:
 
@@ -67,9 +67,9 @@ npm run deploy:package
 npm ci --omit=dev --prefix .deployment-package
 ```
 
-`deploy:package` se detiene si la compilación no recibe una clave pública real
-de reCAPTCHA v3. Puede proporcionarse mediante `VITE_RECAPTCHA_SITE_KEY` en el
-entorno de compilación o en un `.env.production` local que nunca se versiona.
+`deploy:package` comprueba que la compilación contiene la barrera antiabuso
+propia y que no reaparecen dependencias de un CAPTCHA externo. Los secretos de
+correo se inyectan únicamente en el servidor y nunca se incorporan al cliente.
 
 El paquete resultante queda en `.deployment-package`. No contiene ningún
 archivo `.env`, datos SQLite ni secretos. La plantilla neutral permanece bajo
@@ -96,10 +96,9 @@ DATABASE_SSL_REJECT_UNAUTHORIZED=true
 CLIENT_ORIGIN=https://<dominio>
 WEBAUTHN_ORIGIN=https://<dominio>
 WEBAUTHN_RP_ID=<dominio sin protocolo>
-RECAPTCHA_SECRET_KEY=<secreto>
-RECAPTCHA_MIN_SCORE=0.5
+TURNSTILE_SECRET_KEY=<clave privada de Cloudflare Turnstile>
 MFA_ENCRYPTION_KEY=<clave aleatoria segura>
-EMAIL_VERIFICATION_ENABLED=false
+EMAIL_VERIFICATION_ENABLED=true
 SMTP_HOST=<relay SMTP o 127.0.0.1>
 SMTP_PORT=<puerto SMTP>
 SMTP_SECURE=<true para TLS implicito>
@@ -107,28 +106,29 @@ SMTP_REQUIRE_TLS=<true para exigir STARTTLS>
 SMTP_USER=<opcional; siempre junto a SMTP_PASSWORD>
 SMTP_PASSWORD=<secreto opcional>
 EMAIL_FROM=<remitente verificado>
+EMAIL_QUEUE_ENCRYPTION_KEY=<clave aleatoria segura de 32 bytes en base64>
+SUPPORT_NOTIFICATION_EMAIL=<buzon interno opcional>
+SUPPORT_ATTACHMENT_MAX_BYTES=5242880
+SUPPORT_MUTATION_RATE_LIMIT_MAX_REQUESTS=30
 SEED_DEMO_DATA=false
 COMMERCIAL_TRIALS_ENABLED=false
 ```
 
 `DATABASE_SSL=false` solo corresponde a PostgreSQL en el mismo servidor y
 limitado a `localhost`. Si la base está en otra máquina, debe usarse TLS con
-verificación de certificado. La clave pública `VITE_RECAPTCHA_SITE_KEY` se
-inyecta durante `npm run deploy:package`; la clave privada nunca se incorpora al
-cliente.
+verificación de certificado. `TURNSTILE_SECRET_KEY` es un secreto del servidor:
+no debe incorporarse al frontend ni al repositorio. La clave pública
+`VITE_TURNSTILE_SITE_KEY` se configura por separado en el entorno de
+compilación del actualizador.
 
-## Borrador neutralizado de verificacion de correo
+## Verificación de correo y entrega transaccional
 
-`EMAIL_VERIFICATION_ENABLED=false` es el modo temporal: SMTP no bloquea el
-arranque y las cuentas nuevas se activan tras superar reCAPTCHA v3, pero
-`emailVerifiedAt` permanece vacio. reCAPTCHA reduce automatizaciones; no prueba
-la propiedad del correo. El generador de codigos, su almacenamiento mediante
-`scrypt`, las rutas y el transporte SMTP se conservan completos y sin efecto.
-
-Al cambiar el indicador a `true`, produccion vuelve a exigir un canal SMTP
-completo y las altas quedan pendientes hasta completar el codigo. Antes de
-reactivarlo deben probarse entrega, rebotes, recuperacion y reputacion del
-remitente.
+Producción exige `EMAIL_VERIFICATION_ENABLED=true`. Las altas permanecen
+pendientes hasta completar el código enviado al buzón; el código se conserva
+como hash, expira y limita los intentos. La cola cifra los destinatarios y el
+contenido mediante AES-256-GCM, recupera trabajos interrumpidos y aplica
+reintentos acotados con espera creciente. El historial técnico no almacena
+credenciales SMTP.
 
 Hay dos configuraciones compatibles:
 
@@ -141,6 +141,7 @@ El segundo modelo no elimina los requisitos operativos del correo publico. Se
 necesitan dominio propio, PTR/rDNS, SPF, DKIM, DMARC, puerto saliente 25,
 gestion de rebotes, lista de supresion, monitorizacion y reputacion de IP. El
 relay local nunca debe escuchar como relay abierto en una interfaz publica.
+La arquitectura y sus límites se detallan en `FORGE-NOTIFY.md`.
 
 Antes del despliegue puede revisarse la configuración sin conectar:
 
@@ -203,7 +204,7 @@ recuentos y conservar una vía de reversión.
 4. Configurar secretos fuera del repositorio.
 5. Validar el cliente PostgreSQL compartido y sus migraciones.
 6. Construir y desplegar una versión inmutable.
-7. Confirmar salud, autenticación, passkeys, CAPTCHA y reservas.
+7. Confirmar salud, autenticación, passkeys, antiabuso, correo y reservas.
 8. Reiniciar todos los servicios y comprobar persistencia.
 9. Probar copia, restauración y reversión de versión.
 
@@ -230,4 +231,4 @@ Cuando exista un dominio propio, la posible incorporación de Cloudflare WAF/CDN
 se evaluará con el borrador
 [`FUTURE-CLOUDFLARE-EDGE.md`](./FUTURE-CLOUDFLARE-EDGE.md). Esa fase no forma
 parte del despliegue actual y no sustituirá los controles de Caddy, Express ni
-reCAPTCHA.
+el desafío antiabuso propio.

@@ -4,6 +4,7 @@ import { db } from "../db/client.js";
 export type SecurityEventType =
   | "login_succeeded"
   | "email_verified"
+  | "verification_email_sent"
   | "login_failed"
   | "captcha_succeeded"
   | "captcha_failed"

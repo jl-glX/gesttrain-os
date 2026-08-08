@@ -74,8 +74,7 @@ id "$UMBRAVIA_BUILD_USER" >/dev/null 2>&1 || fail "usuario de construccion inexi
 id "$UMBRAVIA_APP_USER" >/dev/null 2>&1 || fail "usuario de aplicacion inexistente: $UMBRAVIA_APP_USER"
 getent group "$UMBRAVIA_APP_GROUP" >/dev/null 2>&1 || fail "grupo de aplicacion inexistente: $UMBRAVIA_APP_GROUP"
 [ -r "$UMBRAVIA_APP_ENV_FILE" ] || fail "archivo de entorno inaccesible: $UMBRAVIA_APP_ENV_FILE"
-[ -n "${VITE_RECAPTCHA_SITE_KEY:-}" ] || fail "VITE_RECAPTCHA_SITE_KEY no esta configurada"
-
+[ -n "${VITE_TURNSTILE_SITE_KEY:-}" ] || fail "VITE_TURNSTILE_SITE_KEY no esta configurada"
 install -d -o root -g root -m 0755 "$(dirname "$UMBRAVIA_UPDATE_LOCK")"
 exec 9>"$UMBRAVIA_UPDATE_LOCK"
 if ! flock -n 9; then
@@ -149,8 +148,8 @@ run_as "$UMBRAVIA_BUILD_USER" sh -c '
   set -eu
   cd "$1"
   npm ci --audit=false --fund=false
-  VITE_RECAPTCHA_SITE_KEY=$2 npm run deploy:package
-' sh "$build_root" "$VITE_RECAPTCHA_SITE_KEY"
+  VITE_TURNSTILE_SITE_KEY=$2 npm run deploy:package
+' sh "$build_root" "$VITE_TURNSTILE_SITE_KEY"
 
 install -d -o root -g root -m 0755 "$UMBRAVIA_RELEASES_DIR"
 install -d -o "$UMBRAVIA_APP_USER" -g "$UMBRAVIA_APP_GROUP" -m 0750 "$release_dir"

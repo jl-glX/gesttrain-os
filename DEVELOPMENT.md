@@ -52,29 +52,46 @@ Copy `.env.example` to `.env` to override defaults.
 | `SIGNUP_RATE_LIMIT_MAX_REQUESTS`             | Signup attempts allowed in that window.                          |
 | `EMAIL_VERIFICATION_RATE_LIMIT_MAX_REQUESTS` | Verification email resend limit per 15 minutes.                  |
 | `SEED_DEMO_DATA`                             | Reserved for local demos; production rejects a `true` value.     |
-| `VITE_RECAPTCHA_SITE_KEY`                    | Public reCAPTCHA v3 key embedded by the client build.            |
-| `RECAPTCHA_SECRET_KEY`                       | Private reCAPTCHA v3 key used only by the API.                   |
-| `RECAPTCHA_MIN_SCORE`                        | Minimum accepted v3 score, from 0 to 1; defaults to 0.5.         |
-| `EMAIL_VERIFICATION_ENABLED`                 | Reactivates the dormant email challenge when explicitly true.    |
+| `VITE_TURNSTILE_SITE_KEY`                    | Public Cloudflare Turnstile site key embedded in the client.     |
+| `TURNSTILE_SECRET_KEY`                       | Private Cloudflare Turnstile key used only by the API.           |
+| `EMAIL_VERIFICATION_ENABLED`                 | Keeps new accounts pending until their mailbox is confirmed.     |
 | `SMTP_HOST`                                  | SMTP relay or local mail transfer agent host.                    |
 | `SMTP_PORT`                                  | SMTP submission port.                                            |
 | `SMTP_SECURE`                                | Enables implicit TLS, normally on port 465.                      |
 | `SMTP_REQUIRE_TLS`                           | Requires STARTTLS for a non-implicit TLS connection.             |
 | `SMTP_USER` / `SMTP_PASSWORD`                | Optional SMTP credentials; configure both or neither.            |
 | `EMAIL_FROM`                                 | Verified sender displayed on account emails.                     |
+| `EMAIL_QUEUE_ENCRYPTION_KEY`                 | AES-256-GCM key for queued transactional-email payloads.         |
+| `SUPPORT_NOTIFICATION_EMAIL`                 | Optional internal destination for new-ticket notifications.      |
+| `SUPPORT_ATTACHMENT_MAX_BYTES`               | Private attachment limit; defaults to 5 MiB and is capped at 10. |
+| `SUPPORT_MUTATION_RATE_LIMIT_MAX_REQUESTS`   | Per-window mutation budget for Forge Support.                    |
 
-reCAPTCHA v3 needs a real key pair for each environment. Register localhost on
-the development key and the public hostname on the production key. The API
-validates action, hostname, challenge age and score; missing or unavailable
-verification fails closed. Never commit either private key.
+Protected authentication actions use an explicitly rendered Cloudflare
+Turnstile widget. The client sends the short-lived token to the API, which
+validates it with Cloudflare before accepting the protected request and checks
+the expected action and trusted hostname in production. Turnstile is not a
+substitute for email ownership, MFA, rate limits, monitoring or edge controls.
+Use Cloudflare's documented test keys only in local development; production
+configuration rejects them.
 
 Never commit `.env`, databases, tokens or real customer data.
 
-The provider-neutral SMTP client, challenge generator and routes remain as a
-functional draft, but `EMAIL_VERIFICATION_ENABLED=false` neutralizes them. In
-that temporary mode new accounts are active after reCAPTCHA without setting
-`emailVerifiedAt`; reCAPTCHA does not prove ownership of an email address. When
-the flag is later enabled, production again requires a complete SMTP channel.
+### Protected security configuration
+
+Environment files, private keys, certificates, signing material and security
+provider configuration are persistent operational state, not disposable
+release files. Do not delete, replace, regenerate or migrate them as part of a
+code cleanup or deployment unless their purpose, dependencies, impact and
+recovery path have first been reviewed. An approved replacement must preserve
+a protected backup until the new configuration has been validated. Release
+automation may verify these files and consume their values, but must never own
+or remove them.
+
+Email verification is active in production. Codes are hashed, expire, have
+bounded attempts and are delivered by the encrypted transactional queue.
+Production fails closed when SMTP or the queue-encryption key is incomplete.
+See `docs/FORGE-NOTIFY.md` for the boundary between Umbravia's application
+service and the SMTP/MTA delivery layer.
 
 ## Project layout
 

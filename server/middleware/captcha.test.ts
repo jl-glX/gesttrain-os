@@ -20,7 +20,7 @@ describe("captcha middleware", () => {
 
   it("returns a controlled failure when production is not configured", async () => {
     vi.stubEnv("NODE_ENV", "production");
-    vi.stubEnv("RECAPTCHA_SECRET_KEY", "");
+    vi.stubEnv("TURNSTILE_SECRET_KEY", "");
     await request(testApp())
       .post("/protected")
       .send({ captchaToken: "anything" })
@@ -32,7 +32,7 @@ describe("captcha middleware", () => {
 
   it("does not let a missing token reach the protected handler", async () => {
     vi.stubEnv("NODE_ENV", "production");
-    vi.stubEnv("RECAPTCHA_SECRET_KEY", "production-secret");
+    vi.stubEnv("TURNSTILE_SECRET_KEY", "production-secret");
     await request(testApp()).post("/protected").send({}).expect(403, {
       code: "CAPTCHA_FAILED",
       error: "Human verification failed or expired",
@@ -41,7 +41,7 @@ describe("captcha middleware", () => {
 
   it("lets a server-validated token reach the protected handler", async () => {
     vi.stubEnv("NODE_ENV", "production");
-    vi.stubEnv("RECAPTCHA_SECRET_KEY", "production-secret");
+    vi.stubEnv("TURNSTILE_SECRET_KEY", "production-secret");
     vi.stubEnv("CLIENT_ORIGIN", "https://app.umbravia-forge.example");
     vi.stubGlobal(
       "fetch",
@@ -49,10 +49,8 @@ describe("captcha middleware", () => {
         new Response(
           JSON.stringify({
             success: true,
-            score: 0.9,
             action: "login",
             hostname: "app.umbravia-forge.example",
-            challenge_ts: new Date().toISOString(),
           }),
           { status: 200 },
         ),
@@ -60,7 +58,7 @@ describe("captcha middleware", () => {
     );
     await request(testApp())
       .post("/protected")
-      .send({ captchaToken: "valid-token" })
+      .send({ captchaToken: "test-token" })
       .expect(200, { allowed: true });
   });
 });

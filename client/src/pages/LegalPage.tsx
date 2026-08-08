@@ -3,8 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { LegalFooter } from "../components/LegalFooter";
-import { BrandLogo } from "../components/BrandLogo";
-import { BrandWordmark } from "../components/BrandWordmark";
+import { BrandLockup } from "../components/BrandLockup";
 
 type LegalPageKind = "notice" | "terms" | "use";
 
@@ -60,11 +59,7 @@ function LegalPage({ kind }: LegalPageProps) {
             className="flex items-center gap-3 font-bold tracking-tight"
             to="/"
           >
-            <BrandLogo className="h-11 w-11 rounded-xl shadow-lg shadow-blue-600/20" />
-            <BrandWordmark
-              className="text-xl"
-              subtitleClassName="text-blue-600"
-            />
+            <BrandLockup className="h-14 w-auto max-w-64" />
           </Link>
           <LanguageSwitcher compact />
         </div>

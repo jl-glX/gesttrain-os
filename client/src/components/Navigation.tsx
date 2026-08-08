@@ -7,6 +7,7 @@ import {
   CreditCard,
   Home,
   MessageCircle,
+  LifeBuoy,
   Settings,
   Shield,
   Building2,
@@ -17,7 +18,7 @@ import {
 import { useAuth } from "../hooks/useAuth";
 import { useTranslation } from "react-i18next";
 import { BrandLogo } from "./BrandLogo";
-import { BrandWordmark } from "./BrandWordmark";
+import { BrandLockup } from "./BrandLockup";
 import { useFacilityProfile } from "../hooks/useFacilityProfile";
 import { AccountMenu } from "./AccountMenu";
 
@@ -58,12 +59,8 @@ export function Navigation() {
             to="/"
             className="flex shrink-0 items-center gap-2.5 font-bold text-xl tracking-tight text-slate-950"
           >
-            <BrandLogo className="h-10 w-10 rounded-xl shadow-lg shadow-blue-600/20" />
-            <BrandWordmark
-              className="hidden sm:inline-flex"
-              titleClassName="text-lg"
-              subtitleClassName="text-blue-600"
-            />
+            <BrandLogo className="h-10 w-10 rounded-xl shadow-lg shadow-slate-950/15 sm:hidden" />
+            <BrandLockup className="hidden h-11 w-auto max-w-44 sm:block 2xl:max-w-52" />
           </Link>
 
           <div
@@ -141,6 +138,16 @@ export function Navigation() {
             >
               <MessageCircle size={20} />
               <span>{t("nav.community")}</span>
+            </Link>
+
+            <Link
+              to="/support"
+              className={`${navLinkClass} ${
+                isActive("/support") ? activeClass : inactiveClass
+              }`}
+            >
+              <LifeBuoy size={20} />
+              <span>{t("nav.support")}</span>
             </Link>
 
             {user?.role === "admin" ? (

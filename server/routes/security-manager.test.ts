@@ -111,7 +111,14 @@ describe("security manager API", () => {
       },
       coordination: {
         mode: "shared-runtime",
-        managers: ["account", "security", "resource", "environment"],
+        managers: [
+          "account",
+          "security",
+          "resource",
+          "environment",
+          "notification",
+          "support",
+        ],
       },
     });
     expect(
@@ -138,8 +145,8 @@ describe("security manager API", () => {
 
     expect(response.body).toEqual({
       available: true,
-      provider: "recaptcha_v3",
-      execution: "automatic",
+      provider: "cloudflare_turnstile",
+      execution: "manual",
       browserVerification: true,
       serverValidation: true,
     });

@@ -15,7 +15,6 @@ describe("progressive account signup", () => {
     directory = await mkdtemp(join(tmpdir(), "umbravia-forge-signup-flow-"));
     vi.stubEnv("DATA_DIRECTORY", directory);
     vi.stubEnv("NODE_ENV", "test");
-    vi.stubEnv("RECAPTCHA_SECRET_KEY", "unit-test-secret");
     vi.stubEnv("EMAIL_VERIFICATION_ENABLED", "true");
     vi.resetModules();
     database = await import("../db/client.js");
@@ -208,8 +207,8 @@ describe("progressive account signup", () => {
       const signup = await request(app)
         .post("/api/auth/signup")
         .send({
-          email: "recaptcha-activation@example.com",
-          name: "Recaptcha",
+          email: "anti-automation-activation@example.com",
+          name: "Anti Automation",
           lastName: "Activation",
           password: "ProgressivePassword123",
           countryCode: "ES",
@@ -221,7 +220,7 @@ describe("progressive account signup", () => {
       expect(signup.body).toMatchObject({
         verificationRequired: false,
         verificationEmailSent: false,
-        activationMethod: "recaptcha_v3",
+        activationMethod: "development",
         user: { accountStatus: "active" },
       });
       expect(signup.body).not.toHaveProperty("demoVerificationCode");
@@ -229,7 +228,7 @@ describe("progressive account signup", () => {
       const stored = await database.db
         .selectFrom("users")
         .select(["accountStatus", "emailVerifiedAt"])
-        .where("email", "=", "recaptcha-activation@example.com")
+        .where("email", "=", "anti-automation-activation@example.com")
         .executeTakeFirstOrThrow();
       expect(stored).toEqual({
         accountStatus: "active",
@@ -248,7 +247,7 @@ describe("progressive account signup", () => {
     }
   });
 
-  it("removes an incomplete account when the verification message cannot be accepted", async () => {
+  it("keeps an incomplete account pending when delivery must be retried", async () => {
     const email = "undeliverable-signup@example.com";
     process.env.SMTP_HOST = "127.0.0.1";
     process.env.SMTP_PORT = "1";
@@ -268,17 +267,21 @@ describe("progressive account signup", () => {
           acceptedTerms: true,
           acceptedPrivacy: true,
         })
-        .expect(503, {
-          code: "EMAIL_DELIVERY_UNAVAILABLE",
-          error:
-            "Verification email could not be sent. Please try again later.",
-        });
+        .expect(201);
       const stored = await database.db
         .selectFrom("users")
-        .select("id")
+        .select(["id", "accountStatus"])
         .where("email", "=", email)
-        .executeTakeFirst();
-      expect(stored).toBeUndefined();
+        .executeTakeFirstOrThrow();
+      expect(stored.accountStatus).toBe("pending_verification");
+      const queued = await database.db
+        .selectFrom("emailDeliveries")
+        .select(["status", "attempts", "payloadEncrypted"])
+        .where("userId", "=", stored.id)
+        .executeTakeFirstOrThrow();
+      expect(queued.status).toBe("retry");
+      expect(queued.attempts).toBe(1);
+      expect(queued.payloadEncrypted).not.toContain("ProgressivePassword123");
     } finally {
       delete process.env.SMTP_HOST;
       delete process.env.SMTP_PORT;

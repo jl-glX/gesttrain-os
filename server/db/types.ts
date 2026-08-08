@@ -47,6 +47,35 @@ interface EmailVerificationChallenge {
   consumedAt: number | null;
 }
 
+interface EmailDelivery {
+  id: string;
+  userId: string | null;
+  kind: "email_verification" | "support_update" | "security_notice";
+  recipient: string;
+  locale: string;
+  payloadEncrypted: string;
+  status: "queued" | "processing" | "retry" | "sent" | "failed" | "superseded";
+  attempts: number;
+  maxAttempts: number;
+  nextAttemptAt: number;
+  messageId: string | null;
+  lastError: string | null;
+  createdAt: number;
+  updatedAt: number;
+  sentAt: number | null;
+  expiresAt: number;
+}
+
+interface AntiAutomationChallenge {
+  id: string;
+  action: "login" | "signup" | "form_access" | "feedback";
+  nonce: string;
+  difficulty: number;
+  createdAt: number;
+  expiresAt: number;
+  consumedAt: number | null;
+}
+
 interface AccountDeletionPreference {
   userId: string;
   inactivityMonths: number | null;
@@ -337,6 +366,89 @@ interface Feedback {
   createdAt: number;
 }
 
+export type SupportTicketStatus =
+  "open" | "in_progress" | "waiting_on_user" | "resolved" | "closed";
+export type SupportTicketPriority = "low" | "normal" | "high" | "urgent";
+
+interface SupportTicket {
+  id: string;
+  publicId: string;
+  facilityId: string;
+  requesterUserId: string;
+  assigneeUserId: string | null;
+  subject: string;
+  category:
+    "account" | "billing" | "reservations" | "technical" | "safety" | "general";
+  priority: SupportTicketPriority;
+  status: SupportTicketStatus;
+  source: "web" | "api" | "system";
+  relatedType: string | null;
+  relatedId: string | null;
+  context: string;
+  firstResponseDueAt: number;
+  resolutionDueAt: number;
+  firstRespondedAt: number | null;
+  resolvedAt: number | null;
+  closedAt: number | null;
+  createdAt: number;
+  updatedAt: number;
+}
+
+interface SupportAgent {
+  id: string;
+  facilityId: string;
+  userId: string;
+  role: "agent" | "manager";
+  active: number;
+  createdAt: number;
+  updatedAt: number;
+}
+
+interface SupportMessage {
+  id: string;
+  ticketId: string;
+  authorUserId: string | null;
+  visibility: "requester" | "internal";
+  body: string;
+  createdAt: number;
+}
+
+interface SupportAttachment {
+  id: string;
+  ticketId: string;
+  messageId: string | null;
+  uploadedByUserId: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  storageKey: string;
+  checksumSha256: string;
+  createdAt: number;
+}
+
+interface SupportEvent {
+  id: string;
+  ticketId: string;
+  actorUserId: string | null;
+  type: string;
+  metadata: string;
+  createdAt: number;
+}
+
+interface SupportKnowledgeArticle {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string;
+  body: string;
+  category: string;
+  status: "draft" | "published" | "archived";
+  authorUserId: string;
+  createdAt: number;
+  updatedAt: number;
+  publishedAt: number | null;
+}
+
 interface BillingRecord {
   id: string;
   userId: string | null;
@@ -617,6 +729,8 @@ export interface Database {
   users: User;
   accountSupportIdentifiers: AccountSupportIdentifier;
   emailVerificationChallenges: EmailVerificationChallenge;
+  emailDeliveries: EmailDelivery;
+  antiAutomationChallenges: AntiAutomationChallenge;
   accountDeletionPreferences: AccountDeletionPreference;
   accountDeletionRequests: AccountDeletionRequest;
   accountDeletionJobs: AccountDeletionJob;
@@ -640,6 +754,12 @@ export interface Database {
   webauthnChallenges: WebauthnChallenge;
   securityEvents: SecurityEvent;
   feedback: Feedback;
+  supportTickets: SupportTicket;
+  supportAgents: SupportAgent;
+  supportMessages: SupportMessage;
+  supportAttachments: SupportAttachment;
+  supportEvents: SupportEvent;
+  supportKnowledgeArticles: SupportKnowledgeArticle;
   billingRecords: BillingRecord;
   socialProfiles: SocialProfile;
   internalContacts: InternalContact;

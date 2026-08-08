@@ -49,8 +49,8 @@ import {
   verifyEmailCode,
 } from "../services/email-verification.js";
 import {
-  EmailDeliveryUnavailableError,
-  sendEmailVerificationCode,
+  deliverQueuedEmail,
+  queueEmailVerificationCode,
 } from "../services/email-delivery.js";
 import { requireCaptcha } from "../middleware/captcha.js";
 import { captchaIsConfigured } from "../services/captcha.js";
@@ -67,8 +67,8 @@ export const authRouter = express.Router();
 authRouter.get("/captcha-status", (_req, res) => {
   res.json({
     available: captchaIsConfigured(),
-    provider: "recaptcha_v3",
-    execution: "automatic",
+    provider: "cloudflare_turnstile",
+    execution: "manual",
     browserVerification: true,
     serverValidation: true,
   });
@@ -143,21 +143,24 @@ authRouter.post(
       let verificationCode: string | undefined;
       let verificationEmailSent = false;
       if (requireEmailVerification) {
-        verificationCode = await createEmailVerificationChallenge(user.id);
-        const delivery = await sendEmailVerificationCode({
+        const challenge = await createEmailVerificationChallenge(user.id);
+        verificationCode = challenge.code;
+        const deliveryId = await queueEmailVerificationCode({
+          userId: user.id,
           email: user.email,
           name: user.name,
-          code: verificationCode,
+          code: challenge.code,
           locale,
+          expiresAt: challenge.expiresAt,
         });
-        verificationEmailSent = delivery.delivered;
+        verificationEmailSent = await deliverQueuedEmail(deliveryId);
       }
       setSessionCookie(res, sessionToken);
       res.status(201).json({
         user,
         verificationRequired: requireEmailVerification,
         verificationEmailSent,
-        activationMethod: requireEmailVerification ? "email" : "recaptcha_v3",
+        activationMethod: requireEmailVerification ? "email" : "development",
         demoVerificationCode:
           requireEmailVerification && process.env.NODE_ENV !== "production"
             ? verificationCode
@@ -172,19 +175,9 @@ authRouter.post(
         }
       }
       console.error("[Auth] Signup failed");
-      const deliveryUnavailable =
-        error instanceof EmailDeliveryUnavailableError;
-      res.status(deliveryUnavailable ? 503 : 400).json(
-        deliveryUnavailable
-          ? {
-              code: "EMAIL_DELIVERY_UNAVAILABLE",
-              error:
-                "Verification email could not be sent. Please try again later.",
-            }
-          : {
-              error: error instanceof Error ? error.message : "Signup failed",
-            },
-      );
+      res.status(400).json({
+        error: error instanceof Error ? error.message : "Signup failed",
+      });
     }
   },
 );
@@ -208,22 +201,21 @@ authRouter.post(
         res.status(204).end();
         return;
       }
-      const code = await createEmailVerificationChallenge(userId);
-      const delivery = await sendEmailVerificationCode({ ...profile, code });
-      res.status(202).json({
-        sent: delivery.delivered,
-        demoVerificationCode:
-          process.env.NODE_ENV === "production" ? undefined : code,
+      const challenge = await createEmailVerificationChallenge(userId);
+      const deliveryId = await queueEmailVerificationCode({
+        userId,
+        ...profile,
+        code: challenge.code,
+        expiresAt: challenge.expiresAt,
       });
-    } catch (error) {
-      if (error instanceof EmailDeliveryUnavailableError) {
-        res.status(503).json({
-          code: "EMAIL_DELIVERY_UNAVAILABLE",
-          error:
-            "Verification email could not be sent. Please try again later.",
-        });
-        return;
-      }
+      const delivered = await deliverQueuedEmail(deliveryId);
+      res.status(202).json({
+        sent: delivered,
+        queued: !delivered,
+        demoVerificationCode:
+          process.env.NODE_ENV === "production" ? undefined : challenge.code,
+      });
+    } catch (_error) {
       res.status(500).json({
         code: "EMAIL_VERIFICATION_FAILED",
         error: "Verification email could not be prepared.",

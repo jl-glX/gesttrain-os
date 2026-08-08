@@ -56,6 +56,39 @@ CREATE TABLE IF NOT EXISTS "emailVerificationChallenges" (
 CREATE INDEX IF NOT EXISTS "idx_emailVerificationChallenges_userId" ON "emailVerificationChallenges" ("userId");
 CREATE INDEX IF NOT EXISTS "idx_emailVerificationChallenges_expiresAt" ON "emailVerificationChallenges" ("expiresAt");
 
+CREATE TABLE IF NOT EXISTS "emailDeliveries" (
+  "id" TEXT PRIMARY KEY,
+  "userId" TEXT REFERENCES "users" ("id") ON DELETE SET NULL,
+  "kind" TEXT NOT NULL CHECK ("kind" IN ('email_verification', 'support_update', 'security_notice')),
+  "recipient" TEXT NOT NULL,
+  "locale" TEXT NOT NULL,
+  "payloadEncrypted" TEXT NOT NULL,
+  "status" TEXT NOT NULL CHECK ("status" IN ('queued', 'processing', 'retry', 'sent', 'failed', 'superseded')),
+  "attempts" INTEGER NOT NULL DEFAULT 0,
+  "maxAttempts" INTEGER NOT NULL DEFAULT 5,
+  "nextAttemptAt" BIGINT NOT NULL,
+  "messageId" TEXT,
+  "lastError" TEXT,
+  "createdAt" BIGINT NOT NULL,
+  "updatedAt" BIGINT NOT NULL,
+  "sentAt" BIGINT,
+  "expiresAt" BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_emailDeliveries_due" ON "emailDeliveries" ("status", "nextAttemptAt");
+CREATE INDEX IF NOT EXISTS "idx_emailDeliveries_user" ON "emailDeliveries" ("userId", "createdAt");
+CREATE INDEX IF NOT EXISTS "idx_emailDeliveries_expiry" ON "emailDeliveries" ("expiresAt");
+
+CREATE TABLE IF NOT EXISTS "antiAutomationChallenges" (
+  "id" TEXT PRIMARY KEY,
+  "action" TEXT NOT NULL CHECK ("action" IN ('login', 'signup', 'form_access', 'feedback')),
+  "nonce" TEXT NOT NULL,
+  "difficulty" INTEGER NOT NULL,
+  "createdAt" BIGINT NOT NULL,
+  "expiresAt" BIGINT NOT NULL,
+  "consumedAt" BIGINT
+);
+CREATE INDEX IF NOT EXISTS "idx_antiAutomationChallenges_expiry" ON "antiAutomationChallenges" ("expiresAt");
+
 CREATE TABLE IF NOT EXISTS "accountDeletionPreferences" (
   "userId" TEXT PRIMARY KEY REFERENCES "users" ("id") ON DELETE CASCADE,
   "inactivityMonths" INTEGER CHECK ("inactivityMonths" IS NULL OR "inactivityMonths" IN (6, 12, 18, 24, 36)),
@@ -354,6 +387,93 @@ CREATE INDEX IF NOT EXISTS "idx_delegationGrants_owner" ON "delegationGrants" ("
 CREATE INDEX IF NOT EXISTS "idx_delegationGrants_delegate" ON "delegationGrants" ("delegateUserId");
 CREATE INDEX IF NOT EXISTS "idx_delegationGrants_expiry" ON "delegationGrants" ("expiresAt");
 
+CREATE TABLE IF NOT EXISTS "supportTickets" (
+  "id" TEXT PRIMARY KEY,
+  "publicId" TEXT NOT NULL UNIQUE,
+  "facilityId" TEXT NOT NULL DEFAULT 'primary',
+  "requesterUserId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE RESTRICT,
+  "assigneeUserId" TEXT REFERENCES "users" ("id") ON DELETE SET NULL,
+  "subject" TEXT NOT NULL,
+  "category" TEXT NOT NULL CHECK ("category" IN ('account', 'billing', 'reservations', 'technical', 'safety', 'general')),
+  "priority" TEXT NOT NULL CHECK ("priority" IN ('low', 'normal', 'high', 'urgent')),
+  "status" TEXT NOT NULL CHECK ("status" IN ('open', 'in_progress', 'waiting_on_user', 'resolved', 'closed')),
+  "source" TEXT NOT NULL CHECK ("source" IN ('web', 'api', 'system')),
+  "relatedType" TEXT,
+  "relatedId" TEXT,
+  "context" TEXT NOT NULL DEFAULT '{}',
+  "firstResponseDueAt" BIGINT NOT NULL,
+  "resolutionDueAt" BIGINT NOT NULL,
+  "firstRespondedAt" BIGINT,
+  "resolvedAt" BIGINT,
+  "closedAt" BIGINT,
+  "createdAt" BIGINT NOT NULL,
+  "updatedAt" BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_supportTickets_requester" ON "supportTickets" ("requesterUserId", "updatedAt" DESC);
+CREATE INDEX IF NOT EXISTS "idx_supportTickets_queue" ON "supportTickets" ("facilityId", "status", "priority", "updatedAt" DESC);
+CREATE INDEX IF NOT EXISTS "idx_supportTickets_assignee" ON "supportTickets" ("assigneeUserId", "status", "updatedAt" DESC);
+
+CREATE TABLE IF NOT EXISTS "supportAgents" (
+  "id" TEXT PRIMARY KEY,
+  "facilityId" TEXT NOT NULL DEFAULT 'primary',
+  "userId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE,
+  "role" TEXT NOT NULL CHECK ("role" IN ('agent', 'manager')),
+  "active" SMALLINT NOT NULL DEFAULT 1 CHECK ("active" IN (0, 1)),
+  "createdAt" BIGINT NOT NULL,
+  "updatedAt" BIGINT NOT NULL,
+  UNIQUE ("facilityId", "userId")
+);
+CREATE INDEX IF NOT EXISTS "idx_supportAgents_active" ON "supportAgents" ("facilityId", "active", "role");
+
+CREATE TABLE IF NOT EXISTS "supportMessages" (
+  "id" TEXT PRIMARY KEY,
+  "ticketId" TEXT NOT NULL REFERENCES "supportTickets" ("id") ON DELETE CASCADE,
+  "authorUserId" TEXT REFERENCES "users" ("id") ON DELETE SET NULL,
+  "visibility" TEXT NOT NULL CHECK ("visibility" IN ('requester', 'internal')),
+  "body" TEXT NOT NULL,
+  "createdAt" BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_supportMessages_ticket" ON "supportMessages" ("ticketId", "createdAt");
+
+CREATE TABLE IF NOT EXISTS "supportAttachments" (
+  "id" TEXT PRIMARY KEY,
+  "ticketId" TEXT NOT NULL REFERENCES "supportTickets" ("id") ON DELETE CASCADE,
+  "messageId" TEXT REFERENCES "supportMessages" ("id") ON DELETE SET NULL,
+  "uploadedByUserId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE RESTRICT,
+  "fileName" TEXT NOT NULL,
+  "mimeType" TEXT NOT NULL,
+  "sizeBytes" BIGINT NOT NULL,
+  "storageKey" TEXT NOT NULL UNIQUE,
+  "checksumSha256" TEXT NOT NULL,
+  "createdAt" BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_supportAttachments_ticket" ON "supportAttachments" ("ticketId", "createdAt");
+
+CREATE TABLE IF NOT EXISTS "supportEvents" (
+  "id" TEXT PRIMARY KEY,
+  "ticketId" TEXT NOT NULL REFERENCES "supportTickets" ("id") ON DELETE CASCADE,
+  "actorUserId" TEXT REFERENCES "users" ("id") ON DELETE SET NULL,
+  "type" TEXT NOT NULL,
+  "metadata" TEXT NOT NULL DEFAULT '{}',
+  "createdAt" BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_supportEvents_ticket" ON "supportEvents" ("ticketId", "createdAt");
+
+CREATE TABLE IF NOT EXISTS "supportKnowledgeArticles" (
+  "id" TEXT PRIMARY KEY,
+  "slug" TEXT NOT NULL UNIQUE,
+  "title" TEXT NOT NULL,
+  "summary" TEXT NOT NULL DEFAULT '',
+  "body" TEXT NOT NULL,
+  "category" TEXT NOT NULL DEFAULT 'general',
+  "status" TEXT NOT NULL CHECK ("status" IN ('draft', 'published', 'archived')),
+  "authorUserId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE RESTRICT,
+  "createdAt" BIGINT NOT NULL,
+  "updatedAt" BIGINT NOT NULL,
+  "publishedAt" BIGINT
+);
+CREATE INDEX IF NOT EXISTS "idx_supportKnowledge_status" ON "supportKnowledgeArticles" ("status", "category", "updatedAt" DESC);
+
 INSERT INTO "facilityProfiles" ("id", "name", "logoDataUrl", "accentColor", "updatedAt")
 VALUES ('primary', 'Centro Umbravia Forge', '', '#2563eb', 0)
 ON CONFLICT ("id") DO NOTHING;
@@ -639,6 +759,157 @@ CREATE TABLE IF NOT EXISTS "moderationAppeals" (
 );
 CREATE INDEX IF NOT EXISTS "idx_moderationAppeals_case"
   ON "moderationAppeals" ("caseId", "status", "createdAt" DESC);
+`,
+  },
+  {
+    version: 6,
+    name: "transactional-email-delivery-queue",
+    sql: String.raw`
+CREATE TABLE IF NOT EXISTS "emailDeliveries" (
+  "id" TEXT PRIMARY KEY,
+  "userId" TEXT REFERENCES "users" ("id") ON DELETE SET NULL,
+  "kind" TEXT NOT NULL CHECK ("kind" IN ('email_verification')),
+  "recipient" TEXT NOT NULL,
+  "locale" TEXT NOT NULL,
+  "payloadEncrypted" TEXT NOT NULL,
+  "status" TEXT NOT NULL CHECK ("status" IN ('queued', 'processing', 'retry', 'sent', 'failed', 'superseded')),
+  "attempts" INTEGER NOT NULL DEFAULT 0,
+  "maxAttempts" INTEGER NOT NULL DEFAULT 5,
+  "nextAttemptAt" BIGINT NOT NULL,
+  "messageId" TEXT,
+  "lastError" TEXT,
+  "createdAt" BIGINT NOT NULL,
+  "updatedAt" BIGINT NOT NULL,
+  "sentAt" BIGINT,
+  "expiresAt" BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_emailDeliveries_due" ON "emailDeliveries" ("status", "nextAttemptAt");
+CREATE INDEX IF NOT EXISTS "idx_emailDeliveries_user" ON "emailDeliveries" ("userId", "createdAt");
+CREATE INDEX IF NOT EXISTS "idx_emailDeliveries_expiry" ON "emailDeliveries" ("expiresAt");
+`,
+  },
+  {
+    version: 7,
+    name: "first-party-anti-automation-challenges",
+    sql: String.raw`
+CREATE TABLE IF NOT EXISTS "antiAutomationChallenges" (
+  "id" TEXT PRIMARY KEY,
+  "action" TEXT NOT NULL CHECK ("action" IN ('login', 'signup', 'form_access', 'feedback')),
+  "nonce" TEXT NOT NULL,
+  "difficulty" INTEGER NOT NULL,
+  "createdAt" BIGINT NOT NULL,
+  "expiresAt" BIGINT NOT NULL,
+  "consumedAt" BIGINT
+);
+CREATE INDEX IF NOT EXISTS "idx_antiAutomationChallenges_expiry" ON "antiAutomationChallenges" ("expiresAt");
+`,
+  },
+  {
+    version: 8,
+    name: "forge-support-foundation",
+    sql: String.raw`
+DO $$
+DECLARE delivery_kind_constraint TEXT;
+BEGIN
+  SELECT conname INTO delivery_kind_constraint
+    FROM pg_constraint
+   WHERE conrelid = '"emailDeliveries"'::regclass
+     AND contype = 'c'
+     AND pg_get_constraintdef(oid) LIKE '%kind%';
+  IF delivery_kind_constraint IS NOT NULL THEN
+    EXECUTE format('ALTER TABLE "emailDeliveries" DROP CONSTRAINT %I', delivery_kind_constraint);
+  END IF;
+END $$;
+ALTER TABLE "emailDeliveries"
+  ADD CONSTRAINT "emailDeliveries_kind_check"
+  CHECK ("kind" IN ('email_verification', 'support_update', 'security_notice'));
+
+CREATE TABLE IF NOT EXISTS "supportTickets" (
+  "id" TEXT PRIMARY KEY,
+  "publicId" TEXT NOT NULL UNIQUE,
+  "facilityId" TEXT NOT NULL DEFAULT 'primary',
+  "requesterUserId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE RESTRICT,
+  "assigneeUserId" TEXT REFERENCES "users" ("id") ON DELETE SET NULL,
+  "subject" TEXT NOT NULL,
+  "category" TEXT NOT NULL CHECK ("category" IN ('account', 'billing', 'reservations', 'technical', 'safety', 'general')),
+  "priority" TEXT NOT NULL CHECK ("priority" IN ('low', 'normal', 'high', 'urgent')),
+  "status" TEXT NOT NULL CHECK ("status" IN ('open', 'in_progress', 'waiting_on_user', 'resolved', 'closed')),
+  "source" TEXT NOT NULL CHECK ("source" IN ('web', 'api', 'system')),
+  "relatedType" TEXT,
+  "relatedId" TEXT,
+  "context" TEXT NOT NULL DEFAULT '{}',
+  "firstResponseDueAt" BIGINT NOT NULL,
+  "resolutionDueAt" BIGINT NOT NULL,
+  "firstRespondedAt" BIGINT,
+  "resolvedAt" BIGINT,
+  "closedAt" BIGINT,
+  "createdAt" BIGINT NOT NULL,
+  "updatedAt" BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_supportTickets_requester" ON "supportTickets" ("requesterUserId", "updatedAt" DESC);
+CREATE INDEX IF NOT EXISTS "idx_supportTickets_queue" ON "supportTickets" ("facilityId", "status", "priority", "updatedAt" DESC);
+CREATE INDEX IF NOT EXISTS "idx_supportTickets_assignee" ON "supportTickets" ("assigneeUserId", "status", "updatedAt" DESC);
+
+CREATE TABLE IF NOT EXISTS "supportAgents" (
+  "id" TEXT PRIMARY KEY,
+  "facilityId" TEXT NOT NULL DEFAULT 'primary',
+  "userId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE,
+  "role" TEXT NOT NULL CHECK ("role" IN ('agent', 'manager')),
+  "active" SMALLINT NOT NULL DEFAULT 1 CHECK ("active" IN (0, 1)),
+  "createdAt" BIGINT NOT NULL,
+  "updatedAt" BIGINT NOT NULL,
+  UNIQUE ("facilityId", "userId")
+);
+CREATE INDEX IF NOT EXISTS "idx_supportAgents_active" ON "supportAgents" ("facilityId", "active", "role");
+
+CREATE TABLE IF NOT EXISTS "supportMessages" (
+  "id" TEXT PRIMARY KEY,
+  "ticketId" TEXT NOT NULL REFERENCES "supportTickets" ("id") ON DELETE CASCADE,
+  "authorUserId" TEXT REFERENCES "users" ("id") ON DELETE SET NULL,
+  "visibility" TEXT NOT NULL CHECK ("visibility" IN ('requester', 'internal')),
+  "body" TEXT NOT NULL,
+  "createdAt" BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_supportMessages_ticket" ON "supportMessages" ("ticketId", "createdAt");
+
+CREATE TABLE IF NOT EXISTS "supportAttachments" (
+  "id" TEXT PRIMARY KEY,
+  "ticketId" TEXT NOT NULL REFERENCES "supportTickets" ("id") ON DELETE CASCADE,
+  "messageId" TEXT REFERENCES "supportMessages" ("id") ON DELETE SET NULL,
+  "uploadedByUserId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE RESTRICT,
+  "fileName" TEXT NOT NULL,
+  "mimeType" TEXT NOT NULL,
+  "sizeBytes" BIGINT NOT NULL,
+  "storageKey" TEXT NOT NULL UNIQUE,
+  "checksumSha256" TEXT NOT NULL,
+  "createdAt" BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_supportAttachments_ticket" ON "supportAttachments" ("ticketId", "createdAt");
+
+CREATE TABLE IF NOT EXISTS "supportEvents" (
+  "id" TEXT PRIMARY KEY,
+  "ticketId" TEXT NOT NULL REFERENCES "supportTickets" ("id") ON DELETE CASCADE,
+  "actorUserId" TEXT REFERENCES "users" ("id") ON DELETE SET NULL,
+  "type" TEXT NOT NULL,
+  "metadata" TEXT NOT NULL DEFAULT '{}',
+  "createdAt" BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_supportEvents_ticket" ON "supportEvents" ("ticketId", "createdAt");
+
+CREATE TABLE IF NOT EXISTS "supportKnowledgeArticles" (
+  "id" TEXT PRIMARY KEY,
+  "slug" TEXT NOT NULL UNIQUE,
+  "title" TEXT NOT NULL,
+  "summary" TEXT NOT NULL DEFAULT '',
+  "body" TEXT NOT NULL,
+  "category" TEXT NOT NULL DEFAULT 'general',
+  "status" TEXT NOT NULL CHECK ("status" IN ('draft', 'published', 'archived')),
+  "authorUserId" TEXT NOT NULL REFERENCES "users" ("id") ON DELETE RESTRICT,
+  "createdAt" BIGINT NOT NULL,
+  "updatedAt" BIGINT NOT NULL,
+  "publishedAt" BIGINT
+);
+CREATE INDEX IF NOT EXISTS "idx_supportKnowledge_status" ON "supportKnowledgeArticles" ("status", "category", "updatedAt" DESC);
 `,
   },
 ];

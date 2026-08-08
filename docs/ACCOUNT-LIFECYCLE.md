@@ -30,14 +30,15 @@ The current implementation can demonstrate:
   challenges, marks the account for review and rotates the support alias;
 - a minimal recovery centre that exposes real passkey access and labels future
   email, code and support-assisted methods as unavailable.
-- reCAPTCHA v3 protection for signup, password login and passkey login, with
-  mandatory server-side validation of token, action, hostname, age and score.
+- Cloudflare Turnstile challenges for signup, password login and passkey login,
+  with every token validated by the server;
+- queued transactional verification email with encrypted pending payloads,
+  bounded retries and delivery tracing.
 
 The demo deliberately does not:
 
 - delete or anonymize user data;
 - suspend account access when a closure is scheduled;
-- send real email notifications;
 - treat an internal policy review as legal approval;
 - transfer an account identity, credentials or personal history to a
   representative;
@@ -45,30 +46,23 @@ The demo deliberately does not:
 - decide which law applies to a user or a record;
 - claim that a retention duration or legal basis is valid;
 - replace professional legal review.
-- send verification or recovery email through a real provider;
 - complete password reset or support-assisted recovery;
 - automatically remove passkeys after a reported compromise.
 
-Each environment uses its own reCAPTCHA v3 key pair. The public site key is
-supplied as `VITE_RECAPTCHA_SITE_KEY`; `RECAPTCHA_SECRET_KEY` remains on the
-server. Provider outages reject protected authentication attempts instead of
-silently bypassing verification.
+Each protected request obtains a short-lived Turnstile token in the browser.
+The server validates the token with Cloudflare and checks its intended action
+and trusted hostname in production. Rate limits, email ownership, MFA and
+monitoring remain separate controls.
 
 ## Progressive account creation
 
 Personal account creation remains separate from joining or creating a sports
 centre. The server stores the selected jurisdiction and locale together with
-the exact draft versions acknowledged at signup. While
-`EMAIL_VERIFICATION_ENABLED=false`, a successful reCAPTCHA-protected signup
-creates an active account but leaves `emailVerifiedAt` empty. reCAPTCHA does not
-verify ownership of the address.
-
-The email challenge, hashed code storage, SMTP delivery and routes remain a
-functional, reactivatable draft. They have no effect until
-`EMAIL_VERIFICATION_ENABLED=true`; then new accounts remain
-`pending_verification` until the challenge is completed. Codes are scoped to
-the user, expire after 15 minutes and stop after five failures. Existing pending
-accounts are never activated silently by changing this flag.
+the exact draft versions acknowledged at signup. New accounts remain
+`pending_verification` until the mailbox challenge is completed. Codes are
+scoped to the user, stored as hashes, expire after 15 minutes and stop after
+five failures. Production rejects a configuration that disables this control
+or lacks SMTP and queue encryption.
 
 ## Reported account compromise
 

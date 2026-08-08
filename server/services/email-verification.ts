@@ -34,8 +34,9 @@ function codeMatches(code: string, stored: string): boolean {
 
 export async function createEmailVerificationChallenge(
   userId: string,
-): Promise<string> {
+): Promise<{ code: string; expiresAt: number }> {
   const now = Date.now();
+  const expiresAt = now + CHALLENGE_DURATION_MS;
   const code = randomInt(0, 1_000_000).toString().padStart(6, "0");
   await db
     .deleteFrom("emailVerificationChallenges")
@@ -48,12 +49,12 @@ export async function createEmailVerificationChallenge(
       userId,
       codeHash: hashCode(code),
       createdAt: now,
-      expiresAt: now + CHALLENGE_DURATION_MS,
+      expiresAt,
       attempts: 0,
       consumedAt: null,
     })
     .execute();
-  return code;
+  return { code, expiresAt };
 }
 
 export async function getPendingEmailVerificationProfile(

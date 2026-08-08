@@ -34,10 +34,10 @@ Internet -> Cloudflare WAF/CDN -> Caddy :443 -> Node 127.0.0.1:3001
 3. Activar el proxy primero en staging.
 4. Habilitar reglas WAF administradas y reglas explícitas para rutas de escaneo
    (`.env`, `.git`, WordPress, phpMyAdmin y equivalentes).
-5. Aplicar límites distintos a login, registro, recuperación, CAPTCHA y API
+5. Aplicar límites distintos a login, registro, recuperación, antiabuso y API
    general, manteniendo también los límites internos de Express.
-6. Mantener reCAPTCHA v3 con validación en el servidor; el WAF no
-   sustituye esa comprobación.
+6. Mantener el desafío antiabuso propio y su validación en el servidor; el WAF
+   no sustituye esa comprobación.
 7. Cachear únicamente recursos estáticos versionados. No cachear API, HTML
    autenticado, cookies, datos de cuenta ni respuestas de error sensibles.
 8. Configurar Caddy y Express para reconstruir la IP real solo desde proxies de
@@ -45,7 +45,7 @@ Internet -> Cloudflare WAF/CDN -> Caddy :443 -> Node 127.0.0.1:3001
    revisarse: Cloudflare añadirá otra capa delante de Caddy.
 9. Restringir el firewall del origen a las redes publicadas por Cloudflare, sin
    perder un acceso administrativo y una vía de reversión probados.
-10. Crear alertas sobre bloqueos, picos de 401/403/429/5xx, fallos de reCAPTCHA
+10. Crear alertas sobre bloqueos, picos de 401/403/429/5xx, fallos antiabuso
     y cambios de disponibilidad del origen.
 
 ## Criterios de aceptación
@@ -53,7 +53,7 @@ Internet -> Cloudflare WAF/CDN -> Caddy :443 -> Node 127.0.0.1:3001
 - no es posible alcanzar el origen público evitando Cloudflare;
 - Caddy y Node conservan la IP real sin confiar en cabeceras arbitrarias;
 - las rutas de autenticación no se almacenan en caché;
-- las reglas no bloquean WebAuthn, reCAPTCHA ni operaciones legítimas;
+- las reglas no bloquean WebAuthn, los desafíos antiabuso ni operaciones legítimas;
 - existe una prueba de carga moderada y una prueba de reglas en staging;
 - el cambio se puede revertir a DNS directo de forma documentada;
 - los logs no contienen contraseñas, tokens, cookies ni secretos.

@@ -111,6 +111,24 @@ export const feedbackLimiter = rateLimit({
   },
 });
 
+export const supportMutationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: parsePositiveInteger(
+    process.env.SUPPORT_MUTATION_RATE_LIMIT_MAX_REQUESTS,
+    30,
+  ),
+  message: {
+    error: "Too many support changes. Please try again later.",
+    code: "SUPPORT_RATE_LIMITED",
+  },
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  validate: {
+    trustProxy: false,
+    xForwardedForHeader: false,
+  },
+});
+
 export function apiSecurityHeaders(
   _req: Request,
   res: Response,

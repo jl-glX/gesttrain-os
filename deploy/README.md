@@ -11,6 +11,13 @@ El paquete se orienta a distribuciones Linux con `systemd`; Ubuntu Server 24.04
 es el primer entorno objetivo, no una dependencia. La secuencia portable se
 documenta en `LINUX.md`.
 
+Los archivos `/etc/umbravia-forge/umbravia-forge.env` y
+`/etc/umbravia-forge/update.env` son estado persistente protegido. No forman
+parte de una release y los scripts de instalación, actualización, reversión o
+limpieza no deben eliminarlos. La rotación de una clave o la sustitución de uno
+de estos archivos es una operación administrativa independiente, con copia
+protegida y validación previa.
+
 ## Archivos
 
 - `Caddyfile`: HTTPS, rechazo temprano de sondas automáticas, límite exterior
@@ -41,9 +48,9 @@ documenta en `LINUX.md`.
 2. Copiar una versión construida a
    `/opt/umbravia-forge/releases/<version>` y crear el enlace
    `/opt/umbravia-forge/current`.
-   `npm run deploy:package` exige una clave pública real de reCAPTCHA v3 mediante
-   `VITE_RECAPTCHA_SITE_KEY` o un `.env.production` local no versionado; así se
-   evita construir una interfaz de producción que no pueda verificar usuarios.
+   `npm run deploy:package` valida que el frontend reciba una clave pública real
+   de Cloudflare Turnstile y que la configuración de producción mantenga
+   activas la validación de Turnstile en la API y la verificación de correo.
    El paquete no contiene `node_modules`: dentro de la versión copiada debe
    ejecutarse `npm ci --omit=dev`. Esto es obligatorio aunque el paquete se
    haya construido en Windows, porque las dependencias nativas deben instalarse
@@ -118,8 +125,12 @@ sudo install -m 0640 -o root -g root \
   deploy/umbravia-forge-update.env.template /etc/umbravia-forge/update.env
 ```
 
-Antes de activarlo hay que sustituir la clave pública de reCAPTCHA v3 y la URL de
-salud pública en `update.env`. Después se ejecuta una comprobación manual:
+Antes de activarlo hay que sustituir los marcadores de configuración, incluida
+la URL de salud pública y `VITE_TURNSTILE_SITE_KEY` en `update.env`. La clave
+privada `TURNSTILE_SECRET_KEY` se guarda exclusivamente en
+`/etc/umbravia-forge/umbravia-forge.env`. No intercambie ambas claves ni copie
+la privada al entorno de compilación. Después se ejecuta una comprobación
+manual:
 
 ```text
 sudo systemctl daemon-reload
